@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Renewal Life Space &amp; Renewal Cafe — Planning Scenarios</title>
+<style>
+:root {
+  --bg: #f6f3ee; --card: #fff; --ink: #1a1a1a; --muted: #5c5c5c;
+  --accent: #0B2340; --accent2: #3D9AD9; --line: #e2ddd4;
+  --yellow: #fff6d6; --ok: #1f6fa8; --warn: #9a3412; --bad: #991b1b;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04);
+  --radius: 14px; --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.45; }
+header.app {
+  position: sticky; top: 0; z-index: 20; background: #0B2340; color: #fff;
+  padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+}
+header.app h1 { font-size: 1.15rem; margin: 0; font-weight: 650; letter-spacing: .01em; }
+header.app .sub { opacity: .8; font-size: .82rem; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, .file-btn {
+  appearance: none; border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 600;
+  cursor: pointer; font-size: .85rem; background: #fff; color: #0B2340;
+}
+button.primary { background: var(--accent2); color: #fff; }
+button.ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35); }
+button:hover { filter: brightness(1.05); }
+.file-btn { display: inline-flex; align-items: center; }
+.file-btn input { display: none; }
+main { max-width: 1180px; margin: 0 auto; padding: 18px 16px 60px; }
+.kpis {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px;
+}
+.kpi {
+  background: var(--card); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+  overflow: visible; min-width: 0;
+}
+.kpi .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.kpi .value {
+  font-size: 1.35rem; font-weight: 700; margin-top: 4px; color: var(--accent);
+  line-height: 1.35; overflow: visible; word-break: break-word;
+  font-variant-numeric: tabular-nums; letter-spacing: 0;
+}
+.kpi .value.warn { color: var(--warn); }
+.kpi .value.bad { color: var(--bad); }
+.presets { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.preset {
+  flex: 1; min-width: 220px; background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+  padding: 14px 16px; cursor: pointer; box-shadow: var(--shadow); transition: border-color .15s, transform .15s;
+}
+.preset:hover { border-color: var(--accent); transform: translateY(-1px); }
+.preset.active { border-color: var(--accent); background: #eaf4fb; }
+.preset h3 { margin: 0 0 4px; font-size: 1rem; }
+.preset p { margin: 0; color: var(--muted); font-size: .85rem; }
+.grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
+@media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+.card {
+  background: var(--card); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow);
+  border: 1px solid var(--line); margin-bottom: 14px;
+}
+.card h2 { margin: 0 0 12px; font-size: 1.05rem; color: #0B2340; display: flex; justify-content: space-between; align-items: baseline; }
+.card h2 span { font-size: .78rem; font-weight: 500; color: var(--muted); }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.fields.full { grid-template-columns: 1fr; }
+@media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }
+label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--muted); }
+label strong { color: var(--ink); font-weight: 600; font-size: .88rem; }
+input[type=number], input[type=text], select {
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: .95rem;
+  background: var(--yellow); color: var(--ink); width: 100%;
+  line-height: 1.3;
+  min-height: 2.25rem;
+}
+/* Safari: default number spinners steal width and clip digits */
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  height: auto;
+}
+input:focus, select:focus { outline: 2px solid rgba(61,154,217,.45); border-color: var(--accent); }
+input.ro { background: #f3f1ec; }
+.hint { font-size: .75rem; color: var(--muted); }
+/* overflow-x alone makes WebKit treat overflow-y as auto and can clip tall cell content */
+.table-wrap { overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td {
+  padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right;
+  overflow: visible; vertical-align: middle; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+th { background: #f0ebe3; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+tr.total td { font-weight: 700; background: #eaf4fb; }
+tr.surplus td { font-weight: 700; color: var(--ok); font-size: 1.02rem; line-height: 1.35; }
+/* min-width:0 let Safari collapse menu number fields to nearly invisible */
+.menu-table input {
+  padding: 6px 8px; font-size: .88rem; min-width: 4.25rem; width: 100%;
+  min-height: 2rem; box-sizing: border-box;
+}
+.flag { background: #fff7ed; border-left: 4px solid var(--accent2); padding: 10px 12px; border-radius: 8px; font-size: .85rem; margin: 8px 0; }
+.flag strong { color: var(--warn); }
+.toggle-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.toggle-row input { width: auto; accent-color: var(--accent); }
+footer.note { margin-top: 8px; font-size: .78rem; color: var(--muted); }
+.section-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.section-nav a {
+  text-decoration: none; font-size: .8rem; padding: 6px 10px; border-radius: 999px;
+  background: #fff; color: var(--accent); border: 1px solid var(--line); font-weight: 600;
+}
+.locked-badge {
+  display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em;
+  background: #0B2340; color: #fff; padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle;
+}
+
+/* ---- public copy additions ---- */
+.inputs-grid { display:block; }
+.brand { display:flex; align-items:center; gap:12px; min-width:0; }
+.brand .logo { background:#fff; border-radius:10px; padding:4px; width:46px; height:46px; flex:none; display:flex; align-items:center; justify-content:center; }
+.brand .logo img { max-width:100%; max-height:100%; display:block; }
+.draft-banner { background:#fff6d6; border:2px solid #d4a017; color:#5a3b00; font-weight:700; padding:10px 14px; border-radius:10px; margin:0 0 14px; font-size:.9rem; }
+details.panel { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px 16px; margin:14px 0; }
+details.panel > summary { cursor:pointer; font-weight:700; color:var(--accent); font-size:1rem; }
+details.panel[open] > summary { margin-bottom:12px; }
+details.panel .note-lead { font-size:.85rem; color:var(--muted); margin:0 0 12px; }
+details.panel ul { margin:0; padding-left:20px; font-size:.85rem; color:var(--ink); }
+details.panel li { margin-bottom:6px; }
+.grid > div, .card, .preset, main { min-width:0; }
+#capTable footer.note { display:none; }
+.table-wrap { max-width:100%; }
+@media (max-width: 600px) {
+  header.app { position:static; padding:10px 12px; }
+  header.app h1 { font-size:1rem; }
+  .toolbar { width:100%; }
+  .toolbar button, .toolbar .file-btn { padding:7px 11px; font-size:.78rem; }
+  main { padding:12px 10px 40px; }
+  .card { padding:12px; }
+  .card h2 { flex-wrap:wrap; gap:4px; }
+  .preset { min-width:0; flex-basis:100%; }
+  input[type=number], input[type=text], select { font-size:16px; } /* stop iOS Safari zoom-on-focus */
+  .menu-table input { font-size:16px; min-width:4.75rem; }
+  .kpis { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .kpi .value { font-size:1.1rem; }
+}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="brand">
+    <div class="logo"><img alt="Renewal Life Space leaf mark" src="data:image/png;base64,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" /></div>
+    <div>
+      <h1>Renewal Life Space &amp; Renewal Cafe — Planning Scenarios</h1>
+      <div class="sub">Rockville, MD · planning scenario model</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button type="button" class="ghost" id="btnSave">Save JSON</button>
+    <label class="file-btn ghost">Load JSON<input type="file" id="fileLoad" accept="application/json,.json" /></label>
+    <button type="button" class="ghost" id="btnCsv">Download CSV</button>
+    <button type="button" class="ghost" id="btnReset">Reset defaults</button>
+    <button type="button" class="primary" id="btnPlanned">Reset to planned scenario</button>
+  </div>
+</header>
+<main>
+  <div class="draft-banner" role="note">DRAFT — planning estimates only; not a financial offer or guarantee. Figures subject to CPA review.</div>
+  <nav class="section-nav">
+    <a href="#planned">Planned statement</a>
+    <a href="#cafe">Café &amp; Menu</a>
+    <a href="#occupancy">Occupancy</a>
+    <a href="#income">Other Income</a>
+    <a href="#staffing">Staffing</a>
+    <a href="#startup">Startup</a>
+    <a href="#other">Other analysis</a>
+    <a href="#assumptions">Assumptions</a>
+  </nav>
+  <section class="card" id="planned">
+    <h2>Planned scenario — Projected Financials v2 (no donations) <span id="planStatus">statement layout · yellow = editable</span></h2>
+    <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
+    <div class="table-wrap" id="planT1"></div>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">Table 2. Renewal Life Space (whole non-profit): Year 0 start-up and Years 1–5 operations</h3>
+    <div class="table-wrap" id="planT2"></div>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">Planned-scenario drivers (per year)</h3>
+    <div class="table-wrap">
+      <table class="menu-table" id="planInputs"><thead><tr><th>Driver</th><th>Y1</th><th>Y2</th><th>Y3</th><th>Y4</th><th>Y5</th></tr></thead><tbody id="planInBody"></tbody></table>
+    </div>
+    <div class="fields" style="margin-top:12px">
+      <label><strong>Add-on price $</strong><input type="number" id="pl_addP" step="0.05" min="0" /><span class="hint">~$0.85 (alt milk, syrup, shot, foam)</span></label>
+      <label><strong>Add-on cost % of add-on price</strong><input type="number" id="pl_addC" step="1" min="0" /></label>
+      <label><strong>Catering COGS % of catering sales</strong><input type="number" id="pl_catC" step="1" min="0" /></label>
+      <label><strong>Extra catering labor % of catering sales</strong><input type="number" id="pl_catL" step="1" min="0" /></label>
+      <label><strong>Build-out sf</strong><input type="number" id="pl_buildSf" step="100" min="0" /></label>
+      <label><strong>Build-out $/sf</strong><input type="number" id="pl_buildRate" step="1" min="0" /></label>
+      <label><strong>Architecture $</strong><input type="number" id="pl_arch" step="1000" min="0" /></label>
+      <label><strong>Furniture $</strong><input type="number" id="pl_furn" step="1000" min="0" /></label>
+      <label><strong>Café opening working capital $</strong><input type="number" id="pl_wc" step="1000" min="0" /></label>
+      <label><strong>Signage &amp; permits $</strong><input type="number" id="pl_sign" step="100" min="0" /></label>
+    </div>
+    <div class="toggle-row">
+      <input type="checkbox" id="pl_reserve" />
+      <label for="pl_reserve" style="flex-direction:row;gap:8px;align-items:center"><strong>Include operating reserve in Year 0</strong> <span class="hint">(statement excludes the model’s $150k reserve)</span></label>
+    </div>
+  </section>
+  <div class="inputs-grid">
+    <div>
+      <section class="card" id="cafe">
+        <h2>Café &amp; Menu <span>Boyan locked · yellow = editable</span><span class="locked-badge">LOCKED MENU</span></h2>
+        <div class="fields">
+          <label><strong>Customers / day</strong><input type="number" id="customers" step="1" min="0" /><span class="hint">Sheet Y1 = 160</span></label>
+          <label><strong>Blended ticket $ (computed)</strong><input type="number" id="ticket" step="0.01" min="0" class="ro" readonly /><span class="hint">Σ(units×sale) ÷ customers</span></label>
+          <label><strong>Open days / year</strong><input type="number" id="openDays" step="0.5" min="0" /><span class="hint">Open days/yr: 300 (365 − 52 Saturdays − 9 holidays = 304, rounded down to 300 for cushion) · LOCKED Oct 7 2026</span></label>
+          <label><strong>Card processing %</strong><input type="number" id="processing" step="0.1" min="0" /></label>
+          <label><strong>Waste % of product cost</strong><input type="number" id="waste" step="0.1" min="0" /></label><label><strong>Ingredient cost inflation % / yr (Other analysis only)</strong><input type="number" id="ingrInfl" step="0.5" min="0" /><span class="hint">3%; planned statement does not inflate costs</span></label>
+          <label><strong>Unit COGS / customer $ (computed)</strong><input type="number" id="unitCogs" step="0.01" min="0" class="ro" readonly /><span class="hint">Σ(units×cost) ÷ customers</span></label>
+        </div>
+
+        <div class="table-wrap" style="margin-top:14px">
+          <table class="menu-table" id="menuTable">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>% Attach</th>
+                <th>Units/day</th>
+                <th>Sale $</th>
+                <th>Cost $</th>
+                <th>Daily sales</th>
+                <th>Daily COGS</th>
+                <th>Contrib</th>
+              </tr>
+            </thead>
+            <tbody id="menuBody"></tbody>
+            <tfoot id="menuFoot"></tfoot>
+          </table>
+        </div>
+        <div class="flag" style="margin-top:12px">
+          <strong>Locked (Boyan):</strong> Coffee $6.50/$0.78 · Smoothies $9.75/$1.90 · Pastries $3.40/$0.95 · Cold sandwiches $8.20/$2.30 · Quiche $7.60/$2.30. Attach from mix sheet; units = customers × attach.
+        </div>
+      </section>
+
+      <section class="card" id="occupancy">
+        <h2>Occupancy <span>LOI context · café 1,800 + ministry 4,700</span></h2>
+        <div class="fields">
+          <label><strong>Leased RSF</strong><input type="number" id="rsf" step="1" min="0" /></label>
+          <label><strong>Café sf</strong><input type="number" id="cafeSf" step="1" min="0" /></label>
+          <label><strong>Meetings / ministry sf</strong><input type="number" id="ministrySf" step="1" min="0" /></label>
+          <label><strong>Base rent $/RSF/yr</strong><input type="number" id="baseRent" step="0.01" min="0" /></label>
+          <label><strong>NNN $/RSF/yr</strong><input type="number" id="nnn" step="0.01" min="0" /></label>
+          <label><strong>Escalation % / yr (base &amp; NNN from Y2)</strong><input type="number" id="esc" step="0.1" min="0" /></label>
+        </div>
+      </section>
+
+      <section class="card" id="income">
+        <h2>Other Income <span>Boyan Oct 7 constraints win</span></h2>
+        <div class="fields">
+          <label><strong>Sunday rental $/month</strong><input type="number" id="sundayMo" step="100" min="0" /><span class="hint">Boyan ~$6,500 (not older $6,000)</span></label>
+          <label><strong>Sunday months / year</strong><input type="number" id="sundayMonths" step="1" min="0" max="12" /><span class="hint">Boyan 10 (conservative vs 12)</span></label>
+          <label><strong>Event count / year</strong><input type="number" id="eventsN" step="1" min="0" /></label>
+          <label><strong>Event fee $</strong><input type="number" id="eventsFee" step="50" min="0" /></label>
+          <label><strong>Conference $/hr</strong><input type="number" id="confHourly" step="5" min="0" /><span class="hint">Suggest $40–$60/hr</span></label>
+          <label><strong>Conference paid hours / year</strong><input type="number" id="confHrs" step="1" min="0" /></label>
+          <label><strong>Tech space (Briqo) $/year</strong><input type="number" id="tech" step="100" min="0" /><span class="hint">$0 now — editable</span></label>
+          <label><strong>Church facility support $/month</strong><input type="number" id="churchMo" step="100" min="0" /><span class="hint">Sheets $2k/mo — toggle below</span></label>
+          <label><strong>Donations &amp; fundraising $/year (Y1–Y5)</strong><input type="number" id="donAnnual" step="1000" min="0" /><span class="hint">Default $0 (Boyan Oct 8 v2). Optional: earlier draft used $15,000</span></label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="useChurch" />
+          <label for="useChurch" style="flex-direction:row;gap:8px;align-items:center"><strong>Include church facility support</strong> <span class="hint">(ministry arm; default off for conservative BE)</span></label>
+        </div>
+        <div class="flag"><strong>Conflict flagged:</strong> Older sheets use Sunday $6,000×12=$72k. This model uses Boyan’s $6,500×10=$65k.</div>
+      </section>
+
+      <section class="card" id="staffing">
+        <h2>Staffing <span>2 baristas through 180 tx/day, +1 per +60</span></h2>
+        <div class="fields">
+          <label><strong>Barista $/hr</strong><input type="number" id="wBarista" step="0.25" min="0" /></label>
+          <label><strong>Manager $/hr</strong><input type="number" id="wManager" step="0.25" min="0" /></label>
+          <label><strong>Admin $/hr</strong><input type="number" id="wAdmin" step="0.25" min="0" /></label>
+          <label><strong>Barista burden %</strong><input type="number" id="bBarista" step="0.5" min="0" /></label>
+          <label><strong>Manager / admin burden %</strong><input type="number" id="bMgmt" step="0.5" min="0" /></label>
+          <label><strong>Open + prep hours / day</strong><input type="number" id="dayHrs" step="0.5" min="0" /></label>
+          <label><strong>Manager hrs / week</strong><input type="number" id="mgrHrs" step="1" min="0" /></label>
+          <label><strong>Admin hrs / week</strong><input type="number" id="admHrs" step="1" min="0" /></label><label><strong>Baristas on shift (base)</strong><input type="number" id="baseBaristas" step="1" min="0" /><span class="hint">2 through the cliff</span></label><label><strong>Staffing cliff customers/day</strong><input type="number" id="shiftCliff" step="1" min="0" /><span class="hint">+1 full-day barista above this (180)</span></label><label><strong>Customers per extra full-day barista</strong><input type="number" id="shiftStep" step="1" min="0" /><span class="hint">60</span></label><label><strong>Wage growth % / yr</strong><input type="number" id="wageGrowth" step="0.5" min="0" /><span class="hint">3%/yr on all wages</span></label><label><strong>3rd-barista peak rule: customers/day threshold</strong><input type="number" id="peakThresh" step="1" min="0" /><span class="hint">Add peak barista when customers/day &gt; this (200)</span></label><label><strong>Peak hours / day</strong><input type="number" id="peakHrs" step="0.5" min="0" /><span class="hint">Placeholder 4 h: 7–9 AM + 11:30 AM–1:30 PM · research pending</span></label><label><strong>Extra baristas at peak</strong><input type="number" id="peakExtra" step="1" min="0" /><span class="hint">1</span></label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="includeAdmin" checked />
+          <label for="includeAdmin" style="flex-direction:row;gap:8px;align-items:center"><strong>Include admin in café payroll</strong></label>
+        </div><div class="toggle-row"><input type="checkbox" id="peakOn" /><label for="peakOn" style="flex-direction:row;gap:8px;align-items:center"><strong>Apply peak-hours barista rule</strong> <span class="hint">(off for the planned v2 scenario — turning on changes Years 3–5)</span></label></div><div class="flag" id="peakNote"></div>
+      </section>
+
+      <section class="card" id="startup">
+        <h2>Startup (Year 0) <span>one BASE remodel + alternate note</span></h2>
+        <div class="fields">
+          <label><strong>Fundraising $</strong><input type="number" id="fundraise" step="1000" min="0" /></label>
+          <label><strong>Church seed $</strong><input type="number" id="churchSeed" step="1000" min="0" /></label>
+          <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /></label>
+          <label><strong>Year 0 donations &amp; fundraising $</strong><input type="number" id="donY0" step="1000" min="0" /><span class="hint">Default $0 (Boyan Oct 8 v2). Optional: earlier draft used $15,000</span></label>
+          <label><strong>Remodel BASE $</strong><input type="number" id="remodelBase" step="1000" min="0" /><span class="hint">Primary — site STARTUP $70k</span></label>
+          <label style="display:none" aria-hidden="true"><strong>Remodel alternate $</strong><input type="number" id="remodelAlt" step="1000" min="0" tabindex="-1" /></label>
+          <label><strong>Café equipment $</strong><input type="number" id="equip" step="1000" min="0" /></label>
+          <label><strong>POS / security $</strong><input type="number" id="pos" step="100" min="0" /></label>
+          <label><strong>Permits / smallwares $</strong><input type="number" id="permits" step="100" min="0" /></label>
+          <label><strong>Working capital $</strong><input type="number" id="wc" step="1000" min="0" /></label>
+          <label><strong>Operating reserve $</strong><input type="number" id="opReserve" step="1000" min="0" /></label><label><strong>ALTERNATE path pre-opening $ (note only)</strong><input type="number" id="preopenAlt" step="1000" min="0" /><span class="hint">sheet $90k; overlaps equipment lines</span></label>
+        </div>
+        <div class="flag"><strong>Dropped from old app:</strong> dual traffic engines, Briqo-as-required, TV shopping, required bridge financing, landlord essay tabs, duplicate remodel defaults.</div>
+      </section>
+
+      <section class="card">
+        <h2>Shared opex (BASE) <span>site shared expenses · editable</span></h2>
+        <div class="fields">
+          <label><strong>Utilities</strong><input type="number" id="oxUtil" step="100" min="0" /></label>
+          <label><strong>Insurance</strong><input type="number" id="oxIns" step="100" min="0" /></label>
+          <label><strong>Office</strong><input type="number" id="oxOffice" step="100" min="0" /></label>
+          <label><strong>Misc</strong><input type="number" id="oxMisc" step="100" min="0" /></label>
+          <label><strong>Marketing</strong><input type="number" id="oxMkt" step="100" min="0" /></label>
+          <label><strong>POS / software</strong><input type="number" id="oxPos" step="100" min="0" /></label>
+          <label><strong>Cleaning</strong><input type="number" id="oxClean" step="100" min="0" /></label>
+          <label><strong>Repairs</strong><input type="number" id="oxRepair" step="100" min="0" /></label>
+          <label><strong>Free coffee (Sat)</strong><input type="number" id="oxCoffee" step="50" min="0" /></label>
+          <label><strong>Opex inflation % / yr</strong><input type="number" id="oxInfl" step="0.1" min="0" /></label>
+        </div>
+      </section>
+    </div>
+    <div></div>
+  </div>
+  <details class="panel" id="other"><summary>Other analysis — different assumptions</summary>
+  <p class="note-lead">These panels use earlier modeling assumptions (incl. 3%/yr ingredient inflation) and will not match the planned statement.</p>
+  <div class="kpis" id="kpis"></div>
+  <div class="presets">
+    <div class="preset" data-preset="planned" id="presetPlan">
+      <h3>Scenario C — Planned (v2 statement)</h3>
+      <p>Saved Oct 2026 plan: OptMix sales mix, Y3 +8.5% price, add-ons &amp; catering, $85k sublease, C-corp donates 100%, no donations. Matches the v2 PDF statement.</p>
+    </div>
+    <div class="preset active" data-preset="breakeven" id="presetBE">
+      <h3>Scenario A — Break-even</h3>
+      <p>Locked menu prices/costs. Solve customers/day for integrated surplus ≈ $0 Y1 (Sunday $65k, events mid, tech $0).</p>
+    </div>
+    <div class="preset" data-preset="aimfor" id="presetAim">
+      <h3>Scenario B — Aim-for / Volume path</h3>
+      <p>Sheet volumes Y1–Y5 (160→225) × locked category menu. Events 10×$1,200, Sunday $65k, tech $0.</p>
+    </div>
+  </div>
+      <section class="card" id="results">
+        <h2>Results — live P&amp;L <span id="scenarioLabel">Break-even mode</span></h2>
+        <div id="livePnL" class="table-wrap"></div>
+        <div id="staffNote" class="flag"></div>
+      </section>
+
+      <section class="card" id="taxPanel">
+        <h2>Non-profit vs for-profit <span id="taxLabel">café C-corp sublease · Y1</span></h2>
+        <div class="fields">
+          <label><strong>Federal corp. rate %</strong><input type="number" id="taxFed" step="0.25" min="0" /><span class="hint">IRC §11(b) 21% · also UBIT rate</span></label>
+          <label><strong>Maryland corp. rate %</strong><input type="number" id="taxMd" step="0.25" min="0" /><span class="hint">Md. Tax-Gen §10-105(b) 8.25%</span></label>
+          <label><strong>Charitable ceiling % of taxable income</strong><input type="number" id="taxCeil" step="0.5" min="0" /><span class="hint">IRC §170(b)(2) 10%</span></label>
+          <label><strong>Charitable floor % (2026+)</strong><input type="number" id="taxFloor" step="0.5" min="0" /><span class="hint">OBBBA 1% floor</span></label>
+          <label><strong>Café sublease sq ft</strong><input type="number" id="subSf" step="50" min="0" /><span class="hint">Boyan Oct 8: 2,800 sf (7am–5pm, ex. church event days)</span></label>
+          <label><strong>Sublease rate $/sf/yr</strong><input type="number" id="subRate" step="0.01" min="0" /><span class="hint">$30.36 → $85,000/yr base</span></label>
+          <label><strong>Sublease escalation %/yr</strong><input type="number" id="subEsc" step="0.5" min="0" /><span class="hint">Boyan: flat (0%); master lease +3%</span></label>
+          <label><strong>Café utilities $/yr (full)</strong><input type="number" id="cafeUtil" step="500" min="0" /><span class="hint">$30,000 Y1, +3%/yr (replaces site utilities)</span></label>
+          <label><strong>Café insurance $/yr (full)</strong><input type="number" id="cafeIns" step="250" min="0" /><span class="hint">$5,000 Y1, +3%/yr (replaces site insurance)</span></label>
+          <label><strong>Café office $/yr (flat)</strong><input type="number" id="cafeOff" step="500" min="0" /><span class="hint">$10,000 every year; church office stays with Life Space</span></label>
+          <label><strong>UBIT specific deduction $</strong><input type="number" id="ubitSpec" step="100" min="0" /><span class="hint">IRC §512(b)(12) $1,000</span></label><label><strong>NOL limit % of taxable income</strong><input type="number" id="nolLimit" step="5" min="0" /><span class="hint">80%</span></label>
+        </div>
+        <div class="table-wrap" id="taxTable" style="margin-top:12px"></div>
+        <div class="flag" id="taxAnswer"></div>
+      </section>
+
+      <section class="card">
+        <h2>Break-even solver <span>Y1 integrated surplus ≈ $0 · locked menu mix</span></h2>
+        <div class="table-wrap" id="beTable"></div>
+      </section>
+
+      <section class="card" id="aimYears" style="display:none">
+        <h2>Aim-for Year 1–5 (sheet volumes × locked menu)</h2>
+        <div class="fields" style="margin-bottom:10px">
+          <label><strong>Y2 customers</strong><input type="number" id="cY2" step="1" /></label>
+          <label><strong>Y2 pastry attach</strong><input type="number" id="pasY2" step="0.01" min="0" /></label><label><strong>Y2 quiche attach</strong><input type="number" id="quiY2" step="0.01" min="0" /></label>
+          <label><strong>Y3 customers</strong><input type="number" id="cY3" step="1" /></label>
+          <label><strong>Y3 pastry attach</strong><input type="number" id="pasY3" step="0.01" min="0" /></label><label><strong>Y3 quiche attach</strong><input type="number" id="quiY3" step="0.01" min="0" /></label>
+          <label><strong>Y4 customers</strong><input type="number" id="cY4" step="1" /></label>
+          <label><strong>Y4 pastry attach</strong><input type="number" id="pasY4" step="0.01" min="0" /></label><label><strong>Y4 quiche attach</strong><input type="number" id="quiY4" step="0.01" min="0" /></label>
+          <label><strong>Y5 customers</strong><input type="number" id="cY5" step="1" /></label>
+          <label><strong>Y5 pastry attach</strong><input type="number" id="pasY5" step="0.01" min="0" /></label><label><strong>Y5 quiche attach</strong><input type="number" id="quiY5" step="0.01" min="0" /></label>
+        </div>
+        <div class="hint" style="margin-bottom:8px">Quiche attach Y2–Y5 defaults: 0.10 / 0.10 / 0.11 / 0.13. Coffee 0.78, smoothie 0.22, sandwich 0.20 all years.</div>
+        <div class="table-wrap" id="y5Table"></div>
+      </section>
+
+      <section class="card">
+        <h2>Year 0 capital check</h2>
+        <div id="capTable" class="table-wrap"></div>
+      </section>
+  </details>
+  <details class="panel" id="assumptions"><summary>Assumptions &amp; notes</summary><ul>
+<li>Planned-statement engine: menu sales = Σ(attach × menu price) × customers × open days × (1 + price increase); add-ons and catering use the same price uplift; ingredient costs are not inflated (3% waste allowance); payroll follows the staffing rule; card fees apply to all revenue; café sublease, café utilities/insurance (+3%/yr), café office (flat) and POS (+3%/yr); 21% federal + 8.25% Maryland tax with charitable deduction (ceiling − floor) and 80% NOL limit.</li>
+<li>Shared inputs (menu prices/costs, open days, card %, staffing, tax, sublease, other income, master lease, church office / upkeep / marketing lines, Year 0 funding, equipment, POS) come from the input panels. The base comparison uses the same engine with the base menu mix (no add-ons, catering or price increase).</li>
+<li>Structure assumed: a privately owned café C-corp pays Life Space a sublease (2,800 sf × $30.36 ≈ $85,000/yr) and carries its own utilities, insurance, café office and POS; Life Space keeps the master lease, church office and other building/ministry costs. The café is assumed to donate 100% of after-tax profit.</li>
+<li>Tax assumptions: 21% federal + 8.25% Maryland; charitable gifts deductible above a 1% floor and up to 10% of taxable income; losses produce $0 tax and $0 donation, with an NOL carryforward (80% limit).</li>
+<li>Rent from a non-controlled tenant is assumed excluded from Life Space unrelated business taxable income (IRC §512(b)(3)), assuming Life Space-owned equipment stays ≤10% of rent and Life Space provides no café-operating services. The sublease is assumed to be at documented fair-market rent (written sublease, usage schedule, non-conflicted board approval).</li>
+<li>“Oct 7 comparison” rows in the tax panel use an earlier square-foot at-cost allocation method.</li>
+<li>Break-even figures use the menu prices/costs with current attach rates; scaling customers scales all units proportionally. Required ticket = blended ticket needed at that volume.</li>
+<li>The landlord tenant-improvement (TI) allowance is assumed to be reimbursed after spending, so there is timing risk. The base remodel ($70k) and the alternate $300k remodel path are separate alternatives and are not additive. The earlier $90k pre-opening figure overlaps the equipment lines.</li>
+<li>All figures are planning estimates subject to CPA / exempt-organization attorney review.</li>
+</ul></details>
+</main>
+</main>
+
+<script>
+const CAT_IDS = ["coffee","smoothie","pastry","sandwich","quiche"];
+const CAT_LABELS = {
+  coffee: "Coffee drinks",
+  smoothie: "Smoothies",
+  pastry: "Pastries",
+  sandwich: "Cold sandwiches",
+  quiche: "Quiche"
+};
+
+const LOCKED_MENU = {
+  coffee:   { sale: 6.50, cost: 0.78, attach: 0.78 },
+  smoothie: { sale: 9.75, cost: 1.90, attach: 0.22 },
+  pastry:   { sale: 3.40, cost: 0.95, attach: 0.20 },
+  sandwich: { sale: 8.20, cost: 2.30, attach: 0.20 },
+  quiche:   { sale: 7.60, cost: 2.30, attach: 0.08 }
+};
+
+const DEFAULTS = {
+  // Open days/yr: 300 (365 − 52 Saturdays − 9 holidays = 304, rounded down to 300 for cushion) — Boyan LOCKED Oct 7 2026
+  customers: 160, openDays: 300, processing: 3, waste: 3,
+  coffee_attach: 0.78, coffee_sale: 6.50, coffee_cost: 0.78,
+  smoothie_attach: 0.22, smoothie_sale: 9.75, smoothie_cost: 1.90,
+  pastry_attach: 0.20, pastry_sale: 3.40, pastry_cost: 0.95,
+  sandwich_attach: 0.20, sandwich_sale: 8.20, sandwich_cost: 2.30,
+  quiche_attach: 0.08, quiche_sale: 7.60, quiche_cost: 2.30,
+  rsf: 7000, cafeSf: 1800, ministrySf: 4700, baseRent: 20, nnn: 5.6, esc: 3,
+  sundayMo: 6500, sundayMonths: 10, eventsN: 9, eventsFee: 1100,
+  confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: false,
+  wBarista: 19.5, wManager: 25, wAdmin: 20, bBarista: 16, bMgmt: 20,
+  dayHrs: 10, mgrHrs: 40, admHrs: 20, includeAdmin: true,
+  baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, peakOn: false, peakThresh: 200, peakHrs: 4, peakExtra: 1, ingrInfl: 3, nolLimit: 80, preopenAlt: 90000,
+  fundraise: 400000, churchSeed: 50000, ti: 140000, donY0: 0, donAnnual: 0, // donations & fundraising: optional, default 0 (Boyan Oct 8 v2)
+  remodelBase: 70000, remodelAlt: 300000, equip: 30000, pos: 5000, permits: 8028, wc: 25000, opReserve: 150000,
+  oxUtil: 12000, oxIns: 2000, oxOffice: 4800, oxMisc: 4000, oxMkt: 6000, oxPos: 2400, oxClean: 6000, oxRepair: 6000, oxCoffee: 600, oxInfl: 3,
+  cY2: 180, cY3: 210, cY4: 225, cY5: 225,
+  pasY2: 0.25, pasY3: 0.30, pasY4: 0.50, pasY5: 0.50, // Oct 8 2026: base Y4–Y5 pastry 50% (Boyan)
+  quiY2: 0.10, quiY3: 0.10, quiY4: 0.11, quiY5: 0.13,
+  taxFed: 21, taxMd: 8.25, taxCeil: 10, taxFloor: 1, ubitSpec: 1000,
+  subSf: 2800, subRate: 30.3571, subEsc: 0, cafeUtil: 30000, cafeIns: 5000, cafeOff: 10000, // Boyan Oct 8 2026: $85k sublease
+  preset: "breakeven"
+};
+
+const AIM = {
+  customers: 160, openDays: 300, eventsN: 10, eventsFee: 1200, preset: "aimfor",
+  cY2: 180, cY3: 210, cY4: 225, cY5: 225
+};
+
+const BE_PRESET = {
+  customers: 160, openDays: 300, eventsN: 9, eventsFee: 1100, preset: "breakeven"
+};
+
+function $(id) { return document.getElementById(id); }
+function money(n) {
+  if (!isFinite(n)) return "—";
+  return (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString();
+}
+function money2(n) {
+  if (!isFinite(n)) return "—";
+  return (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+}
+
+function buildMenuInputs() {
+  const body = $("menuBody");
+  body.innerHTML = CAT_IDS.map(id => `
+    <tr data-cat="${id}">
+      <td>${CAT_LABELS[id]}</td>
+      <td><input type="number" id="${id}_attach" step="0.01" min="0" /></td>
+      <td><span id="${id}_units">—</span></td>
+      <td><input type="number" id="${id}_sale" step="0.01" min="0" /></td>
+      <td><input type="number" id="${id}_cost" step="0.01" min="0" /></td>
+      <td><span id="${id}_dsales">—</span></td>
+      <td><span id="${id}_dcogs">—</span></td>
+      <td><span id="${id}_contrib">—</span></td>
+    </tr>`).join("");
+}
+
+function readCats(s) {
+  return CAT_IDS.map(id => ({
+    id,
+    attach: s[id + "_attach"],
+    sale: s[id + "_sale"],
+    cost: s[id + "_cost"]
+  }));
+}
+
+function cafeMath(customers, cats, openDays, waste, year, ingrInflPct) {
+  const infl = Math.pow(1 + (ingrInflPct ?? 3) / 100, year - 1);
+  let dailySales = 0, dailyCogs = 0;
+  const lines = cats.map(c => {
+    const units = customers * c.attach;
+    const sale = c.sale * (year === 1 ? 1 : 1); // locked prices; no auto price growth on locked menu
+    const cost = c.cost * infl;
+    const ds = units * sale;
+    const dc = units * cost;
+    dailySales += ds;
+    dailyCogs += dc;
+    return { ...c, units, sale, cost, ds, dc, contrib: ds - dc };
+  });
+  const ticket = customers > 0 ? dailySales / customers : 0;
+  const unitCogs = customers > 0 ? dailyCogs / customers : 0;
+  const annualSales = dailySales * openDays;
+  const annualCogs = dailyCogs * (1 + waste) * openDays;
+  return { lines, dailySales, dailyCogs, ticket, unitCogs, annualSales, annualCogs };
+}
+
+function read() {
+  const g = id => parseFloat($(id).value) || 0;
+  const o = readPlan({});
+  Object.assign(o, {
+    customers: g("customers"), openDays: g("openDays"),
+    processing: g("processing")/100, waste: g("waste")/100,
+    rsf: g("rsf"), cafeSf: g("cafeSf"), ministrySf: g("ministrySf"),
+    baseRent: g("baseRent"), nnn: g("nnn"), esc: g("esc")/100,
+    sundayMo: g("sundayMo"), sundayMonths: g("sundayMonths"),
+    eventsN: g("eventsN"), eventsFee: g("eventsFee"),
+    confHourly: g("confHourly"), confHrs: g("confHrs"), tech: g("tech"),
+    churchMo: g("churchMo"), useChurch: $("useChurch").checked,
+    wBarista: g("wBarista"), wManager: g("wManager"), wAdmin: g("wAdmin"),
+    bBarista: g("bBarista")/100, bMgmt: g("bMgmt")/100,
+    dayHrs: g("dayHrs"), mgrHrs: g("mgrHrs"), admHrs: g("admHrs"),
+    includeAdmin: $("includeAdmin").checked,
+    fundraise: g("fundraise"), churchSeed: g("churchSeed"), ti: g("ti"),
+    donY0: g("donY0"), donAnnual: g("donAnnual"),
+    remodelBase: g("remodelBase"), remodelAlt: g("remodelAlt"),
+    equip: g("equip"), pos: g("pos"), permits: g("permits"), wc: g("wc"), opReserve: g("opReserve"),
+    oxUtil: g("oxUtil"), oxIns: g("oxIns"), oxOffice: g("oxOffice"), oxMisc: g("oxMisc"),
+    oxMkt: g("oxMkt"), oxPos: g("oxPos"), oxClean: g("oxClean"), oxRepair: g("oxRepair"),
+    oxCoffee: g("oxCoffee"), oxInfl: g("oxInfl")/100,
+    cY2: g("cY2"), cY3: g("cY3"), cY4: g("cY4"), cY5: g("cY5"),
+    pasY2: g("pasY2"), pasY3: g("pasY3"), pasY4: g("pasY4"), pasY5: g("pasY5"),
+    quiY2: g("quiY2"), quiY3: g("quiY3"), quiY4: g("quiY4"), quiY5: g("quiY5"),
+    baseBaristas: g("baseBaristas"), shiftCliff: g("shiftCliff"), shiftStep: g("shiftStep"), wageGrowth: g("wageGrowth"),
+    peakOn: $("peakOn").checked, peakThresh: g("peakThresh"), peakHrs: g("peakHrs"), peakExtra: g("peakExtra"),
+    ingrInfl: g("ingrInfl"), nolLimit: g("nolLimit"), preopenAlt: g("preopenAlt"),
+    taxFed: g("taxFed"), taxMd: g("taxMd"), taxCeil: g("taxCeil"), taxFloor: g("taxFloor"),
+    ubitSpec: g("ubitSpec"),
+    subSf: g("subSf"), subRate: g("subRate"), subEsc: g("subEsc")/100,
+    cafeUtil: g("cafeUtil"), cafeIns: g("cafeIns"), cafeOff: g("cafeOff"),
+    preset: document.querySelector(".preset.active")?.dataset.preset || "breakeven"
+  });
+  CAT_IDS.forEach(id => {
+    o[id + "_attach"] = g(id + "_attach");
+    o[id + "_sale"] = g(id + "_sale");
+    o[id + "_cost"] = g(id + "_cost");
+  });
+  return o;
+}
+
+function write(s) {
+  const set = (id, v) => { if ($(id)) $(id).value = v; };
+  set("customers", s.customers); set("openDays", s.openDays);
+  set("processing", (s.processing <= 1 ? s.processing*100 : s.processing));
+  set("waste", (s.waste <= 1 ? s.waste*100 : s.waste));
+  CAT_IDS.forEach(id => {
+    set(id + "_attach", s[id + "_attach"] ?? LOCKED_MENU[id].attach);
+    set(id + "_sale", s[id + "_sale"] ?? LOCKED_MENU[id].sale);
+    set(id + "_cost", s[id + "_cost"] ?? LOCKED_MENU[id].cost);
+  });
+  set("rsf", s.rsf); set("cafeSf", s.cafeSf); set("ministrySf", s.ministrySf);
+  set("baseRent", s.baseRent); set("nnn", s.nnn); set("esc", s.esc <= 1 ? s.esc*100 : s.esc);
+  set("sundayMo", s.sundayMo); set("sundayMonths", s.sundayMonths);
+  set("eventsN", s.eventsN); set("eventsFee", s.eventsFee);
+  set("confHourly", s.confHourly); set("confHrs", s.confHrs); set("tech", s.tech);
+  set("churchMo", s.churchMo); $("useChurch").checked = !!s.useChurch;
+  set("wBarista", s.wBarista); set("wManager", s.wManager); set("wAdmin", s.wAdmin);
+  set("bBarista", s.bBarista <= 1 ? s.bBarista*100 : s.bBarista);
+  set("bMgmt", s.bMgmt <= 1 ? s.bMgmt*100 : s.bMgmt);
+  set("dayHrs", s.dayHrs); set("mgrHrs", s.mgrHrs); set("admHrs", s.admHrs);
+  $("includeAdmin").checked = s.includeAdmin !== false;
+  set("fundraise", s.fundraise); set("churchSeed", s.churchSeed); set("ti", s.ti);
+  set("donY0", s.donY0 ?? 0); set("donAnnual", s.donAnnual ?? 0);
+  set("remodelBase", s.remodelBase); set("remodelAlt", s.remodelAlt);
+  set("equip", s.equip); set("pos", s.pos); set("permits", s.permits); set("wc", s.wc); set("opReserve", s.opReserve);
+  set("oxUtil", s.oxUtil); set("oxIns", s.oxIns); set("oxOffice", s.oxOffice); set("oxMisc", s.oxMisc);
+  set("oxMkt", s.oxMkt); set("oxPos", s.oxPos); set("oxClean", s.oxClean); set("oxRepair", s.oxRepair);
+  set("oxCoffee", s.oxCoffee); set("oxInfl", s.oxInfl <= 1 ? s.oxInfl*100 : s.oxInfl);
+  set("cY2", s.cY2); set("cY3", s.cY3); set("cY4", s.cY4); set("cY5", s.cY5);
+  set("pasY2", s.pasY2 ?? 0.25); set("pasY3", s.pasY3 ?? 0.30);
+  set("pasY4", s.pasY4 ?? 0.50); set("pasY5", s.pasY5 ?? 0.50);
+  set("taxFed", s.taxFed ?? 21); set("taxMd", s.taxMd ?? 8.25);
+  set("taxCeil", s.taxCeil ?? 10); set("taxFloor", s.taxFloor ?? 1);
+  set("ubitSpec", s.ubitSpec ?? 1000);
+  set("subSf", s.subSf ?? 2800); set("subRate", s.subRate ?? 30.3571);
+  set("subEsc", s.subEsc == null ? 0 : (s.subEsc < 1 ? s.subEsc*100 : s.subEsc));
+  set("cafeUtil", s.cafeUtil ?? 30000); set("cafeIns", s.cafeIns ?? 5000); set("cafeOff", s.cafeOff ?? 10000);
+  set("quiY2", s.quiY2 ?? 0.10); set("quiY3", s.quiY3 ?? 0.10); set("quiY4", s.quiY4 ?? 0.11); set("quiY5", s.quiY5 ?? 0.13);
+  ["baseBaristas","shiftCliff","shiftStep","wageGrowth","peakThresh","peakHrs","peakExtra","ingrInfl","nolLimit","preopenAlt"].forEach(k => set(k, s[k] ?? DEFAULTS[k]));
+  $("peakOn").checked = !!(s.peakOn ?? DEFAULTS.peakOn);
+  writePlan(s);
+  setPreset(s.preset || "breakeven", false);
+}
+
+function onShift(cust, s) {
+  const base = s.baseBaristas, cliff = s.shiftCliff, step = s.shiftStep || 60;
+  if (cust <= cliff) return base;
+  return base + Math.ceil((cust - cliff) / step);
+}
+// Peak-hours barista rule: extra baristas × peak hrs/day × open days × barista wage (grown) × (1 + barista burden)
+function peakCost(s, cust, year) {
+  if (!s.peakOn || !(cust > s.peakThresh)) return 0;
+  const wb = s.wBarista * Math.pow(1 + s.wageGrowth / 100, year - 1);
+  return s.peakExtra * s.peakHrs * s.openDays * wb * (1 + s.bBarista);
+}
+
+function payroll(s, cust, year) {
+  const g = Math.pow(1 + s.wageGrowth / 100, year - 1);
+  const wb = s.wBarista * g, wm = s.wManager * g, wa = s.wAdmin * g;
+  const os = onShift(cust, s);
+  const days = s.openDays; // same locked open days (300) every year — no hidden Y3+ override
+  const barista = os * s.dayHrs * days * wb * (1 + s.bBarista);
+  const mgr = s.mgrHrs * 52 * wm * (1 + s.bMgmt);
+  const admin = s.includeAdmin ? s.admHrs * 52 * wa * (1 + s.bMgmt) : 0;
+  const peak = peakCost(s, cust, year);
+  return { onShift: os, total: barista + mgr + admin + peak, days, barista, mgr, admin, peak };
+}
+
+function opexY(s, year) {
+  const base = s.oxUtil + s.oxIns + s.oxOffice + s.oxMisc + s.oxMkt + s.oxPos + s.oxClean + s.oxRepair + s.oxCoffee;
+  return base * Math.pow(1 + s.oxInfl, year - 1);
+}
+
+function occY(s, year) {
+  const base = s.baseRent * Math.pow(1 + s.esc, year - 1);
+  const nnn = s.nnn * Math.pow(1 + s.esc, year - 1);
+  return s.rsf * (base + nnn);
+}
+
+function otherIncome(s) {
+  const sunday = s.sundayMo * s.sundayMonths;
+  const events = s.eventsN * s.eventsFee;
+  const conf = s.confHourly * s.confHrs;
+  const church = s.useChurch ? s.churchMo * 12 : 0;
+  const don = s.donAnnual || 0; // Life Space donations & fundraising (Y1–Y5), default 0
+  return { sunday, events, conf, tech: s.tech, church, don, total: sunday + events + conf + s.tech + church + don };
+}
+
+function catsForYear(s, year) {
+  const base = readCats(s);
+  if (year === 1) return base;
+  const pas = [null, s.pastry_attach, s.pasY2, s.pasY3, s.pasY4, s.pasY5][year];
+  const qui = [null, s.quiche_attach, s.quiY2, s.quiY3, s.quiY4, s.quiY5][year];
+  return base.map(c => {
+    if (c.id === "pastry") return { ...c, attach: pas };
+    if (c.id === "quiche") return { ...c, attach: qui };
+    return c;
+  });
+}
+
+function pnl(s, cust, year) {
+  const p = payroll(s, cust, year);
+  const cats = catsForYear(s, year);
+  const cm = cafeMath(cust, cats, p.days, s.waste, year, s.ingrInfl);
+  const oi = otherIncome(s);
+  const cafe = cm.annualSales;
+  const cogs = cm.annualCogs;
+  const proc = cafe * s.processing;
+  const ox = opexY(s, year);
+  const occ = occY(s, year);
+  const expense = cogs + proc + p.total + ox + occ;
+  const income = cafe + oi.total;
+  return {
+    cafe, other: oi.total, oi, income, cogs, proc, pay: p.total, ox, occ, expense,
+    surplus: income - expense, onShift: p.onShift, days: p.days, cm
+  };
+}
+
+function requiredTicket(s, cust) {
+  // Solve for scale factor on all sale prices that yields surplus ≈ 0
+  // Equivalent: find blended ticket T such that cust*days*T*(1-proc) - cust*days*ucw + oi - pay - fixed = 0
+  const p = payroll(s, cust, 1);
+  const cats = readCats(s);
+  const cm = cafeMath(cust, cats, p.days, s.waste, 1, s.ingrInfl);
+  const oi = otherIncome(s).total;
+  const fixed = opexY(s, 1) + occY(s, 1);
+  const ucw = cm.unitCogs * (1 + s.waste);
+  const rhs = p.total + fixed + cust * p.days * ucw - oi;
+  return rhs / (cust * p.days * (1 - s.processing));
+}
+
+function requiredCustomers(s) {
+  // Find min customers where surplus >= 0 at locked menu (attach/sale/cost fixed)
+  let found = null;
+  for (let cust = 40; cust <= 450; cust++) {
+    const r = pnl(s, cust, 1);
+    if (r.surplus >= 0) { found = { cust, ...r }; break; }
+  }
+  return found;
+}
+
+function requiredCustomersAtTicket(s, targetTicket) {
+  // Scale all sale prices so blended ticket = targetTicket, then find customers
+  const cats0 = readCats(s);
+  const cm0 = cafeMath(100, cats0, 1, 0, 1); // probe at 100 cust
+  const scale = cm0.ticket > 0 ? targetTicket / cm0.ticket : 1;
+  const scaled = { ...s };
+  CAT_IDS.forEach(id => { scaled[id + "_sale"] = s[id + "_sale"] * scale; });
+  let found = null;
+  for (let cust = 40; cust <= 450; cust++) {
+    const r = pnl(scaled, cust, 1);
+    if (r.surplus >= 0) { found = { cust, ...r, scale }; break; }
+  }
+  return found;
+}
+
+function updateMenuDisplay(s, cm) {
+  cm.lines.forEach(l => {
+    const u = $(l.id + "_units");
+    if (u) u.textContent = l.units.toFixed(1);
+    const ds = $(l.id + "_dsales");
+    if (ds) ds.textContent = money2(l.ds);
+    const dc = $(l.id + "_dcogs");
+    if (dc) dc.textContent = money2(l.dc);
+    const ct = $(l.id + "_contrib");
+    if (ct) ct.textContent = money2(l.contrib);
+  });
+  $("menuFoot").innerHTML = `<tr class="total">
+    <td>TOTAL</td><td></td><td>${cm.lines.reduce((a,l)=>a+l.units,0).toFixed(1)}</td>
+    <td></td><td></td>
+    <td>${money2(cm.dailySales)}</td>
+    <td>${money2(cm.dailyCogs)}</td>
+    <td>${money2(cm.dailySales - cm.dailyCogs)}</td>
+  </tr>`;
+  $("ticket").value = cm.ticket.toFixed(2);
+  $("unitCogs").value = cm.unitCogs.toFixed(3);
+}
+
+// ---- Non-profit vs for-profit (mirrors Excel TaxStructure sheet; Oct 8 2026 sublease base) ----
+function taxParams(s) {
+  return { fed: s.taxFed / 100, md: s.taxMd / 100, k: Math.max(0, (s.taxCeil - s.taxFloor) / 100), nol: s.nolLimit / 100 };
+}
+// C-corp donating 100% of after-tax profit; NOL carryforward with 80% limit (closed-form MD/federal interaction)
+function corpTax(s, p, nolAvail) {
+  const { fed, md, k, nol } = taxParams(s);
+  if (p <= 0) return { tax: 0, after: p, donated: 0, used: 0, nolEnd: nolAvail - p };
+  const cap = nol * (p - (1 - nol) * md * (1 - k) * p / (1 - md * k - nol * md * (1 - k)));
+  const used = Math.min(nolAvail, cap);
+  const st = md * (1 - k) * (p - used) / (1 - md * k);
+  const ti = Math.max(0, p - st - used);
+  const ft = fed * (ti - k * ti);
+  return { tax: st + ft, after: p - st - ft, donated: Math.max(0, p - st - ft), used, nolEnd: nolAvail - used };
+}
+function cafeSub(s, cust, year) {
+  const r = pnl(s, cust, year);
+  const infl = Math.pow(1 + s.oxInfl, year - 1);
+  const rent = s.subSf * s.subRate * Math.pow(1 + s.subEsc, year - 1);
+  const util = s.cafeUtil * infl, ins = s.cafeIns * infl, off = s.cafeOff, pos = s.oxPos * infl;
+  const P = r.cafe - r.cogs - r.pay - r.proc - rent - util - ins - off - pos;
+  const lsOpex = r.ox - (s.oxUtil + s.oxIns + s.oxPos) * infl;   // Life Space keeps all other model opex lines
+  const lsNet = r.other - r.occ - lsOpex;
+  return { r, rent, util, ins, off, pos, P, lsNet };
+}
+function cafeBE(s, year) {
+  for (let c = 40; c <= 450; c++) if (cafeSub(s, c, year).P >= 0) return c;
+  return null;
+}
+function cafeTaxYear(s, cust, year, nolAvail) {
+  const x = cafeSub(s, cust, year);
+  const t = corpTax(s, x.P, nolAvail);
+  // Oct 7 comparison: sq-ft at-cost allocation, no NOL
+  const r = x.r;
+  const share = (s.cafeSf + s.ministrySf) > 0 ? s.cafeSf / (s.cafeSf + s.ministrySf) : 0;
+  const P7 = r.cafe - r.cogs - r.proc - r.pay - share * (r.ox + r.occ);
+  const b7 = corpTax(s, P7, 0);
+  const { fed, md } = taxParams(s);
+  const aTax = P7 <= 0 ? 0 : (() => { const st = md * Math.max(0, P7 - s.ubitSpec); return st + fed * Math.max(0, P7 - st - s.ubitSpec); })();
+  return {
+    ...x, t, cash: x.rent + t.donated, whole: x.lsNet + x.rent + t.donated, be: cafeBE(s, year),
+    P7, b7, whole7: r.surplus - b7.tax, intA7: r.surplus - aTax
+  };
+}
+
+function renderTax(s) {
+  const aim = s.preset === "aimfor";
+  const yrs = aim ? [[1, s.customers], [2, s.cY2], [3, s.cY3], [4, s.cY4], [5, s.cY5]] : [[1, s.customers]];
+  let nol = 0;
+  const res = yrs.map(([y, c]) => { const x = cafeTaxYear(s, c, y, nol); nol = x.t.nolEnd; return x; });
+  $("taxLabel").textContent = aim ? "café C-corp sublease · Y1–Y5 (Aim-for)" : "café C-corp sublease · Y1";
+  const row = (label, f, cls = "") => `<tr class="${cls}"><td>${label}</td>${res.map(x => `<td>${money(f(x))}</td>`).join("")}</tr>`;
+  const sec = t => `<tr><th>${t}</th>${yrs.map(() => "<th></th>").join("")}</tr>`;
+  $("taxTable").innerHTML = `<table><thead><tr><th>Café C-corp (sublease base)</th>${yrs.map(([y]) => `<th>Y${y}</th>`).join("")}</tr></thead><tbody>
+    ${row("Café revenue (café sales)", x => x.r.cafe)}
+    ${row("Rent to Life Space", x => x.rent)}
+    ${row("Utilities + insurance + café office + POS", x => x.util + x.ins + x.off + x.pos)}
+    ${row("Café pre-tax profit after rent", x => x.P, "total")}
+    ${row("NOL used", x => x.t.used)}
+    ${row("Café tax (fed + MD)", x => x.t.tax)}
+    ${row("After-tax donation to Life Space", x => x.t.donated, "surplus")}
+    ${row("Total cash to Life Space (rent + donation)", x => x.cash, "total")}
+    ${row("Whole Life Space surplus after tax", x => x.whole, "surplus")}
+    <tr><td>Café break-even customers/day (after rent)</td>${res.map(x => `<td>${x.be ?? "—"}</td>`).join("")}</tr>
+    ${sec("Oct 7 comparison (sq-ft at-cost)")}
+    ${row("Oct 7: C-corp tax", x => x.b7.tax)}
+    ${row("Oct 7: donation", x => x.b7.donated)}
+    ${row("Oct 7: whole Life Space after tax", x => x.whole7)}
+    ${row("Oct 7: non-profit café (UBIT), integrated", x => x.intA7)}
+  </tbody></table>`;
+  const y1 = res[0];
+  $("taxAnswer").innerHTML = y1.P > 0
+    ? `<strong>Y1:</strong> café pays ${money(y1.rent)} rent, earns ${money(y1.P)} pre-tax, pays ${money(y1.t.tax)} tax (${(100 * y1.t.tax / y1.P).toFixed(1)}%) and donates ${money(y1.t.donated)} → ${money(y1.cash)} to Life Space. Rent moves profit out of the taxed C-corp into the exempt non-profit, so tax falls vs Oct 7 (${money(y1.b7.tax)}). If boards overlap, rent must be documented fair market (written sublease, usage schedule, non-conflicted approval; IRC §4958).`
+    : `<strong>Café loss in Y1:</strong> ${money(y1.P)} → $0 tax, $0 donation; the loss carries forward as an NOL (80% limit) against later profits. Life Space still receives ${money(y1.rent)} rent.`;
+}
+
+
+// ---- Planned scenario (v2 statement, Oct 2026) — mirrors CafeCcorp5yr_OptMix ----
+const PL_ROWS = [
+  ["cust", "Customers / day", 1], ["coffee", "Coffee attach", 0.01], ["smoothie", "Smoothie attach", 0.01],
+  ["pastry", "Pastry attach", 0.01], ["sandwich", "Cold sandwich attach", 0.01], ["quiche", "Quiche attach", 0.01],
+  ["add", "Paid add-ons (% of customers)", 1], ["cat", "Catering (% of counter sales)", 0.5], ["upl", "Price increase % (all items)", 0.5]
+];
+const PLAN_VALUES = {
+  cust: [160, 180, 210, 225, 225], coffee: [0.78, 0.78, 0.78, 0.78, 0.78], smoothie: [0.22, 0.20, 0.20, 0.35, 0.35],
+  pastry: [0.20, 0.27, 0.40, 0.50, 0.50], sandwich: [0.20, 0.22, 0.23, 0.35, 0.35], quiche: [0.08, 0.10, 0.11, 0.20, 0.20],
+  add: [0, 30, 35, 38, 40], cat: [0, 4, 6, 7, 8], upl: [0, 0, 8.5, 0, 0]
+};
+const PLANNED = {
+  ...DEFAULTS, preset: "planned",
+  useChurch: true, churchMo: 2000, donAnnual: 0, donY0: 0, eventsN: 9, eventsFee: 1100, sundayMo: 6500, sundayMonths: 10,
+  confHrs: 0, tech: 0, permits: 8000, subSf: 2800, subRate: 85000 / 2800, subEsc: 0,
+  pl_addP: 0.85, pl_addC: 25, pl_catC: 30, pl_catL: 0, pl_buildSf: 7000, pl_buildRate: 50, pl_arch: 30000, pl_furn: 30000,
+  pl_wc: 25000, pl_sign: 8000, pl_reserve: false
+};
+PL_ROWS.forEach(([k]) => PLAN_VALUES[k].forEach((v, i) => { PLANNED[`pl_${k}_y${i + 1}`] = v; }));
+// Statement targets (v2 no-donations PDF) for the on-screen check
+const PLAN_TARGETS = {
+  rev: [486864, 604113, 825966, 1075827, 1087121], P: [24800, 102105, 200699, 353695, 350556],
+  tax: [6257, 25760, 50633, 89231, 88439], at: [18543, 76345, 150066, 264464, 262117],
+  base: [18543, 56966, 57349, 103248, 100250], net: [112000, -4157, 47447, 114785, 222607, 213488],
+  cum: [112000, 107843, 155290, 270075, 492682, 706170]
+};
+const PL_SCALAR = ["pl_addP", "pl_addC", "pl_catC", "pl_catL", "pl_buildSf", "pl_buildRate", "pl_arch", "pl_furn", "pl_wc", "pl_sign"];
+function plIds() { const a = [...PL_SCALAR]; PL_ROWS.forEach(([k]) => { for (let y = 1; y <= 5; y++) a.push(`pl_${k}_y${y}`); }); return a; }
+function buildPlanInputs() {
+  $("planInBody").innerHTML = PL_ROWS.map(([k, lab, st]) => `<tr><td>${lab}</td>${[1,2,3,4,5].map(y =>
+    `<td><input type="number" id="pl_${k}_y${y}" step="${st}" min="0" /></td>`).join("")}</tr>`).join("");
+}
+function readPlan(o) {
+  plIds().forEach(id => { o[id] = parseFloat($(id).value) || 0; });
+  o.pl_reserve = $("pl_reserve").checked;
+  return o;
+}
+function writePlan(s) {
+  plIds().forEach(id => { if ($(id)) $(id).value = s[id] ?? PLANNED[id]; });
+  $("pl_reserve").checked = !!(s.pl_reserve ?? PLANNED.pl_reserve);
+}
+function planCafeYear(s, y, mix) {
+  // mix: {cust, att:{cat:attach}, add, cat, upl} (fractions)
+  const days = s.openDays, n = mix.cust * days, u = 1 + mix.upl;
+  let salePc = 0, costPc = 0;
+  CAT_IDS.forEach(id => { salePc += mix.att[id] * s[id + "_sale"]; costPc += mix.att[id] * s[id + "_cost"]; });
+  const msal = salePc * n * u;
+  const asal = mix.add * s.pl_addP * u * n;
+  const csal = msal + asal, csal0 = csal / u;
+  const ksal = mix.cat * csal, rev = csal + ksal;
+  const cogs = costPc * n * (1 + s.waste) + mix.add * s.pl_addP * (s.pl_addC / 100) * n + mix.cat * csal0 * (s.pl_catC / 100);
+  const pay = payroll(s, mix.cust, y).total + (s.pl_catL / 100) * ksal;
+  const infl = Math.pow(1 + s.oxInfl, y - 1);
+  const rent = s.subSf * s.subRate * Math.pow(1 + s.subEsc, y - 1);
+  const oth = rev * s.processing + rent + s.cafeUtil * infl + s.cafeIns * infl + s.cafeOff + s.oxPos * infl;
+  return { cust: mix.cust, ticket: csal / n, rev, cogs, pay, oth, rent, P: rev - cogs - pay - oth };
+}
+function planMix(s, y) {
+  const att = {}; CAT_IDS.forEach(id => { att[id] = s[`pl_${id}_y${y}`]; });
+  return { cust: s[`pl_cust_y${y}`], att, add: s[`pl_add_y${y}`] / 100, cat: s[`pl_cat_y${y}`] / 100, upl: s[`pl_upl_y${y}`] / 100 };
+}
+function baseMix(s, y) {
+  const att = {}; CAT_IDS.forEach(id => { att[id] = s[id + "_attach"]; });
+  if (y > 1) { att.pastry = s["pasY" + y]; att.quiche = s["quiY" + y]; }
+  return { cust: y === 1 ? s.customers : s["cY" + y], att, add: 0, cat: 0, upl: 0 };
+}
+function planModel(s) {
+  const run = mixFn => { let nol = 0; return [1,2,3,4,5].map(y => { const c = planCafeYear(s, y, mixFn(s, y)); const t = corpTax(s, c.P, nol); nol = t.nolEnd; return { ...c, tax: t.tax, at: t.donated }; }); };
+  const cafe = run(planMix), base = run(baseMix);
+  // Statement convention (build_summary_report.py): every line rounded to the dollar, totals = sum of rounded lines,
+  // displayed tax = rounded pre-tax − rounded after-tax so Table 1 foots exactly.
+  const R = Math.round;
+  [cafe, base].forEach(a => a.forEach(c => { c.atR = R(c.at); c.taxR = R(c.P) - c.atR; }));
+  const ls = cafe.map((c, i) => {
+    const g = Math.pow(1 + s.oxInfl, i), G = v => R(v * g);
+    const church = s.useChurch ? s.churchMo * 12 : 0, sunday = s.sundayMo * s.sundayMonths, events = s.eventsN * s.eventsFee;
+    const other = s.confHourly * s.confHrs + s.tech + (s.donAnnual || 0);
+    const inc = R(church) + R(sunday) + R(events) + R(other) + R(c.rent) + c.atR;
+    const lease = R(occY(s, i + 1)), office = G(s.oxOffice), upkeep = G(s.oxClean) + G(s.oxRepair), mkt = G(s.oxMisc) + G(s.oxMkt) + G(s.oxCoffee);
+    const exp = lease + office + upkeep + mkt;
+    return { church, sunday, events, other, rent: c.rent, don: c.atR, inc, lease, office, upkeep, mkt, exp, net: inc - exp };
+  });
+  const y0 = {
+    fund: s.fundraise, seed: s.churchSeed, ti: s.ti, don: s.donY0 || 0,
+    build: R(s.pl_buildSf * s.pl_buildRate), arch: s.pl_arch, furn: s.pl_furn, sign: s.pl_sign, equip: s.equip, pos: s.pos, wc: s.pl_wc,
+    reserve: s.pl_reserve ? s.opReserve : 0
+  };
+  y0.inc = y0.fund + y0.seed + y0.ti + y0.don;
+  y0.exp = y0.build + y0.arch + y0.furn + y0.sign + y0.equip + y0.pos + y0.wc + y0.reserve;
+  y0.net = y0.inc - y0.exp;
+  let cum = y0.net; const cumA = [cum]; ls.forEach(l => { cum += l.net; cumA.push(cum); });
+  return { cafe, base, ls, y0, cum: cumA };
+}
+function stmtMoney(n) {
+  if (!isFinite(n)) return "—";
+  const r = Math.round(n);
+  if (r === 0 && n === 0) return "$0";
+  return r < 0 ? `$(${Math.abs(r).toLocaleString("en-US")})` : "$" + r.toLocaleString("en-US");
+}
+function ticket2(n) { return "$" + (Math.round(n * 100 + 1e-6) / 100).toFixed(2); }
+function renderPlan(s) {
+  const m = planModel(s);
+  const hdr5 = `<th></th><th>Year 1</th><th>Year 2</th><th>Year 3${s.pl_upl_y3 ? "*" : ""}</th><th>Year 4</th><th>Year 5</th>`;
+  const r5 = (lab, arr, f = stmtMoney, cls = "", key = "") => `<tr class="${cls}"><td>${lab}</td>${arr.map((v, i) => `<td data-k="${key}" data-y="${i + 1}">${f(v)}</td>`).join("")}</tr>`;
+  $("planT1").innerHTML = `<table id="planTable1"><thead><tr>${hdr5}</tr></thead><tbody>
+    ${r5("Average customers per day", m.cafe.map(c => c.cust), v => String(v), "", "cust")}
+    ${r5("Average ticket per customer", m.cafe.map(c => c.ticket), ticket2, "", "ticket")}
+    ${r5("Revenue (incl. catering)", m.cafe.map(c => c.rev), stmtMoney, "", "rev")}
+    ${r5("Pre-tax profit", m.cafe.map(c => c.P), stmtMoney, "", "P")}
+    ${r5("Income tax (federal + MD)", m.cafe.map(c => c.taxR), stmtMoney, "", "tax")}
+    ${r5("After-tax profit = donation to Life Space", m.cafe.map(c => c.atR), stmtMoney, "total", "at")}
+    ${r5("Comparison: base-scenario after-tax profit", m.base.map(c => c.atR), stmtMoney, "", "base")}
+  </tbody></table><div class="hint">* Year 3 includes a ${s.pl_upl_y3}% across-the-board price increase.</div>`;
+  const D = "–";
+  const r6 = (lab, y0v, arr, cls = "", key = "") => `<tr class="${cls}"><td>${lab}</td><td data-k="${key}" data-y="0">${y0v === null ? D : stmtMoney(y0v)}</td>${arr.map((v, i) => `<td data-k="${key}" data-y="${i + 1}">${v === null ? D : stmtMoney(v)}</td>`).join("")}</tr>`;
+  const N5 = [null, null, null, null, null], L = k => m.ls.map(l => l[k]), y = m.y0;
+  const sec = t => `<tr><th style="text-align:left">${t}</th><th></th><th></th><th></th><th></th><th></th><th></th></tr>`;
+  const subRate = s.subRate.toFixed(2);
+  $("planT2").innerHTML = `<table id="planTable2"><thead><tr><th></th><th>Year 0</th><th>Year 1</th><th>Year 2</th><th>Year 3${s.pl_upl_y3 ? "*" : ""}</th><th>Year 4</th><th>Year 5</th></tr></thead><tbody>
+    ${sec("Income (Year 0 = start-up funding)")}
+    ${r6("Fundraising campaign", y.fund, N5)}
+    ${r6("Renewal Church seed money", y.seed, N5)}
+    ${r6("Landlord tenant-improvement allowance", y.ti, N5)}
+    ${y.don || s.donAnnual ? r6("Donations &amp; fundraising", y.don, m.ls.map(() => s.donAnnual || 0)) : ""}
+    ${r6(`Renewal Church payment (${stmtMoney(s.churchMo)}/mo)`, null, L("church"))}
+    ${r6("Sunday church rental", null, L("sunday"))}
+    ${r6(`Other rentals / events (${s.eventsN} × ${stmtMoney(s.eventsFee)})`, null, L("events"))}
+    ${(s.confHourly * s.confHrs + s.tech) ? r6("Conference / tech space", null, m.ls.map(() => s.confHourly * s.confHrs + s.tech)) : ""}
+    ${r6(`Café sublease rent (${s.subSf.toLocaleString("en-US")} sf × $${subRate})`, null, L("rent"))}
+    ${r6("Café donation (after-tax profit, Table 1)", null, L("don"))}
+    ${r6("Total income", y.inc, L("inc"), "total", "inc")}
+    ${sec("Expenses (Year 0 = build-out &amp; start-up)")}
+    ${r6(`Build-out: ${s.pl_buildSf.toLocaleString("en-US")} sf × ${stmtMoney(s.pl_buildRate)}/sf`, y.build, N5, "", "build")}
+    ${r6("Architecture", y.arch, N5)}
+    ${r6("Furniture", y.furn, N5)}
+    ${r6("Signage &amp; permits", y.sign, N5)}
+    ${r6("Café equipment (incl. TVs and smallwares)", y.equip, N5)}
+    ${r6("Café point of sale (POS / network / security)", y.pos, N5)}
+    ${r6("Café opening working capital", y.wc, N5)}
+    ${y.reserve ? r6("Operating reserve", y.reserve, N5) : ""}
+    ${r6(`Master lease (${s.rsf.toLocaleString("en-US")} sf, base + NNN)`, null, L("lease"), "", "lease")}
+    ${r6("Utilities &amp; insurance (paid by café)", null, m.ls.map(() => 0))}
+    ${r6("Church office / admin", null, L("office"), "", "office")}
+    ${r6("Building upkeep (cleaning, repairs)", null, L("upkeep"), "", "upkeep")}
+    ${r6("Marketing &amp; other (incl. misc., Sat. coffee)", null, L("mkt"), "", "mkt")}
+    ${r6("Total expenses", y.exp, L("exp"), "total", "exp")}
+    ${r6("Net surplus / (deficit)", y.net, L("net"), "surplus", "net")}
+    ${r6("Cumulative cash", m.cum[0], m.cum.slice(1), "total", "cum")}
+  </tbody></table>`;
+  // on-screen reconciliation vs the v2 statement
+  const R = Math.round, chk = [];
+  m.cafe.forEach((c, i) => { if (R(c.rev) !== PLAN_TARGETS.rev[i] || R(c.P) !== PLAN_TARGETS.P[i] || c.taxR !== PLAN_TARGETS.tax[i] || c.atR !== PLAN_TARGETS.at[i] || R(m.base[i].at) !== PLAN_TARGETS.base[i]) chk.push("Y" + (i + 1)); });
+  [y.net, ...L("net")].forEach((v, i) => { if (R(v) !== PLAN_TARGETS.net[i] || R(m.cum[i]) !== PLAN_TARGETS.cum[i]) chk.push("LS Y" + i); });
+  $("planStatus").textContent = chk.length ? `edited — differs from v2 statement (${chk.join(", ")})` : "✓ matches v2 statement (no donations)";
+  window.__plan = m;
+}
+
+function render() {
+  const s = read();
+  renderPlan(s);
+  const r = pnl(s, s.customers, 1);
+  const oi = otherIncome(s);
+  updateMenuDisplay(s, r.cm);
+
+  const surplusCls = r.surplus >= 0 ? "" : "bad";
+  $("kpis").innerHTML = `
+    <div class="kpi"><div class="label">Operating surplus Y1</div><div class="value ${surplusCls}">${money(r.surplus)}</div></div>
+    <div class="kpi"><div class="label">Café sales Y1</div><div class="value">${money(r.cafe)}</div></div>
+    <div class="kpi"><div class="label">Café COGS Y1</div><div class="value">${money(r.cogs)}</div></div>
+    <div class="kpi"><div class="label">Blended ticket</div><div class="value">${money2(r.cm.ticket)}</div></div>
+    <div class="kpi"><div class="label">Other income</div><div class="value">${money(oi.total)}</div></div>
+    <div class="kpi"><div class="label">Payroll (on shift ${r.onShift})</div><div class="value">${money(r.pay)}</div></div>
+  `;
+
+  $("livePnL").innerHTML = `<table>
+    <thead><tr><th>Line</th><th>Year 1</th></tr></thead>
+    <tbody>
+      <tr><td>Café sales (Σ categories × ${s.openDays}d)</td><td>${money(r.cafe)}</td></tr>
+      <tr><td>Daily sales / blended ticket</td><td>${money2(r.cm.dailySales)} / ${money2(r.cm.ticket)}</td></tr>
+      <tr><td>Sunday rental (${money(s.sundayMo)} × ${s.sundayMonths} mo)</td><td>${money(oi.sunday)}</td></tr>
+      <tr><td>Events (${s.eventsN} × ${money(s.eventsFee)})</td><td>${money(oi.events)}</td></tr>
+      <tr><td>Conference</td><td>${money(oi.conf)}</td></tr>
+      <tr><td>Tech (Briqo)</td><td>${money(oi.tech)}</td></tr>
+      <tr><td>Church facility support</td><td>${money(oi.church)}</td></tr>
+      <tr><td>Donations &amp; fundraising</td><td>${money(oi.don)}</td></tr>
+      <tr class="total"><td>Total income</td><td>${money(r.income)}</td></tr>
+      <tr><td>Café COGS (with waste)</td><td>${money(r.cogs)}</td></tr>
+      <tr><td>Card processing</td><td>${money(r.proc)}</td></tr>
+      <tr><td>Café payroll</td><td>${money(r.pay)}</td></tr>
+      <tr><td>Shared opex BASE</td><td>${money(r.ox)}</td></tr>
+      <tr><td>Occupancy</td><td>${money(r.occ)}</td></tr>
+      <tr class="total"><td>Total expense</td><td>${money(r.expense)}</td></tr>
+      <tr class="surplus"><td>Operating surplus</td><td>${money(r.surplus)}</td></tr>
+    </tbody></table>`;
+
+  $("staffNote").innerHTML = s.customers > s.shiftCliff
+    ? `<strong>Staffing cliff:</strong> ${s.customers} customers/day → ${r.onShift} baristas on shift (rule: ${s.baseBaristas} through ${s.shiftCliff}, +1 per +${s.shiftStep}).`
+    : `<strong>Staffing:</strong> ${r.onShift} baristas on shift (under ${s.shiftCliff} tx/day threshold). Crossing ${s.shiftCliff + 1} adds a full-day barista (~+${money(s.dayHrs * s.openDays * s.wBarista * (1 + s.bBarista))} payroll at ${s.openDays} open days).`;
+  {
+    const yrs = [1,2,3,4,5].map(y => [y, s["pl_cust_y" + y]]), hit = yrs.filter(([y, c]) => c > s.peakThresh);
+    const pk = (c, y) => s.peakExtra * s.peakHrs * s.openDays * s.wBarista * Math.pow(1 + s.wageGrowth / 100, y - 1) * (1 + s.bBarista);
+    const y1 = s.customers > s.peakThresh ? `Current scenario (${s.customers}/day): ${s.peakOn ? "3rd barista added" : "would add"} ${s.peakExtra} barista(s) for ${s.peakHrs} peak hours/day: ${money(pk(s.customers, 1))}/yr${s.peakOn ? "" : " (rule off)"}.` : `Current scenario (${s.customers}/day) is at or below the ${s.peakThresh}/day threshold — no peak barista.`;
+    const pl = hit.length ? ` Planned years above ${s.peakThresh}/day: ${hit.map(([y, c]) => `Y${y} (${c}/day) ${money(pk(c, y))}`).join(", ")}${s.peakOn ? " — included in payroll" : " — not included (rule off)"}.` : "";
+    $("peakNote").innerHTML = `<strong>${s.peakOn ? "3rd barista added" : "Peak-hours rule OFF"}</strong> for ${s.peakHrs} peak hours/day (7–9 AM, 11:30 AM–1:30 PM; placeholder). ${y1}${pl}`;
+  }
+
+  // Break-even: at locked menu, required customers; also ticket-scale table
+  const solLocked = requiredCustomers(s);
+  let beHtml = `<table><thead><tr><th>At locked menu</th><th>Required cust/day</th><th>Surplus at solution</th><th>Blended ticket</th></tr></thead><tbody>`;
+  if (!solLocked) beHtml += `<tr><td>Current attach × locked prices</td><td colspan="3" style="color:var(--bad)">Not reachable ≤450/day</td></tr>`;
+  else beHtml += `<tr><td>Current attach × locked prices</td><td>${solLocked.cust}</td><td>${money(solLocked.surplus)}</td><td>${money2(solLocked.cm.ticket)}</td></tr>`;
+  beHtml += `</tbody></table><br/>`;
+
+  const ticketPoints = [8,9,10,11,12];
+  beHtml += `<table><thead><tr><th>If blended ticket scaled to</th><th>Required cust/day</th><th>Surplus at solution</th></tr></thead><tbody>`;
+  ticketPoints.forEach(t => {
+    const sol = requiredCustomersAtTicket(s, t);
+    if (!sol) beHtml += `<tr><td>${money2(t)}</td><td colspan="2" style="color:var(--bad)">Not reachable ≤450/day</td></tr>`;
+    else beHtml += `<tr><td>${money2(t)}</td><td>${sol.cust}</td><td>${money(sol.surplus)}</td></tr>`;
+  });
+  beHtml += `</tbody></table><br/><table><thead><tr><th>At customers/day</th><th>Required blended ticket $</th><th>Café revenue</th></tr></thead><tbody>`;
+  [120,140,160,180].forEach(c => {
+    const t = requiredTicket(s, c);
+    const cafe = c * s.openDays * t;
+    beHtml += `<tr><td>${c}</td><td>${money2(t)}</td><td>${money(cafe)}</td></tr>`;
+  });
+  beHtml += `</tbody></table>`;
+  $("beTable").innerHTML = beHtml;
+
+  if (s.preset === "aimfor") {
+    $("aimYears").style.display = "";
+    $("scenarioLabel").textContent = "Aim-for / volume path";
+    const years = [
+      [1, s.customers],
+      [2, s.cY2],
+      [3, s.cY3],
+      [4, s.cY4],
+      [5, s.cY5],
+    ];
+    let yhtml = `<table><thead><tr><th></th><th>Y1</th><th>Y2</th><th>Y3</th><th>Y4</th><th>Y5</th></tr></thead><tbody>`;
+    const rows = { cust: [], ticket: [], cafe: [], cogs: [], income: [], surplus: [], pay: [] };
+    years.forEach(([y,c]) => {
+      const rr = pnl(s, c, y);
+      rows.cust.push(c);
+      rows.ticket.push(money2(rr.cm.ticket));
+      rows.cafe.push(money(rr.cafe));
+      rows.cogs.push(money(rr.cogs));
+      rows.income.push(money(rr.income));
+      rows.surplus.push(money(rr.surplus));
+      rows.pay.push(money(rr.pay));
+    });
+    yhtml += `<tr><td>Customers/day</td>${rows.cust.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `<tr><td>Blended ticket</td>${rows.ticket.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `<tr><td>Café sales</td>${rows.cafe.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `<tr><td>Café COGS</td>${rows.cogs.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `<tr><td>Total income</td>${rows.income.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `<tr><td>Payroll</td>${rows.pay.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `<tr class="surplus"><td>Operating surplus</td>${rows.surplus.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+    yhtml += `</tbody></table>`;
+    $("y5Table").innerHTML = yhtml;
+  } else {
+    $("aimYears").style.display = "none";
+    $("scenarioLabel").textContent = "Break-even mode";
+  }
+
+  const sources = s.fundraise + s.churchSeed + s.ti + (s.donY0 || 0);
+  const usesBase = s.remodelBase + s.equip + s.pos + s.permits + s.wc + s.opReserve;
+  const usesAlt = s.remodelAlt + s.preopenAlt + s.opReserve + s.churchSeed;
+  $("capTable").innerHTML = `<table>
+    <tr><td>Sources (fundraising + seed + TI + Y0 donations)</td><td>${money(sources)}</td></tr>
+    <tr><td>Uses BASE (remodel ${money(s.remodelBase)} + equip/POS/permits + WC + reserve)</td><td>${money(usesBase)}</td></tr>
+    <tr class="total"><td>Gap BASE (+ = unallocated)</td><td>${money(sources - usesBase)}</td></tr>
+    <tr><td>Uses ALTERNATE note ($300k remodel path / sheet)</td><td>${money(usesAlt)}</td></tr>
+    <tr><td>Gap ALTERNATE</td><td>${money(sources - usesAlt)}</td></tr>
+  </table>
+  <footer class="note">TI is reimbursement-after-spend (timing risk). Do not add BASE + ALTERNATE remodel. Sheet preopen $90k overlaps site equip lines.</footer>`;
+  renderTax(s);
+}
+
+function setPreset(name, applyValues) {
+  document.querySelectorAll(".preset").forEach(el => el.classList.toggle("active", el.dataset.preset === name));
+  if (applyValues) {
+    if (name === "planned") {
+      write({ ...PLANNED }); return;
+    } else if (name === "aimfor") {
+      const cur = read();
+      write({ ...cur, ...AIM }); // AIM sets openDays: 300
+    } else {
+      const cur = read();
+      write({ ...cur, ...BE_PRESET }); // BE_PRESET sets openDays: 300
+    }
+  }
+  render();
+}
+
+function bind() {
+  document.querySelectorAll("input").forEach(el => {
+    el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+  $("presetBE").addEventListener("click", () => setPreset("breakeven", true));
+  $("presetAim").addEventListener("click", () => setPreset("aimfor", true));
+  $("presetPlan").addEventListener("click", () => setPreset("planned", true));
+  $("btnPlanned").addEventListener("click", () => { write({ ...PLANNED }); render(); });
+  $("btnSave").addEventListener("click", () => {
+    const data = read();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `rls-scenario-${data.preset}-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  });
+  $("fileLoad").addEventListener("change", ev => {
+    const f = ev.target.files?.[0]; if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try { write(JSON.parse(reader.result)); render(); }
+      catch (e) { alert("Could not parse JSON: " + e.message); }
+    };
+    reader.readAsText(f);
+  });
+  $("btnCsv").addEventListener("click", () => {
+    const s = read();
+    const r = pnl(s, s.customers, 1);
+    const oi = otherIncome(s);
+    const rows = [
+      ["Metric", "Value"],
+      ["Preset", s.preset],
+      ["Customers/day", s.customers],
+      ["Blended ticket", r.cm.ticket.toFixed(2)],
+      ["Café sales", Math.round(r.cafe)],
+      ["Café COGS", Math.round(r.cogs)],
+      ["Sunday", Math.round(oi.sunday)],
+      ["Events", Math.round(oi.events)],
+      ["Tech", oi.tech],
+      ["Church support", Math.round(oi.church)],
+      ["Donations & fundraising", Math.round(oi.don)],
+      ["Total income", Math.round(r.income)],
+      ["Processing", Math.round(r.proc)],
+      ["Payroll", Math.round(r.pay)],
+      ["Opex", Math.round(r.ox)],
+      ["Occupancy", Math.round(r.occ)],
+      ["Surplus", Math.round(r.surplus)],
+    ];
+    rows.push([]);
+    rows.push(["Category","Attach","Units/day","Sale","Cost","Daily sales","Daily COGS"]);
+    r.cm.lines.forEach(l => {
+      rows.push([CAT_LABELS[l.id], l.attach, l.units.toFixed(1), l.sale, l.cost, l.ds.toFixed(2), l.dc.toFixed(2)]);
+    });
+    const sol = requiredCustomers(s);
+    rows.push([]);
+    rows.push(["BE locked menu required cust", sol ? sol.cust : "unreachable"]);
+    const csv = rows.map(r => r.map(x => `"${x}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `rls-scenario-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  });
+  $("btnReset").addEventListener("click", () => { write({ ...DEFAULTS }); render(); });
+}
+
+buildMenuInputs();
+buildPlanInputs();
+write({ ...PLANNED }); // default-loaded saved scenario: v2 statement (no donations)
+bind();
+render();
+</script>
+<script>
+/* public copy: save/restore inputs (display state only; no calculation changes) */
+(function(){
+  const KEY = "rls-scenarios-v1";
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(read())); } catch (e) {} };
+  try { const raw = localStorage.getItem(KEY); if (raw) { write(JSON.parse(raw)); render(); } } catch (e) {}
+  document.addEventListener("input", save);
+  document.addEventListener("change", save);
+  document.querySelectorAll(".preset").forEach(el => el.addEventListener("click", save));
+  $("btnReset").addEventListener("click", save);
+  $("btnPlanned").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} });
+})();
+</script>
+</body>
+</html>
