@@ -16,7 +16,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.45; }
 header.app {
-  position: sticky; top: 0; z-index: 20; background: #0B2340; color: #fff;
+  position: static; z-index: 20; background: #0B2340; color: #fff;
   padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
   box-shadow: 0 2px 12px rgba(0,0,0,.18);
 }
@@ -113,7 +113,7 @@ tr.surplus td { font-weight: 700; color: var(--ok); font-size: 1.02rem; line-hei
 .toggle-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 .toggle-row input { width: auto; accent-color: var(--accent); }
 footer.note { margin-top: 8px; font-size: .78rem; color: var(--muted); }
-.section-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.section-nav { position: -webkit-sticky; position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: nowrap; gap: 6px; margin: 0 -4px 14px; padding: 8px 4px; background: var(--bg); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; box-shadow: 0 6px 8px -8px rgba(0,0,0,.35); } .section-nav::-webkit-scrollbar { display: none; } .section-nav a { white-space: nowrap; flex: none; } section[id], details[id] { scroll-margin-top: 56px; } #printHead { display: none; } @media (max-width: 600px) { .section-nav { gap: 4px; padding: 6px 2px; } .section-nav a { font-size: .72rem !important; padding: 4px 8px !important; } }
 .section-nav a {
   text-decoration: none; font-size: .8rem; padding: 6px 10px; border-radius: 999px;
   background: #fff; color: var(--accent); border: 1px solid var(--line); font-weight: 600;
@@ -121,7 +121,7 @@ footer.note { margin-top: 8px; font-size: .78rem; color: var(--muted); }
 .locked-badge {
   display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em;
   background: #0B2340; color: #fff; padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle;
-}
+} @media print { @page { size: letter portrait; margin: 0.5in; } html, body { background: #fff !important; font-size: 10pt; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; } header.app, .toolbar, .section-nav, button, .file-btn, .presets { display: none !important; } #printHead { display: block !important; margin: 0 0 8px; } #printHead h1 { font-size: 15pt; margin: 0; } #printHead div { font-size: 9pt; color: #444; } main { padding: 0 !important; max-width: none !important; } .grid, .inputs-grid { display: block !important; } .card, details.panel { break-inside: auto; page-break-inside: auto; border: 1px solid #bbb; margin: 0 0 10px !important; } h2, h3, summary { break-after: avoid; page-break-after: avoid; } details > summary { list-style: none; } .table-wrap { overflow: visible !important; } table { width: 100%; border-collapse: collapse; font-size: 8.5pt; } thead { display: table-header-group; } tr, label { break-inside: avoid; page-break-inside: avoid; } input { border: 1px solid #999 !important; background: #fff !important; } .draft-banner { display: block !important; } }
 
 /* ---- public copy additions ---- */
 .inputs-grid { display:block; }
@@ -288,12 +288,12 @@ details.panel li { margin-bottom:6px; }
           <label><strong>Manager / admin burden %</strong><input type="number" id="bMgmt" step="0.5" min="0" /></label>
           <label><strong>Open + prep hours / day</strong><input type="number" id="dayHrs" step="0.5" min="0" /></label>
           <label><strong>Manager hrs / week</strong><input type="number" id="mgrHrs" step="1" min="0" /></label>
-          <label><strong>Admin hrs / week</strong><input type="number" id="admHrs" step="1" min="0" /></label><label><strong>Baristas on shift (base)</strong><input type="number" id="baseBaristas" step="1" min="0" /><span class="hint">2 through the cliff</span></label><label><strong>Staffing cliff customers/day</strong><input type="number" id="shiftCliff" step="1" min="0" /><span class="hint">+1 full-day barista above this (180)</span></label><label><strong>Customers per extra full-day barista</strong><input type="number" id="shiftStep" step="1" min="0" /><span class="hint">60</span></label><label><strong>Wage growth % / yr</strong><input type="number" id="wageGrowth" step="0.5" min="0" /><span class="hint">3%/yr on all wages</span></label><label><strong>3rd-barista peak rule: customers/day threshold</strong><input type="number" id="peakThresh" step="1" min="0" /><span class="hint">Add peak barista when customers/day &gt; this (200)</span></label><label><strong>Peak hours / day</strong><input type="number" id="peakHrs" step="0.5" min="0" /><span class="hint">Placeholder 4 h: 7–9 AM + 11:30 AM–1:30 PM · research pending</span></label><label><strong>Extra baristas at peak</strong><input type="number" id="peakExtra" step="1" min="0" /><span class="hint">1</span></label>
+          <label><strong>Admin hrs / week</strong><input type="number" id="admHrs" step="1" min="0" /></label><label><strong>Baristas on shift (base)</strong><input type="number" id="baseBaristas" step="1" min="0" /><span class="hint">2 through the cliff</span></label><label><strong>Staffing cliff customers/day</strong><input type="number" id="shiftCliff" step="1" min="0" /><span class="hint">+1 full-day barista above this (180)</span></label><label><strong>Customers per extra full-day barista</strong><input type="number" id="shiftStep" step="1" min="0" /><span class="hint">60</span></label><label><strong>Wage growth % / yr</strong><input type="number" id="wageGrowth" step="0.5" min="0" /><span class="hint">3%/yr on all wages</span></label>
         </div>
         <div class="toggle-row">
           <input type="checkbox" id="includeAdmin" checked />
           <label for="includeAdmin" style="flex-direction:row;gap:8px;align-items:center"><strong>Include admin in café payroll</strong></label>
-        </div><div class="toggle-row"><input type="checkbox" id="peakOn" /><label for="peakOn" style="flex-direction:row;gap:8px;align-items:center"><strong>Apply peak-hours barista rule</strong> <span class="hint">(off for the planned v2 scenario — turning on changes Years 3–5)</span></label></div><div class="flag" id="peakNote"></div>
+        </div>
       </section>
 
       <section class="card" id="startup">
@@ -445,7 +445,7 @@ const DEFAULTS = {
   confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: false,
   wBarista: 19.5, wManager: 25, wAdmin: 20, bBarista: 16, bMgmt: 20,
   dayHrs: 10, mgrHrs: 40, admHrs: 20, includeAdmin: true,
-  baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, peakOn: false, peakThresh: 200, peakHrs: 4, peakExtra: 1, ingrInfl: 3, nolLimit: 80, preopenAlt: 90000,
+  baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, ingrInfl: 3, nolLimit: 80, preopenAlt: 90000,
   fundraise: 400000, churchSeed: 50000, ti: 140000, donY0: 0, donAnnual: 0, // donations & fundraising: optional, default 0 (Boyan Oct 8 v2)
   remodelBase: 70000, remodelAlt: 300000, equip: 30000, pos: 5000, permits: 8028, wc: 25000, opReserve: 150000,
   oxUtil: 12000, oxIns: 2000, oxOffice: 4800, oxMisc: 4000, oxMkt: 6000, oxPos: 2400, oxClean: 6000, oxRepair: 6000, oxCoffee: 600, oxInfl: 3,
@@ -547,7 +547,6 @@ function read() {
     pasY2: g("pasY2"), pasY3: g("pasY3"), pasY4: g("pasY4"), pasY5: g("pasY5"),
     quiY2: g("quiY2"), quiY3: g("quiY3"), quiY4: g("quiY4"), quiY5: g("quiY5"),
     baseBaristas: g("baseBaristas"), shiftCliff: g("shiftCliff"), shiftStep: g("shiftStep"), wageGrowth: g("wageGrowth"),
-    peakOn: $("peakOn").checked, peakThresh: g("peakThresh"), peakHrs: g("peakHrs"), peakExtra: g("peakExtra"),
     ingrInfl: g("ingrInfl"), nolLimit: g("nolLimit"), preopenAlt: g("preopenAlt"),
     taxFed: g("taxFed"), taxMd: g("taxMd"), taxCeil: g("taxCeil"), taxFloor: g("taxFloor"),
     ubitSpec: g("ubitSpec"),
@@ -564,6 +563,7 @@ function read() {
 }
 
 function write(s) {
+  s = { ...s }; ["peakOn","peakThresh","peakHrs","peakExtra"].forEach(k => delete s[k]); // legacy keys ignored
   const set = (id, v) => { if ($(id)) $(id).value = v; };
   set("customers", s.customers); set("openDays", s.openDays);
   set("processing", (s.processing <= 1 ? s.processing*100 : s.processing));
@@ -601,8 +601,7 @@ function write(s) {
   set("subEsc", s.subEsc == null ? 0 : (s.subEsc < 1 ? s.subEsc*100 : s.subEsc));
   set("cafeUtil", s.cafeUtil ?? 30000); set("cafeIns", s.cafeIns ?? 5000); set("cafeOff", s.cafeOff ?? 10000);
   set("quiY2", s.quiY2 ?? 0.10); set("quiY3", s.quiY3 ?? 0.10); set("quiY4", s.quiY4 ?? 0.11); set("quiY5", s.quiY5 ?? 0.13);
-  ["baseBaristas","shiftCliff","shiftStep","wageGrowth","peakThresh","peakHrs","peakExtra","ingrInfl","nolLimit","preopenAlt"].forEach(k => set(k, s[k] ?? DEFAULTS[k]));
-  $("peakOn").checked = !!(s.peakOn ?? DEFAULTS.peakOn);
+  ["baseBaristas","shiftCliff","shiftStep","wageGrowth","ingrInfl","nolLimit","preopenAlt"].forEach(k => set(k, s[k] ?? DEFAULTS[k]));
   writePlan(s);
   setPreset(s.preset || "breakeven", false);
 }
@@ -611,12 +610,6 @@ function onShift(cust, s) {
   const base = s.baseBaristas, cliff = s.shiftCliff, step = s.shiftStep || 60;
   if (cust <= cliff) return base;
   return base + Math.ceil((cust - cliff) / step);
-}
-// Peak-hours barista rule: extra baristas × peak hrs/day × open days × barista wage (grown) × (1 + barista burden)
-function peakCost(s, cust, year) {
-  if (!s.peakOn || !(cust > s.peakThresh)) return 0;
-  const wb = s.wBarista * Math.pow(1 + s.wageGrowth / 100, year - 1);
-  return s.peakExtra * s.peakHrs * s.openDays * wb * (1 + s.bBarista);
 }
 
 function payroll(s, cust, year) {
@@ -627,8 +620,7 @@ function payroll(s, cust, year) {
   const barista = os * s.dayHrs * days * wb * (1 + s.bBarista);
   const mgr = s.mgrHrs * 52 * wm * (1 + s.bMgmt);
   const admin = s.includeAdmin ? s.admHrs * 52 * wa * (1 + s.bMgmt) : 0;
-  const peak = peakCost(s, cust, year);
-  return { onShift: os, total: barista + mgr + admin + peak, days, barista, mgr, admin, peak };
+  return { onShift: os, total: barista + mgr + admin, days, barista, mgr, admin };
 }
 
 function opexY(s, year) {
@@ -1013,15 +1005,11 @@ function render() {
       <tr class="surplus"><td>Operating surplus</td><td>${money(r.surplus)}</td></tr>
     </tbody></table>`;
 
-  $("staffNote").innerHTML = s.customers > s.shiftCliff
-    ? `<strong>Staffing cliff:</strong> ${s.customers} customers/day → ${r.onShift} baristas on shift (rule: ${s.baseBaristas} through ${s.shiftCliff}, +1 per +${s.shiftStep}).`
-    : `<strong>Staffing:</strong> ${r.onShift} baristas on shift (under ${s.shiftCliff} tx/day threshold). Crossing ${s.shiftCliff + 1} adds a full-day barista (~+${money(s.dayHrs * s.openDays * s.wBarista * (1 + s.bBarista))} payroll at ${s.openDays} open days).`;
   {
-    const yrs = [1,2,3,4,5].map(y => [y, s["pl_cust_y" + y]]), hit = yrs.filter(([y, c]) => c > s.peakThresh);
-    const pk = (c, y) => s.peakExtra * s.peakHrs * s.openDays * s.wBarista * Math.pow(1 + s.wageGrowth / 100, y - 1) * (1 + s.bBarista);
-    const y1 = s.customers > s.peakThresh ? `Current scenario (${s.customers}/day): ${s.peakOn ? "3rd barista added" : "would add"} ${s.peakExtra} barista(s) for ${s.peakHrs} peak hours/day: ${money(pk(s.customers, 1))}/yr${s.peakOn ? "" : " (rule off)"}.` : `Current scenario (${s.customers}/day) is at or below the ${s.peakThresh}/day threshold — no peak barista.`;
-    const pl = hit.length ? ` Planned years above ${s.peakThresh}/day: ${hit.map(([y, c]) => `Y${y} (${c}/day) ${money(pk(c, y))}`).join(", ")}${s.peakOn ? " — included in payroll" : " — not included (rule off)"}.` : "";
-    $("peakNote").innerHTML = `<strong>${s.peakOn ? "3rd barista added" : "Peak-hours rule OFF"}</strong> for ${s.peakHrs} peak hours/day (7–9 AM, 11:30 AM–1:30 PM; placeholder). ${y1}${pl}`;
+    const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ({1:"st",2:"nd",3:"rd"}[n % 10] || "th"));
+    const b = s.baseBaristas, c3 = s.shiftCliff, c4 = s.shiftCliff + s.shiftStep;
+    const rule = `${b} baristas through ${c3}/day; ${ord(b + 1)} barista above ${c3}/day, ${ord(b + 2)} above ${c4}/day (+1 per +${s.shiftStep})`;
+    $("staffNote").innerHTML = `<strong>Staffing:</strong> ${s.customers} customers/day → ${r.onShift} baristas on shift. Rule: ${rule}. Each added full-day barista ≈ +${money(s.dayHrs * s.openDays * s.wBarista * (1 + s.bBarista))}/yr at ${s.openDays} open days.`;
   }
 
   // Break-even: at locked menu, required customers; also ticket-scale table
@@ -1185,6 +1173,29 @@ buildPlanInputs();
 write({ ...PLANNED }); // default-loaded saved scenario: v2 statement (no donations)
 bind();
 render();
+</script>
+<script>
+/* Download PDF: print the current scenario (Letter portrait) */
+(function(){
+  const bar = document.querySelector(".toolbar"), csv = $("btnCsv");
+  const btn = document.createElement("button"); btn.type = "button"; btn.className = "ghost"; btn.id = "btnPdf"; btn.textContent = "Download PDF";
+  csv.insertAdjacentElement("afterend", btn);
+  const ph = document.createElement("div"); ph.id = "printHead";
+  document.querySelector("main").prepend(ph);
+  let reopened = [];
+  window.__printPrep = () => {
+    const t = (document.querySelector("header.app h1") || {}).textContent || document.title;
+    const now = new Date().toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" });
+    ph.innerHTML = `<h1>${t}</h1><div>Scenario as of ${now} · ${$("planStatus").textContent}</div>`;
+    const banner = document.querySelector(".draft-banner"); if (banner) ph.after(banner);
+    reopened = [...document.querySelectorAll("details:not([open])")]; reopened.forEach(d => d.open = true);
+    render();
+  };
+  window.__printDone = () => { reopened.forEach(d => d.open = false); reopened = []; };
+  window.addEventListener("beforeprint", window.__printPrep);
+  window.addEventListener("afterprint", window.__printDone);
+  btn.addEventListener("click", () => { window.__printPrep(); window.print(); });
+})();
 </script>
 <script>
 /* public copy: save/restore inputs (display state only; no calculation changes) */
