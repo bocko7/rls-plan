@@ -1227,7 +1227,20 @@ render();
     #tabBar button { font-size: .72rem; padding: 4px 9px; }
     #summary .kpi-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
   }
+  .gal { display: flex; flex-wrap: wrap; gap: 12px; }
+  .gal-item { flex: 0 0 calc(25% - 9px); min-width: 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: #fff; overflow: hidden; cursor: pointer; text-align: left; }
+  .gal-img { position: relative; display: block; aspect-ratio: 16 / 10; background: #ddd; } .gal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gal-play { position: absolute; inset: 0; margin: auto; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; padding-left: 4px; }
+  .gal-cap { display: block; padding: 6px 8px; font-size: .8rem; font-weight: 600; color: var(--ink); }
+  #lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.88); display: flex; align-items: center; justify-content: center; }
+  #lightbox[hidden] { display: none; } #lightbox figure { margin: 0; max-width: 92vw; text-align: center; }
+  #lightbox img, #lightbox video { max-width: 92vw; max-height: 82vh; max-height: 82dvh; display: block; margin: 0 auto; border-radius: 6px; background: #000; }
+  #lightbox figcaption { color: #fff; font-size: .9rem; margin-top: 8px; }
+  .lb-btn { position: absolute; background: rgba(255,255,255,.15); color: #fff; border: 0; border-radius: 999px; width: 44px; height: 44px; font-size: 26px; line-height: 1; cursor: pointer; }
+  .lb-close { top: 12px; right: 12px; font-size: 20px; } .lb-prev { left: 10px; top: 50%; transform: translateY(-50%); } .lb-next { right: 10px; top: 50%; transform: translateY(-50%); }
+  @media (max-width: 600px) { .gal { gap: 8px; } .gal-item { flex-basis: calc(50% - 4px); } }
   @media print {
+    #renditions, #lightbox { display: none !important; }
     #appTop { display: none !important; } body { padding-top: 0 !important; }
     .tab-hidden { display: block !important; } #aimYears.tab-hidden { display: none !important; }
     #summary { break-after: page; page-break-after: always; }
@@ -1243,7 +1256,7 @@ render();
     banner.textContent = "DRAFT — planning estimates only; not a financial offer or guarantee. Figures subject to CPA review."; }
   header.parentNode.insertBefore(top, header); top.appendChild(header); top.appendChild(banner);
   const TABS = [["summary","Summary"],["planned","Planned Statement"],["cafe","Café Menu"],["occupancy","Occupancy"],["income","Other Income"],
-    ["staffing","Staffing"],["startup","Startup"],["other","Other Analysis"],["assumptions","Assumptions"]];
+    ["staffing","Staffing"],["startup","Startup"],["other","Other Analysis"],["assumptions","Assumptions"],["renditions","Renditions"]];
   const bar = document.createElement("nav"); bar.id = "tabBar"; bar.setAttribute("role", "tablist");
   bar.innerHTML = TABS.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}">${l}</button>`).join("");
   top.appendChild(bar);
@@ -1269,6 +1282,26 @@ render();
     main.appendChild(asm);
   }
   groups.assumptions = [asm];
+  // ---- Renditions gallery (concept images + walkthrough video; relative paths) ----
+  const GAL = [["01","Exterior"],["02","Renewal Café"],["03","Main Hall"],["04","Youth Lounge"],["05","Evening Lounge"],["06","Community Gathering"]]
+    .map(([n, c]) => ({ thumb: `renditions/${n}-thumb.jpg`, full: `renditions/${n}.jpg`, cap: c }))
+    .concat([{ thumb: "renditions/walkthrough-thumb.jpg", full: "renditions/walkthrough.mp4", cap: "3D Walkthrough", video: true }]);
+  const rnd = document.createElement("section"); rnd.className = "card"; rnd.id = "renditions";
+  rnd.innerHTML = `<h2>Renditions</h2><p class="hint" style="margin:0 0 10px">Concept renditions — for planning only.</p>
+    <div class="gal">${GAL.map((g, i) => `<button type="button" class="gal-item" data-i="${i}" aria-label="Open ${g.cap}"><span class="gal-img"><img src="${g.thumb}" alt="${g.cap}" loading="lazy" />${g.video ? '<span class="gal-play" aria-hidden="true">▶</span>' : ""}</span><span class="gal-cap">${g.cap}</span></button>`).join("")}</div>`;
+  main.appendChild(rnd); groups.renditions = [rnd];
+  const lb = document.createElement("div"); lb.id = "lightbox"; lb.hidden = true;
+  lb.innerHTML = `<button type="button" class="lb-btn lb-close" aria-label="Close">✕</button><button type="button" class="lb-btn lb-prev" aria-label="Previous">‹</button><figure><div class="lb-media"></div><figcaption></figcaption></figure><button type="button" class="lb-btn lb-next" aria-label="Next">›</button>`;
+  document.body.appendChild(lb);
+  let lbi = 0;
+  const lbShow = i => { lbi = (i + GAL.length) % GAL.length; const g = GAL[lbi];
+    lb.querySelector(".lb-media").innerHTML = g.video ? `<video controls playsinline preload="metadata" poster="${g.thumb}" src="${g.full}"></video>` : `<img src="${g.full}" alt="${g.cap}" />`;
+    lb.querySelector("figcaption").textContent = `${g.cap} (${lbi + 1}/${GAL.length})`; lb.hidden = false; document.body.style.overflow = "hidden"; };
+  const lbClose = () => { lb.hidden = true; lb.querySelector(".lb-media").innerHTML = ""; document.body.style.overflow = ""; };
+  rnd.addEventListener("click", e => { const b = e.target.closest(".gal-item"); if (b) lbShow(+b.dataset.i); });
+  lb.addEventListener("click", e => { if (e.target.closest(".lb-prev")) lbShow(lbi - 1); else if (e.target.closest(".lb-next")) lbShow(lbi + 1); else if (!e.target.closest("video")) lbClose(); });
+  document.addEventListener("keydown", e => { if (lb.hidden) return; if (e.key === "Escape") lbClose(); else if (e.key === "ArrowLeft") lbShow(lbi - 1); else if (e.key === "ArrowRight") lbShow(lbi + 1); });
+  window.__lb = { show: lbShow, close: lbClose };
   const all = Object.values(groups).flat().filter(Boolean);
   // make sure grid wrappers don't leave empty columns
   function show(k) {
