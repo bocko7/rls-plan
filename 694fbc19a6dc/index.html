@@ -314,7 +314,7 @@ details.panel li { margin-bottom:6px; }
         <div class="flag"><strong>Dropped from old app:</strong> dual traffic engines, Briqo-as-required, TV shopping, required bridge financing, landlord essay tabs, duplicate remodel defaults.</div>
       </section>
 
-      <section class="card">
+      <section class="card" id="opex">
         <h2>Shared opex (BASE) <span>site shared expenses · editable</span></h2>
         <div class="fields">
           <label><strong>Utilities</strong><input type="number" id="oxUtil" step="100" min="0" /></label>
@@ -1195,6 +1195,161 @@ render();
   window.addEventListener("beforeprint", window.__printPrep);
   window.addEventListener("afterprint", window.__printDone);
   btn.addEventListener("click", () => { window.__printPrep(); window.print(); });
+})();
+</script>
+<script>
+/* ---- Fixed header + tabs + live Summary (layout/wiring only; calculations unchanged) ---- */
+(function(){
+  const css = `
+  #appTop { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: var(--bg); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+  #appTop header.app { position: static !important; }
+  #appTop .draft-banner { margin: 0; border-radius: 0; border-width: 0 0 2px; padding: 6px 14px; font-size: .8rem; text-align: center; }
+  #tabBar { display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 6px 10px; background: #fff; border-bottom: 1px solid var(--line); }
+  #tabBar::-webkit-scrollbar { display: none; }
+  #tabBar button { flex: none; white-space: nowrap; font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--accent); cursor: pointer; }
+  #tabBar button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  body.has-tabs main .section-nav { display: none !important; }
+  .tab-hidden { display: none !important; }
+  #summary .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin: 12px 0 16px; }
+  #summary .kpi-row div { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: #fff; }
+  #summary .kpi-row b { display: block; font-size: 1.35rem; color: var(--accent); }
+  #summary .kpi-row small { display: block; color: var(--muted); font-size: .75rem; }
+  #summary .lead { font-size: .88rem; margin: 6px 0 0; } #summary .sub { color: var(--muted); font-size: .85rem; }
+  #summary ol.notes { font-size: .8rem; padding-left: 18px; } #summary .notes li { margin-bottom: 4px; } #summary sup { font-size: .65em; }
+  @media (max-width: 600px) {
+    #appTop header.app { padding: 6px 10px !important; gap: 6px !important; flex-wrap: nowrap; flex-direction: column; align-items: stretch; }
+    #appTop header.app .sub { display: none; }
+    #appTop header.app h1 { font-size: .9rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #appTop .brand .logo { width: 30px; height: 30px; }
+    #appTop .toolbar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 4px; }
+    #appTop .toolbar > * { flex: none; padding: 5px 9px !important; font-size: .72rem !important; }
+    #appTop .draft-banner { font-size: .68rem; padding: 4px 8px; }
+    #tabBar button { font-size: .72rem; padding: 4px 9px; }
+    #summary .kpi-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  @media print {
+    #appTop { display: none !important; } body { padding-top: 0 !important; }
+    .tab-hidden { display: block !important; } #aimYears.tab-hidden { display: none !important; }
+    #summary { break-after: page; page-break-after: always; }
+    #printHead .draft-banner { display: block !important; margin: 6px 0; }
+  }`;
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+  document.body.classList.add("has-tabs");
+  const main = document.querySelector("main"), header = document.querySelector("header.app");
+  // fixed top: title bar + DRAFT label + tab bar
+  const top = document.createElement("div"); top.id = "appTop";
+  let banner = document.querySelector(".draft-banner");
+  if (!banner) { banner = document.createElement("div"); banner.className = "draft-banner"; banner.setAttribute("role", "note");
+    banner.textContent = "DRAFT — planning estimates only; not a financial offer or guarantee. Figures subject to CPA review."; }
+  header.parentNode.insertBefore(top, header); top.appendChild(header); top.appendChild(banner);
+  const TABS = [["summary","Summary"],["planned","Planned Statement"],["cafe","Café Menu"],["occupancy","Occupancy"],["income","Other Income"],
+    ["staffing","Staffing"],["startup","Startup"],["other","Other Analysis"],["assumptions","Assumptions"]];
+  const bar = document.createElement("nav"); bar.id = "tabBar"; bar.setAttribute("role", "tablist");
+  bar.innerHTML = TABS.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}">${l}</button>`).join("");
+  top.appendChild(bar);
+  const pad = () => { document.body.style.paddingTop = top.offsetHeight + "px"; };
+  pad(); window.addEventListener("resize", pad); if (window.ResizeObserver) new ResizeObserver(pad).observe(top);
+  // Summary section
+  const sum = document.createElement("section"); sum.className = "card"; sum.id = "summary";
+  const ph = $("printHead"); (ph ? ph : main.firstChild) && (ph ? ph.after(sum) : main.prepend(sum));
+  // group existing sections into tabs
+  const groups = { summary: [sum] };
+  ["planned","cafe","occupancy","income","staffing","startup"].forEach(k => { groups[k] = [$(k)]; });
+  if ($("opex")) groups.occupancy.push($("opex"));
+  if ($("other")) groups.other = [$("other")];
+  else {
+    const right = $("results").parentElement;
+    groups.other = [$("kpis"), document.querySelector(".presets"), right];
+  }
+  let asm = $("assumptions");
+  if (!asm) { // source page: gather the panel notes into an Assumptions section
+    asm = document.createElement("section"); asm.className = "card"; asm.id = "assumptions";
+    asm.innerHTML = "<h2>Assumptions &amp; notes</h2><ul>" + [...document.querySelectorAll("#planned > footer.note, #taxPanel > footer.note, section > footer.note")]
+      .map(f => `<li>${f.innerHTML}</li>`).join("") + "</ul>";
+    main.appendChild(asm);
+  }
+  groups.assumptions = [asm];
+  const all = Object.values(groups).flat().filter(Boolean);
+  // make sure grid wrappers don't leave empty columns
+  function show(k) {
+    if (!groups[k]) k = "summary";
+    all.forEach(el => el.classList.toggle("tab-hidden", !groups[k].includes(el)));
+    document.querySelectorAll("main .grid > div, main .inputs-grid > div").forEach(col => {
+      const vis = [...col.children].some(c => !c.classList.contains("tab-hidden") && c.style.display !== "none");
+      col.classList.toggle("tab-hidden-col", !vis); col.style.display = vis ? "" : "none";
+    });
+    document.querySelectorAll("main .grid, main .inputs-grid").forEach(g => { g.style.gridTemplateColumns = "1fr"; });
+    groups[k].forEach(el => { if (el && el.tagName === "DETAILS") el.open = true; });
+    bar.querySelectorAll("button").forEach(b => { const on = b.dataset.tab === k; b.classList.toggle("active", on); b.setAttribute("aria-selected", on); if (on && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" }); });
+    if (location.hash !== "#/" + k) history.replaceState(null, "", "#/" + k);
+    window.scrollTo(0, 0); window.__tab = k;
+  }
+  bar.addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (b) show(b.dataset.tab); });
+  const fromHash = () => location.hash.replace(/^#\/?/, "");
+  window.addEventListener("hashchange", () => show(fromHash()));
+  // ---- live Summary (reads existing outputs: window.__plan and read()) ----
+  const M = n => stmtMoney(n), K = n => "$" + (n / 1000).toLocaleString("en-US") + "k";
+  const FOOT = { "Fundraising campaign": "²", "Renewal Church payment": "¹", "Build-out:": "³", "Signage &amp; permits": "⁴", "Signage & permits": "⁴",
+    "Café equipment": "⁴", "Café point of sale": "⁴", "Café opening working capital": "⁴", "Master lease": "⁵", "Utilities &amp; insurance": "⁶", "Utilities & insurance": "⁶" };
+  function cloneTable(id) {
+    const t = $(id).cloneNode(true); t.removeAttribute("id"); t.querySelectorAll("[id]").forEach(e => e.removeAttribute("id"));
+    t.querySelectorAll(".hint").forEach(e => e.remove());
+    t.querySelectorAll("tbody tr > td:first-child").forEach(td => { const lab = td.textContent; const k = Object.keys(FOOT).find(f => lab.startsWith(f.replace("&amp;", "&"))); if (k) td.insertAdjacentHTML("beforeend", `<sup>${FOOT[k]}</sup>`); });
+    return t.innerHTML;
+  }
+  function renderSummary() {
+    const m = window.__plan; if (!m) return;
+    const s = read(), y5 = 4, pct = v => (+v.toFixed(2)).toString();
+    const upl = s.pl_upl_y3, lease1 = m.ls[0].lease, lease5 = m.ls[4].lease;
+    const work = Math.round(m.ls[0].church + m.ls[0].sunday + m.ls[0].rent);
+    const aimEv = AIM.eventsN * AIM.eventsFee - s.eventsN * s.eventsFee;
+    const article = /^(8|11|18)/.test(String(upl)) ? "an" : "a";
+    sum.innerHTML = `
+      <h2 style="display:block">Renewal Life Space Projected Financials</h2>
+      <div class="sub">Rockville, MD · October 2026 · Prepared for Boyan L, Lead Church Planting Pastor, Renewal Church</div>
+      <p class="lead">Renewal Life Space is a non-profit community and worship space. Renewal Café, a legally separate entity created for the sole purpose of supporting the Renewal church-planting ministry, subleases part of the space, pays the building’s utilities and insurance, and gives 100% of its after-tax profit to the Renewal Ministry Center. Figures are planning estimates from the working financial model.</p>
+      <p class="sub" id="sumStatus" style="margin:6px 0 0">${$("planStatus").textContent}</p>
+      <div class="kpi-row">
+        <div><small>Year 0</small><b data-s="y0inc">${M(m.y0.inc)}</b><small>Total income</small></div>
+        <div><small>Year 5</small><b data-s="y5don">${M(m.cafe[y5].atR)}</b><small>Café donation</small></div>
+        <div><small>Year 5</small><b data-s="y5net">${M(m.ls[y5].net)}</b><small>Net surplus / (deficit)</small></div>
+        <div><small>Year 5</small><b data-s="y5cum">${M(m.cum[5])}</b><small>Cumulative cash</small></div>
+      </div>
+      <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
+      <div class="table-wrap" id="sumT1">${cloneTable("planT1")}</div>
+      <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use the locked menu prices; Years 4–5 assume an expanded sales mix.</div>
+      <h3 style="font-size:.95rem;margin:16px 0 8px">Table 2. Renewal Life Space (whole non-profit): Year 0 start-up and Years 1–5 operations</h3>
+      <div class="table-wrap" id="sumT2">${cloneTable("planT2")}</div>
+      <h3 style="font-size:.95rem;margin:16px 0 6px">Notes &amp; key assumptions</h3>
+      <ol class="notes">
+        <li>This is the model’s “church facility support” (${M(s.churchMo)}/mo), which is switched off in the model’s base case.</li>
+        <li>Year 0 funding: ${K(s.fundraise)} fundraising, ${K(s.churchSeed)} church seed and a ${K(s.ti)} TI (tenant improvement) allowance.</li>
+        <li>Estimate: about ${M(s.pl_buildRate)}/sf on the whole ${s.pl_buildSf.toLocaleString("en-US")} sf leased space. The model’s base remodel figure is ${M(s.remodelBase)} (with a ${M(s.remodelAlt)} alternate). Year 0 excludes rent during build-out (the model has none).</li>
+        <li>Signage &amp; permits ${M(s.pl_sign)}. Equipment ${M(s.equip)}, POS ${M(s.pos)} and working capital ${M(s.pl_wc)} are from the café plan and the model.</li>
+        <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN) = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr. Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(lease1 - work)} lower in Year 1 (about ${M(Math.round((lease5 - work) / 100) * 100)} lower by Year 5).</li>
+        <li>The café pays all utilities (${M(s.cafeUtil)}, +${pct(s.oxInfl * 100)}%/yr), insurance (${M(s.cafeIns)}, +${pct(s.oxInfl * 100)}%/yr) and its own office (${M(s.cafeOff)}/yr). These are deducted before its donation, so they show as $0 here to avoid counting them twice.</li>
+      </ol>
+      <p class="hint">Café: open ${s.openDays} days/yr (closed Saturdays and 9 holidays); locked menu prices${upl ? `, +${pct(upl)}% in Year 3` : ""}; Year 4–5 mix: pastry ${pct(s.pl_pastry_y4 * 100)}%, sandwich ${pct(s.pl_sandwich_y4 * 100)}%, quiche ${pct(s.pl_quiche_y4 * 100)}%, smoothie ${pct(s.pl_smoothie_y4 * 100)}% of customers, plus add-ons and catering. Card fees ${pct(s.processing * 100)}%. Privately owned C-corp donating 100% of after-tax profit; tax at ${pct(s.taxFed)}% federal + ${pct(s.taxMd)}% Maryland, with the charitable deduction capped at about ${pct(s.taxCeil - s.taxFloor)}% of taxable income. Sublease ${M(m.ls[0].rent)}/yr${s.subEsc ? `, +${pct(s.subEsc * 100)}%/yr` : ", flat"}. Events use the base case (${s.eventsN} × ${M(s.eventsFee)}); the aim-for case (${AIM.eventsN} × ${M(AIM.eventsFee)}) adds ${M(aimEv)}/yr.</p>
+      <p class="hint">These are planning estimates. They are not audited, and the final structure must be confirmed by a Maryland CPA.</p>`;
+  }
+  window.__renderSummary = renderSummary;
+  const mo = new MutationObserver(renderSummary);
+  ["planT1","planT2","planStatus"].forEach(id => mo.observe($(id), { childList: true, subtree: true, characterData: true }));
+  renderSummary();
+  // print: show every tab, Summary first, then restore the active tab
+  const prep0 = window.__printPrep, done0 = window.__printDone;
+  window.__printPrep = () => {
+    if (prep0) prep0();
+    const p2 = $("printHead"); if (p2) { p2.querySelectorAll(".draft-banner").forEach(e => e.remove()); p2.appendChild(banner.cloneNode(true)); p2.after(sum); }
+    all.forEach(el => el.classList.remove("tab-hidden"));
+    document.querySelectorAll("main .grid > div, main .inputs-grid > div").forEach(col => { col.style.display = ""; });
+  };
+  window.__printDone = () => { if (done0) done0(); show(window.__tab || "summary"); };
+  window.removeEventListener("beforeprint", prep0); window.removeEventListener("afterprint", done0);
+  window.addEventListener("beforeprint", window.__printPrep); window.addEventListener("afterprint", window.__printDone);
+  const pdf = $("btnPdf"); if (pdf) { const n = pdf.cloneNode(true); pdf.replaceWith(n); n.addEventListener("click", () => { window.__printPrep(); window.print(); }); }
+  show(fromHash() || "summary");
+  window.addEventListener("load", () => window.scrollTo(0, 0));
 })();
 </script>
 <script>
