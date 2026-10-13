@@ -1283,7 +1283,7 @@ render();
   }
   groups.assumptions = [asm];
   // ---- Renditions gallery (concept images + walkthrough video; relative paths) ----
-  const GAL = [["01","Exterior"],["02","Renewal Café"],["03","Main Hall"],["04","Youth Lounge"],["05","Evening Lounge"],["06","Community Gathering"]]
+  const GAL = [["floorplan","Floor Plan (1st floor)"],["01","Exterior"],["02","Renewal Café"],["03","Main Hall"],["04","Youth Lounge"],["05","Evening Lounge"],["06","Community Gathering"]]
     .map(([n, c]) => ({ thumb: `renditions/${n}-thumb.jpg`, full: `renditions/${n}.jpg`, cap: c }))
     .concat([{ thumb: "renditions/walkthrough-thumb.jpg", full: "renditions/walkthrough.mp4", cap: "3D Walkthrough", video: true }]);
   const rnd = document.createElement("section"); rnd.className = "card"; rnd.id = "renditions";
