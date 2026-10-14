@@ -1333,6 +1333,7 @@ render();
   }
   function renderSummary() {
     const m = window.__plan; if (!m) return;
+    renderPay();
     const s = read(), y5 = 4, pct = v => (+v.toFixed(2)).toString();
     const upl = s.pl_upl_y3, lease1 = m.ls[0].lease, lease5 = m.ls[4].lease;
     const work = Math.round(m.ls[0].church + m.ls[0].sunday + m.ls[0].rent);
@@ -1366,7 +1367,37 @@ render();
       <p class="hint">Café: open ${s.openDays} days/yr (closed Saturdays and 9 holidays); locked menu prices${upl ? `, +${pct(upl)}% in Year 3` : ""}; Year 4–5 mix: pastry ${pct(s.pl_pastry_y4 * 100)}%, sandwich ${pct(s.pl_sandwich_y4 * 100)}%, quiche ${pct(s.pl_quiche_y4 * 100)}%, smoothie ${pct(s.pl_smoothie_y4 * 100)}% of customers, plus add-ons and catering. Card fees ${pct(s.processing * 100)}%. Privately owned C-corp donating 100% of after-tax profit; tax at ${pct(s.taxFed)}% federal + ${pct(s.taxMd)}% Maryland, with the charitable deduction capped at about ${pct(s.taxCeil - s.taxFloor)}% of taxable income. Sublease ${M(m.ls[0].rent)}/yr${s.subEsc ? `, +${pct(s.subEsc * 100)}%/yr` : ", flat"}. Events use the base case (${s.eventsN} × ${M(s.eventsFee)}); the aim-for case (${AIM.eventsN} × ${M(AIM.eventsFee)}) adds ${M(aimEv)}/yr.</p>
       <p class="hint">These are planning estimates. They are not audited, and the final structure must be confirmed by a Maryland CPA.</p>`;
   }
-  window.__renderSummary = renderSummary;
+  // ---- Staffing: Pay summary (display only; reuses payroll()/onShift() exactly) ----
+  const payBox = document.createElement("div"); payBox.id = "paySummary"; payBox.style.marginTop = "14px";
+  $("staffing").appendChild(payBox);
+  function renderPay() {
+    const s = read(), $m = v => money(v), mo = v => money(v / 12);
+    const parts = (cust, y) => {
+      const p = payroll(s, cust, y), g = Math.pow(1 + s.wageGrowth / 100, y - 1);
+      const bRaw = p.barista / (1 + s.bBarista);              // = onShift × open hrs/day × open days × barista wage (grown)
+      const mRaw = p.mgr / (1 + s.bMgmt), aRaw = p.admin / (1 + s.bMgmt);
+      return { p, n: p.onShift, bRaw, mRaw, aRaw, wb: s.wBarista * g };
+    };
+    const brow = (lab, x) => `<tr><td>${lab}</td><td>${x.n}</td><td>${mo(x.bRaw)}</td><td>${$m(x.bRaw)}</td><td>${mo(x.bRaw / x.n)}</td><td>${$m(x.bRaw / x.n)}</td><td>${mo(x.p.barista)}</td><td>${$m(x.p.barista)}</td></tr>`;
+    const cur = parts(s.customers, 1);
+    const yrs = [1,2,3,4,5].map(y => ({ y, c: s["pl_cust_y" + y], x: parts(s["pl_cust_y" + y], y) }));
+    const bb = pct => (+(pct * 100).toFixed(2)) + "%";
+    payBox.innerHTML = `<h3 style="font-size:.95rem;margin:0 0 6px">Pay summary</h3>
+      <div class="flag" style="margin-bottom:8px"><strong>Baristas on staff: ${cur.n}</strong> (${s.customers} customers/day, Year 1) — Total ${mo(cur.bRaw)}/mo, ${$m(cur.bRaw)}/yr (wages, before burden) — Avg per barista ${mo(cur.bRaw / cur.n)}/mo, ${$m(cur.bRaw / cur.n)}/yr.
+        With ${bb(s.bBarista)} payroll burden: ${mo(cur.p.barista)}/mo, ${$m(cur.p.barista)}/yr.</div>
+      <div class="table-wrap"><table><thead><tr><th>Baristas (hourly, no overtime)</th><th>On staff</th><th>Wages /mo</th><th>Wages /yr</th><th>Avg /barista /mo</th><th>Avg /barista /yr</th><th>Burdened /mo</th><th>Burdened /yr</th></tr></thead><tbody>
+        ${brow(`Current scenario (${s.customers}/day)`, cur)}
+        ${yrs.map(o => brow(`Plan Year ${o.y} (${o.c}/day, $${o.x.wb.toFixed(2)}/hr)`, o.x)).join("")}
+      </tbody></table></div>
+      <div class="hint" style="margin:4px 0 10px">Barista wages = baristas on shift × ${s.dayHrs} open hrs/day × ${s.openDays} open days × hourly wage (wage +${+s.wageGrowth}%/yr from Year 2), the same formula the app uses for payroll. Each “barista” is one full-day position on shift (${(s.dayHrs * s.openDays).toLocaleString("en-US")} hrs/yr), which may be covered by more than one person.</div>
+      <div class="table-wrap"><table><thead><tr><th>Year 1 (current scenario)</th><th>Hours</th><th>Wages /mo</th><th>Wages /yr</th><th>Burdened /mo</th><th>Burdened /yr</th></tr></thead><tbody>
+        <tr><td>Part-time admin${s.includeAdmin ? "" : " (excluded — toggle off)"}</td><td>${s.admHrs} hrs/wk × $${s.wAdmin.toFixed(2)}</td><td>${mo(cur.aRaw)}</td><td>${$m(cur.aRaw)}</td><td>${mo(cur.p.admin)}</td><td>${$m(cur.p.admin)}</td></tr>
+        <tr><td>Manager</td><td>${s.mgrHrs} hrs/wk × $${s.wManager.toFixed(2)}</td><td>${mo(cur.mRaw)}</td><td>${$m(cur.mRaw)}</td><td>${mo(cur.p.mgr)}</td><td>${$m(cur.p.mgr)}</td></tr>
+        <tr class="total"><td>Baristas + Admin + Manager</td><td></td><td>${mo(cur.bRaw + cur.aRaw + cur.mRaw)}</td><td>${$m(cur.bRaw + cur.aRaw + cur.mRaw)}</td><td>${mo(cur.p.barista + cur.p.admin + cur.p.mgr)}</td><td>${$m(cur.p.barista + cur.p.admin + cur.p.mgr)}</td></tr>
+      </tbody></table></div>
+      <div class="hint" id="payCheck" style="margin-top:4px">${Math.abs(cur.p.barista + cur.p.admin + cur.p.mgr - cur.p.total) < 0.5 ? "✓" : "✗"} Baristas + Admin + Manager (burdened) = payroll ${$m(cur.p.total)} (Year 1, the app’s café payroll). Burden: baristas ${bb(s.bBarista)}, manager/admin ${bb(s.bMgmt)}. The Planned statement also adds extra catering labor at ${+s.pl_catL}% of catering sales${s.pl_catL ? "" : " (currently $0)"}.</div>`;
+  }
+  window.__renderPay = renderPay;
   // ---- live-recalc wiring (no calculation changes) ----
   // Café Menu Y1 inputs (customers/day, attach rates) are the same drivers as Planned Year 1; keep them in sync both ways
   // so editing either one moves the Summary, Table 1 ticket/revenue and the KPIs. Defaults are identical (160; .78/.22/.20/.20/.08).
