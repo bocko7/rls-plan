@@ -1314,6 +1314,7 @@ render();
     document.querySelectorAll("main .grid, main .inputs-grid").forEach(g => { g.style.gridTemplateColumns = "1fr"; });
     groups[k].forEach(el => { if (el && el.tagName === "DETAILS") el.open = true; });
     bar.querySelectorAll("button").forEach(b => { const on = b.dataset.tab === k; b.classList.toggle("active", on); b.setAttribute("aria-selected", on); if (on && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" }); });
+    if (k === "summary" && window.__fullRender) window.__fullRender(); // Summary always re-renders from current state
     if (location.hash !== "#/" + k) history.replaceState(null, "", "#/" + k);
     window.scrollTo(0, 0); window.__tab = k;
   }
@@ -1366,6 +1367,18 @@ render();
       <p class="hint">These are planning estimates. They are not audited, and the final structure must be confirmed by a Maryland CPA.</p>`;
   }
   window.__renderSummary = renderSummary;
+  // ---- live-recalc wiring (no calculation changes) ----
+  // Café Menu Y1 inputs (customers/day, attach rates) are the same drivers as Planned Year 1; keep them in sync both ways
+  // so editing either one moves the Summary, Table 1 ticket/revenue and the KPIs. Defaults are identical (160; .78/.22/.20/.20/.08).
+  const LINK = { customers: "pl_cust_y1" }; CAT_IDS.forEach(id => { LINK[id + "_attach"] = `pl_${id}_y1`; });
+  Object.entries(LINK).forEach(([a, b]) => { LINK[b] = a; });
+  document.addEventListener("input", e => { const o = LINK[e.target.id]; if (o && $(o) && $(o).value !== e.target.value) $(o).value = e.target.value; }, true);
+  document.addEventListener("change", e => { const o = LINK[e.target.id]; if (o && $(o) && $(o).value !== e.target.value) $(o).value = e.target.value; }, true);
+  // every input/change anywhere (incl. inputs added later) → full recalc + re-render, debounced ≤100 ms
+  let tmr = 0; const full = () => { clearTimeout(tmr); tmr = 0; render(); renderSummary(); };
+  const kick = e => { if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) { clearTimeout(tmr); tmr = setTimeout(full, 100); } };
+  document.addEventListener("input", kick); document.addEventListener("change", kick);
+  window.__fullRender = full;
   const mo = new MutationObserver(renderSummary);
   ["planT1","planT2","planStatus"].forEach(id => mo.observe($(id), { childList: true, subtree: true, characterData: true }));
   renderSummary();
