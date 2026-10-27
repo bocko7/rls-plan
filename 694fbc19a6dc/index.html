@@ -213,7 +213,7 @@ details.panel li { margin-bottom:6px; }
   <div class="inputs-grid">
     <div>
       <section class="card" id="cafe">
-        <h2>Café &amp; Menu <span>Boyan locked · yellow = editable</span><span class="locked-badge">LOCKED MENU</span></h2>
+        <h2>Café &amp; Menu <span>menu v2 items · yellow = editable</span><span class="locked-badge">MENU V2</span></h2>
         <div class="fields">
           <label><strong>Customers / day</strong><input type="number" id="customers" step="1" min="0" /><span class="hint">Sheet Y1 = 160</span></label>
           <label><strong>Blended ticket $ (computed)</strong><input type="number" id="ticket" step="0.01" min="0" class="ro" readonly /><span class="hint">Σ(units×sale) ÷ customers</span></label>
@@ -242,7 +242,7 @@ details.panel li { margin-bottom:6px; }
           </table>
         </div>
         <div class="flag" style="margin-top:12px">
-          <strong>Locked (Boyan):</strong> Coffee $6.50/$0.78 · Smoothies $9.75/$1.90 · Pastries $3.40/$0.95 · Cold sandwiches $8.20/$2.30 · Quiche $7.60/$2.30. Attach from mix sheet; units = customers × attach.
+          <strong>Menu v2 (2026-10-27):</strong> by default each category uses its planned Sale $ / Cost $ (editable); switch on “Category prices from menu items” to use the mix-weighted averages of the menu items below instead (edit item price, cost or mix %). Attach from mix sheet; units = customers × attach. Soup and cake are sized at 10/day each. Earlier locked category menu (Boyan, Oct 7): Coffee $6.50/$0.78 · Smoothies $9.75/$1.90 · Pastries $3.40/$0.95 · Cold sandwiches $8.20/$2.30 · Quiche $7.60/$2.30 (quiche is now a menu item at these values).
         </div>
       </section>
 
@@ -407,6 +407,7 @@ details.panel li { margin-bottom:6px; }
 <li>Tax assumptions: 21% federal + 8.25% Maryland; charitable gifts deductible above a 1% floor and up to 10% of taxable income; losses produce $0 tax and $0 donation, with an NOL carryforward (80% limit).</li>
 <li>Rent from a non-controlled tenant is assumed excluded from Life Space unrelated business taxable income (IRC §512(b)(3)), assuming Life Space-owned equipment stays ≤10% of rent and Life Space provides no café-operating services. The sublease is assumed to be at documented fair-market rent (written sublease, usage schedule, non-conflicted board approval).</li>
 <li>“Oct 7 comparison” rows in the tax panel use an earlier square-foot at-cost allocation method.</li>
+<li>Café menu (menu v2, 2026-10-27): 64 menu items are grouped into the app categories. By default (Boyan, 2026-10-27) each category uses its planned sale price and unit cost (coffee $6.50 / $0.78, smoothies $9.75 / $1.90, pastries $3.40 / $0.95, sandwiches $8.20 / $2.30, quiche $7.60 / $2.30, soup $5.00 / $0.99, cake $8.00 / $1.80). The “Category prices from menu items” switch on the Café Menu tab replaces them with the mix-weighted averages of the items (edit item price, projected cost or mix %); with it off, each category shows what the items would give for reference. Costs marked EST are estimates without a quoted price. Quiche is a menu item at the app’s $7.60 / $2.30 (attach 0.08 in Year 1). All pastries are $4.50. The Turkey pesto panini replaces curry bread as the 4th sandwich (confirmed by Boyan). Soup ($5) and cake ($8) are categories sold at 10/day each (attach 0.0625 at 160 customers/day, held at 10/day in later years). With the switch on, the coffee category averages about $5.66 / $0.79 instead of the planned $6.50 / $0.78.</li>
 <li>Break-even figures use the menu prices/costs with current attach rates; scaling customers scales all units proportionally. Required ticket = blended ticket needed at that volume.</li>
 <li>The landlord tenant-improvement (TI) allowance is assumed to be reimbursed after spending, so there is timing risk. The base remodel ($70k) and the alternate $300k remodel path are separate alternatives and are not additive. The earlier $90k pre-opening figure overlaps the equipment lines.</li>
 <li>All figures are planning estimates subject to CPA / exempt-organization attorney review.</li>
@@ -415,13 +416,15 @@ details.panel li { margin-bottom:6px; }
 </main>
 
 <script>
-const CAT_IDS = ["coffee","smoothie","pastry","sandwich","quiche"];
+const CAT_IDS = ["coffee","smoothie","pastry","sandwich","quiche","soup","cake"];
 const CAT_LABELS = {
   coffee: "Coffee drinks",
   smoothie: "Smoothies",
   pastry: "Pastries",
   sandwich: "Cold sandwiches",
-  quiche: "Quiche"
+  quiche: "Quiche",
+  soup: "Soup",
+  cake: "Cake"
 };
 
 const LOCKED_MENU = {
@@ -429,8 +432,98 @@ const LOCKED_MENU = {
   smoothie: { sale: 9.75, cost: 1.90, attach: 0.22 },
   pastry:   { sale: 3.40, cost: 0.95, attach: 0.20 },
   sandwich: { sale: 8.20, cost: 2.30, attach: 0.20 },
-  quiche:   { sale: 7.60, cost: 2.30, attach: 0.08 }
+  quiche:   { sale: 7.60, cost: 2.30, attach: 0.08 },
+  // new categories (added with menu v1, 2026-10-26): Boyan brief soup $5 and cake $8, 10/day each = 10 ÷ 160 customers in Y1;
+  // cost = mix-weighted menu item cost (estimates); live values come from the item roll-up
+  soup:     { sale: 5.00, cost: 0.99, attach: 0.0625 },
+  cake:     { sale: 8.00, cost: 1.80, attach: 0.0625 }
 };
+
+// ---- Menu v2 items (menu-v2-2026-10-27.json, inlined: 64 items incl. quiche; the JSON sandwich_alternatives are deliberately not loaded) ----
+// Each category's Sale $ / Cost $ = Σ(item price × mix %) ÷ Σ mix % (same for cost), so the attach/units engine,
+// the P&L and the year plan keep working on category roll-ups. Item inputs: mi_<id>_p (price), _c (cost), _m (mix %).
+const MENU_ITEMS = [
+  {"id": "espresso-single", "cat": "coffee", "group": "Hot coffee", "name": "Espresso (single)", "size": "1 oz in 4 oz cup", "price": 3.0, "cost": 0.239, "est": false, "mix": 2, "notes": "9 g dose, ~1 oz shot", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "espresso-double", "cat": "coffee", "group": "Hot coffee", "name": "Espresso (double)", "size": "2 oz in 4 oz cup", "price": 3.75, "cost": 0.39, "est": false, "mix": 3, "notes": "18 g dose, ~2 oz", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "macchiato", "cat": "coffee", "group": "Hot coffee", "name": "Macchiato (Italian)", "size": "2.5 oz in 4 oz cup", "price": 4.0, "cost": 0.417, "est": false, "mix": 2, "notes": "double shot + a dollop of foam (ASSUMPTION: double, not single)", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "cappuccino-12", "cat": "coffee", "group": "Hot coffee", "name": "Cappuccino", "size": "12 oz hot", "price": 5.25, "cost": 0.592, "est": false, "mix": 4.95, "notes": "double shot; 6/9 oz milk (12/16 oz)", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "cappuccino-16", "cat": "coffee", "group": "Hot coffee", "name": "Cappuccino", "size": "16 oz hot", "price": 5.95, "cost": 0.681, "est": false, "mix": 4.05, "notes": "double shot; 6/9 oz milk (12/16 oz)", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "flat-white-12", "cat": "coffee", "group": "Hot coffee", "name": "Flat white", "size": "12 oz hot", "price": 5.5, "cost": 0.646, "est": false, "mix": 5.0, "notes": "double shot, 8 oz microfoam milk; 12 oz only", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "mocha-12", "cat": "coffee", "group": "Hot coffee", "name": "Mocha", "size": "12 oz hot", "price": 6.5, "cost": 0.922, "est": true, "mix": 2.75, "notes": "double shot; 1/1.5 oz chocolate; 8/11 oz milk; whip", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "mocha-16", "cat": "coffee", "group": "Hot coffee", "name": "Mocha", "size": "16 oz hot", "price": 7.0, "cost": 1.09, "est": true, "mix": 2.25, "notes": "double shot; 1/1.5 oz chocolate; 8/11 oz milk; whip", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "white-mocha-12", "cat": "coffee", "group": "Hot coffee", "name": "White chocolate mocha", "size": "12 oz hot", "price": 6.5, "cost": 1.065, "est": true, "mix": 2.2, "notes": "double shot; 1/1.5 oz Monin white choc; whip", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/monin-white-chocolate-flavoring-sauce-64-fl-oz-case/544SAUGC063CS.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "white-mocha-16", "cat": "coffee", "group": "Hot coffee", "name": "White chocolate mocha", "size": "16 oz hot", "price": 7.0, "cost": 1.304, "est": true, "mix": 1.8, "notes": "double shot; 1/1.5 oz Monin white choc; whip", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/monin-white-chocolate-flavoring-sauce-64-fl-oz-case/544SAUGC063CS.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "seasonal-12", "cat": "coffee", "group": "Hot coffee", "name": "Seasonal specialty latte (rotating)", "size": "12 oz hot", "price": 6.75, "cost": 1.114, "est": true, "mix": 2.75, "notes": "double shot; 1/1.5 oz syrup; 9/12 oz milk; whip + topping. Rotation: Pumpkin Cinnamon Latte (Sep-Oct); Candy Cane White Mocha (Nov-Dec); Brown Sugar Cinnamon Latte (Jan-Feb); Honey Lavender Latte (Mar-May); Coconut Caramel Latte (Jun-Aug)", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/monin-premium-coconut-flavoring-syrup-750-ml-case/544SYPAR013CS.html", "https://www.webstaurantstore.com/monin-premium-lavender-flavoring-syrup-750-ml-case/544SYPAR061CS.html", "https://www.webstaurantstore.com/monin-premium-pumpkin-spice-flavoring-syrup-750-ml-case/544SYPAR105CS.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html", "https://www.webstaurantstore.com/torani-brown-sugar-cinnamon-flavoring-syrup-750-ml-glass-bottle-case/880361316CS.html", "https://www.webstaurantstore.com/torani-peppermint-flavoring-syrup-750-ml-glass-bottle-case/880362573CS.html"]},
+  {"id": "seasonal-16", "cat": "coffee", "group": "Hot coffee", "name": "Seasonal specialty latte (rotating)", "size": "16 oz hot", "price": 7.25, "cost": 1.339, "est": true, "mix": 2.25, "notes": "double shot; 1/1.5 oz syrup; 9/12 oz milk; whip + topping. Rotation: Pumpkin Cinnamon Latte (Sep-Oct); Candy Cane White Mocha (Nov-Dec); Brown Sugar Cinnamon Latte (Jan-Feb); Honey Lavender Latte (Mar-May); Coconut Caramel Latte (Jun-Aug)", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/monin-premium-coconut-flavoring-syrup-750-ml-case/544SYPAR013CS.html", "https://www.webstaurantstore.com/monin-premium-lavender-flavoring-syrup-750-ml-case/544SYPAR061CS.html", "https://www.webstaurantstore.com/monin-premium-pumpkin-spice-flavoring-syrup-750-ml-case/544SYPAR105CS.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html", "https://www.webstaurantstore.com/torani-brown-sugar-cinnamon-flavoring-syrup-750-ml-glass-bottle-case/880361316CS.html", "https://www.webstaurantstore.com/torani-peppermint-flavoring-syrup-750-ml-glass-bottle-case/880362573CS.html"]},
+  {"id": "matcha-hot-12", "cat": "coffee", "group": "Hot coffee", "name": "Matcha latte (hot)", "size": "12 oz hot", "price": 5.75, "cost": 0.588, "est": true, "mix": 1.1, "notes": "2/3 g matcha; 10/13 oz milk", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "matcha-hot-16", "cat": "coffee", "group": "Hot coffee", "name": "Matcha latte (hot)", "size": "16 oz hot", "price": 6.25, "cost": 0.755, "est": true, "mix": 0.9, "notes": "2/3 g matcha; 10/13 oz milk", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "latte-12", "cat": "coffee", "group": "Hot coffee", "name": "Latte", "size": "12 oz hot", "price": 5.25, "cost": 0.673, "est": false, "mix": 7.7, "notes": "double shot; 9/12 oz milk (12/16 oz) — same basis as drink-costs/model.py", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "latte-16", "cat": "coffee", "group": "Hot coffee", "name": "Latte", "size": "16 oz hot", "price": 5.95, "cost": 0.762, "est": false, "mix": 6.3, "notes": "double shot; 9/12 oz milk (12/16 oz) — same basis as drink-costs/model.py", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "americano-12", "cat": "coffee", "group": "Hot coffee", "name": "Americano", "size": "12 oz hot", "price": 3.75, "cost": 0.43, "est": false, "mix": 3.3, "notes": "18 g (12 oz) / 27 g (16 oz) espresso + hot water — same basis as drink-costs/model.py", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "americano-16", "cat": "coffee", "group": "Hot coffee", "name": "Americano", "size": "16 oz hot", "price": 4.25, "cost": 0.588, "est": false, "mix": 2.7, "notes": "18 g (12 oz) / 27 g (16 oz) espresso + hot water — same basis as drink-costs/model.py", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "iced-coffee", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced coffee (cold brew)", "size": "16 oz iced", "price": 6.5, "cost": 0.572, "est": false, "mix": 4, "notes": "house cold brew over ice, optional milk", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "iced-flat-white", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced flat white", "size": "16 oz iced", "price": 6.5, "cost": 0.677, "est": false, "mix": 2, "notes": "double shot, 8 oz milk, ice", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "iced-mocha", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced mocha", "size": "16 oz iced", "price": 7.0, "cost": 1.006, "est": true, "mix": 4, "notes": "double shot, 1.5 oz chocolate, whip", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "iced-white-mocha", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced white chocolate mocha", "size": "16 oz iced", "price": 7.0, "cost": 1.22, "est": true, "mix": 3, "notes": "double shot, 1.5 oz white choc, whip", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/monin-white-chocolate-flavoring-sauce-64-fl-oz-case/544SAUGC063CS.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "iced-seasonal", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced seasonal specialty", "size": "16 oz iced", "price": 7.25, "cost": 1.205, "est": true, "mix": 3, "notes": "same rotation as hot seasonal", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/monin-premium-pumpkin-spice-flavoring-syrup-750-ml-case/544SYPAR105CS.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html"]},
+  {"id": "iced-matcha", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced matcha latte", "size": "16 oz iced", "price": 6.5, "cost": 0.697, "est": true, "mix": 3, "notes": "3 g matcha, 10 oz milk", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "iced-latte", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced latte", "size": "16 oz iced", "price": 6.5, "cost": 0.677, "est": false, "mix": 7, "notes": "double shot, 8 oz milk, 6 oz ice — same as drink-costs iced latte", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "iced-americano", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Iced Americano", "size": "16 oz iced", "price": 5.25, "cost": 0.476, "est": false, "mix": 3, "notes": "double shot over ice and cold water", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "frappe-caramel", "cat": "coffee", "group": "Iced coffee & matcha", "name": "Caramel Marvel Frappé", "size": "16 oz iced", "price": 7.25, "cost": 2.516, "est": true, "mix": 4, "notes": "blended: vanilla frappe base, double shot, caramel, ice, whip + drizzle", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/cappuccine-supreme-vanilla-bean-frappe-mix-3-lb/999PW18VANBN.html", "https://www.webstaurantstore.com/sommer-maid-15-oz-aerosol-whipped-topping-can-case/108REA13A.html", "https://www.webstaurantstore.com/torani-puremade-caramel-flavoring-sauce-64-fl-oz-case/8808606CS.html"]},
+  {"id": "tea-green-12", "cat": "coffee", "group": "Tea", "name": "Green tea", "size": "12 oz hot", "price": 3.25, "cost": 0.329, "est": false, "mix": 1.38, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-green-tea-bags-case/11000388CS.html"]},
+  {"id": "tea-green-16", "cat": "coffee", "group": "Tea", "name": "Green tea", "size": "16 oz hot", "price": 3.75, "cost": 0.536, "est": false, "mix": 1.12, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-green-tea-bags-case/11000388CS.html"]},
+  {"id": "tea-black-12", "cat": "coffee", "group": "Tea", "name": "Black tea (English Breakfast)", "size": "12 oz hot", "price": 3.25, "cost": 0.28, "est": false, "mix": 1.38, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/twinings-english-breakfast-tea-bags-box/110TWN14297.html"]},
+  {"id": "tea-black-16", "cat": "coffee", "group": "Tea", "name": "Black tea (English Breakfast)", "size": "16 oz hot", "price": 3.75, "cost": 0.437, "est": false, "mix": 1.12, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/twinings-english-breakfast-tea-bags-box/110TWN14297.html"]},
+  {"id": "tea-mint-12", "cat": "coffee", "group": "Tea", "name": "Herbal: Peppermint", "size": "12 oz hot", "price": 3.25, "cost": 0.329, "est": false, "mix": 1.1, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-28-count-peppermint-herbal-tea-bags-case/11012367KT.html"]},
+  {"id": "tea-mint-16", "cat": "coffee", "group": "Tea", "name": "Herbal: Peppermint", "size": "16 oz hot", "price": 3.75, "cost": 0.536, "est": false, "mix": 0.9, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-28-count-peppermint-herbal-tea-bags-case/11012367KT.html"]},
+  {"id": "tea-ginger-lemon-12", "cat": "coffee", "group": "Tea", "name": "Herbal: Lemon Ginger", "size": "12 oz hot", "price": 3.25, "cost": 0.329, "est": false, "mix": 0.83, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-lemon-ginger-herbal-tea-bags-case/11010395CS.html"]},
+  {"id": "tea-ginger-lemon-16", "cat": "coffee", "group": "Tea", "name": "Herbal: Lemon Ginger", "size": "16 oz hot", "price": 3.75, "cost": 0.536, "est": false, "mix": 0.67, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-lemon-ginger-herbal-tea-bags-case/11010395CS.html"]},
+  {"id": "tea-peach-12", "cat": "coffee", "group": "Tea", "name": "Herbal: Peach", "size": "12 oz hot", "price": 3.25, "cost": 0.38, "est": false, "mix": 0.83, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-perfect-peach-herbal-tea-bags-case/11000040CS.html"]},
+  {"id": "tea-peach-16", "cat": "coffee", "group": "Tea", "name": "Herbal: Peach", "size": "16 oz hot", "price": 3.75, "cost": 0.637, "est": false, "mix": 0.67, "notes": "1 bag (12 oz) / 2 bags (16 oz, ASSUMPTION); flavor brand TBD", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/bigelow-perfect-peach-herbal-tea-bags-case/11000040CS.html"]},
+  {"id": "sm-mango", "cat": "smoothie", "group": "Smoothie", "name": "Mango smoothie", "size": "16 oz", "price": 9.75, "cost": 1.699, "est": false, "mix": 22, "notes": "7 oz mango, 3 oz pineapple, 6 oz almond milk", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "sm-berry-kingdom", "cat": "smoothie", "group": "Smoothie", "name": "Berry Kingdom", "size": "16 oz", "price": 9.75, "cost": 1.951, "est": false, "mix": 22, "notes": "6 oz mixed berries, 2 oz strawberry, 2 oz banana, 6 oz almond", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "sm-green-power", "cat": "smoothie", "group": "Smoothie", "name": "Green Power", "size": "16 oz", "price": 9.75, "cost": 1.259, "est": false, "mix": 18, "notes": "pineapple, banana, spinach, almond", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "sm-carrot-vision", "cat": "smoothie", "group": "Smoothie", "name": "Carrot Vision", "size": "16 oz", "price": 9.75, "cost": 1.754, "est": false, "mix": 18, "notes": "6 oz carrot juice + mango, pineapple, banana (ginger optional)", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/1036142-bolthouse-organic-carrot-juice-3-32-oz"]},
+  {"id": "sm-seas-banana-pb", "cat": "smoothie", "group": "Smoothie", "name": "Seasonal: Banana Peanut Butter", "size": "16 oz", "price": 9.75, "cost": 0.99, "est": false, "mix": 5, "notes": "one seasonal at a time; mix shown = 20% averaged over the year Seasonal window: Jan-Mar.", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/555000-kirkland-signature-organic-creamy-peanut-butter-2-28-oz"]},
+  {"id": "sm-seas-melon", "cat": "smoothie", "group": "Smoothie", "name": "Seasonal: Melon", "size": "16 oz", "price": 9.75, "cost": 1.053, "est": true, "mix": 5, "notes": "one seasonal at a time; mix shown = 20% averaged over the year Seasonal window: Jun-Aug.", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/15994-cantaloupe-3-count"]},
+  {"id": "sm-seas-pineapple", "cat": "smoothie", "group": "Smoothie", "name": "Seasonal: Pineapple", "size": "16 oz", "price": 9.75, "cost": 1.667, "est": false, "mix": 5, "notes": "one seasonal at a time; mix shown = 20% averaged over the year Seasonal window: Apr-May.", "src": ["drink-unit-costs-2026-10-22.md (KB)"]},
+  {"id": "sm-seas-guava", "cat": "smoothie", "group": "Smoothie", "name": "Seasonal: Guava", "size": "16 oz", "price": 9.75, "cost": 2.329, "est": false, "mix": 5, "notes": "one seasonal at a time; mix shown = 20% averaged over the year Seasonal window: Sep-Dec.", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.hotelrestaurantsupply.com/wfs-495505.html"]},
+  {"id": "pa-nutella-croissant", "cat": "pastry", "group": "Pastry", "name": "Nutella croissant", "size": "1 ea", "price": 4.5, "cost": 1.624, "est": false, "mix": 30, "notes": "bake-off croissant, piped Nutella", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/1080890-nutella-hazelnut-spread-6-6-lb", "https://www.webstaurantstore.com/1-4-lb-6-3-4-x-4-3-4-customizable-white-gourmet-bag-case/150GBWH14.html", "pastry-wholesale-prices-2026-10-14.md (KB)"]},
+  {"id": "pa-cheese-triangle", "cat": "pastry", "group": "Pastry", "name": "Cheese triangle", "size": "1 ea", "price": 4.5, "cost": 1.278, "est": true, "mix": 25, "notes": "folded puff square with feta", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/580749-zev-z-crumbled-feta-5-lbs", "https://www.webstaurantstore.com/1-4-lb-6-3-4-x-4-3-4-customizable-white-gourmet-bag-case/150GBWH14.html", "https://www.webstaurantstore.com/pennant-french-puff-pastry-dough-10-x-15-sheet-case/108PNT545569.html"]},
+  {"id": "pa-tri-pbj", "cat": "pastry", "group": "Pastry", "name": "Sweet triangle: PB&J", "size": "1 ea", "price": 4.5, "cost": 1.162, "est": true, "mix": 15, "notes": "slots 3+4 run 2 of the 3 sweet triangles at a time; monthly rotation (PB&J+Dubai, Dubai+Pistachio, Pistachio+PB&J), so each is on 2 of every 3 months", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/555000-kirkland-signature-organic-creamy-peanut-butter-2-28-oz", "https://www.webstaurantstore.com/pennant-french-puff-pastry-dough-10-x-15-sheet-case/108PNT545569.html", "https://www.webstaurantstore.com/smuckers-strawberry-jam-0-5-oz-portion-cups-case/125PC1048.html"]},
+  {"id": "pa-tri-dubai", "cat": "pastry", "group": "Pastry", "name": "Sweet triangle: Dubai chocolate", "size": "1 ea", "price": 4.5, "cost": 1.912, "est": true, "mix": 15, "notes": "slots 3+4 run 2 of the 3 sweet triangles at a time; monthly rotation (PB&J+Dubai, Dubai+Pistachio, Pistachio+PB&J), so each is on 2 of every 3 months", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://member.restaurantdepot.com/store/jetro-restaurant-depot/products/310243-kontos-kataifi-16-oz", "https://wholesaleitalianfood.com/products/gusto-etna-pistachio-cream", "https://www.webstaurantstore.com/hersheys-25-lb-semi-sweet-chocolate-1m-baking-chips/403340061125.html", "https://www.webstaurantstore.com/pennant-french-puff-pastry-dough-10-x-15-sheet-case/108PNT545569.html"]},
+  {"id": "pa-tri-pistachio", "cat": "pastry", "group": "Pastry", "name": "Sweet triangle: Pistachio", "size": "1 ea", "price": 4.5, "cost": 1.74, "est": true, "mix": 15, "notes": "slots 3+4 run 2 of the 3 sweet triangles at a time; monthly rotation (PB&J+Dubai, Dubai+Pistachio, Pistachio+PB&J), so each is on 2 of every 3 months", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://wholesaleitalianfood.com/products/gusto-etna-pistachio-cream", "https://www.webstaurantstore.com/pennant-french-puff-pastry-dough-10-x-15-sheet-case/108PNT545569.html"]},
+  {"id": "sw-avocado-chicken-melt", "cat": "sandwich", "group": "Sandwich", "name": "Avocado chicken melt", "size": "1 ciabatta", "price": 8.2, "cost": 2.752, "est": false, "mix": 30, "notes": "pressed on panini press (needs equipment)", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/1344-roma-tomatoes-hothouse-grown-3-lbs", "https://app.warehouserunner.com/costco/1959045-ciabatta-sandwich-roll-12-count", "https://app.warehouserunner.com/costco/22102-kirkland-signature-colby-jack-cheese-2-lb", "https://app.warehouserunner.com/costco/647465-avocados-hass-variety-6-count", "https://sameday.costcobusinesscentre.ca/store/costco-business-centre/products/142134-kirkland-signature-mayonnaise-2-qt-64-oz", "https://sameday.costcobusinessdelivery.com/store/costco-business-center/products/19187507-tyson-fully-cooked-frozen-grilled-chicken-strips-10-lb", "https://www.webstaurantstore.com/choice-pet-sandwich-wedge-container-case/127SANDWEDGE.html"]},
+  {"id": "sw-chipotle-chicken", "cat": "sandwich", "group": "Sandwich", "name": "Chipotle chicken", "size": "1 ciabatta", "price": 8.2, "cost": 2.594, "est": true, "mix": 30, "notes": "", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/12063-sonoma-cheese-sliced-pepper-jack-2-lb", "https://app.warehouserunner.com/costco/1344-roma-tomatoes-hothouse-grown-3-lbs", "https://app.warehouserunner.com/costco/1959045-ciabatta-sandwich-roll-12-count", "https://app.warehouserunner.com/costco/39036-romaine-hearts-6-count", "https://sameday.costcobusinessdelivery.com/store/costco-business-center/products/19187507-tyson-fully-cooked-frozen-grilled-chicken-strips-10-lb", "https://www.webstaurantstore.com/choice-pet-sandwich-wedge-container-case/127SANDWEDGE.html", "https://www.webstaurantstore.com/kens-foods-signature-chipotle-mayonnaise-sauce-1-gallon-case/125996202.html"]},
+  {"id": "sw-veggie-fresh", "cat": "sandwich", "group": "Sandwich", "name": "Veggie fresh", "size": "1 ciabatta", "price": 8.2, "cost": 1.861, "est": true, "mix": 20, "notes": "", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/1344-roma-tomatoes-hothouse-grown-3-lbs", "https://app.warehouserunner.com/costco/1959045-ciabatta-sandwich-roll-12-count", "https://app.warehouserunner.com/costco/2251987-kirkland-signature-organic-pine-nut-hummus-34-oz", "https://app.warehouserunner.com/costco/39036-romaine-hearts-6-count", "https://app.warehouserunner.com/costco/580749-zev-z-crumbled-feta-5-lbs", "https://app.warehouserunner.com/costco/647465-avocados-hass-variety-6-count", "https://app.warehouserunner.com/costco/88426-english-cucumbers-hothouse-grown-3-count", "https://www.webstaurantstore.com/choice-pet-sandwich-wedge-container-case/127SANDWEDGE.html"]},
+  {"id": "sw-turkey-pesto-panini", "cat": "sandwich", "group": "Sandwich", "name": "Turkey pesto panini", "size": "1 ciabatta", "price": 8.2, "cost": 2.775, "est": true, "mix": 20, "notes": "4th sandwich (replaces curry bread; confirmed by Boyan 2026-10-27). assembled; pressed to order on the panini press (no oil); serve cold if press is busy", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/1344-roma-tomatoes-hothouse-grown-3-lbs", "https://app.warehouserunner.com/costco/1959045-ciabatta-sandwich-roll-12-count", "https://app.warehouserunner.com/costco/20661-tillamook-sliced-swiss-cheese-32-ct-2-lb", "https://app.warehouserunner.com/costco/39036-romaine-hearts-6-count", "https://app.warehouserunner.com/costco/8443334-kirkland-signature-oven-rst-turkey-breast-2-20-oz", "https://app.warehouserunner.com/costco/990551-kirkland-signature-italian-basil-pesto-22-ounce-jar", "https://www.webstaurantstore.com/choice-pet-sandwich-wedge-container-case/127SANDWEDGE.html"]},
+  {"id": "quiche", "cat": "quiche", "group": "Quiche", "name": "Quiche (slice)", "size": "1 slice", "price": 7.6, "cost": 2.3, "est": false, "mix": 100, "notes": "kept per Boyan 2026-10-27; price, cost and attach (0.08 Y1) verified in app LOCKED_MENU/DEFAULTS (index.html lines 435, 529)", "src": ["App LOCKED_MENU (Boyan, Oct 7 2026)"]},
+  {"id": "soup-squash", "cat": "soup", "group": "Soup", "name": "Soup of the day: Butternut squash", "size": "12 oz bowl", "price": 5.0, "cost": 1.345, "est": true, "mix": 20, "notes": "IQF squash, veg broth, blended; one soup per day, rotating", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/2-lb-bag-iqf-broccoli-florets-12-case/877RE77921.html", "https://www.webstaurantstore.com/better-than-bouillon-premium-vegetable-flavor-base-10-lb/104BTBVEG10.html", "https://www.webstaurantstore.com/choice-12-oz-double-poly-coated-white-paper-soup-hot-food-cup-with-vented-paper-lid-case/760SOUP12WPA.html", "https://www.webstaurantstore.com/choice-black-heavy-weight-wrapped-polypropylene-plastic-soup-spoon-case/130HPPWRBSS.html", "https://www.webstaurantstore.com/furmanos-bella-vista-10-can-crushed-tomatoes-case/10710906.html", "https://www.webstaurantstore.com/goya-10-can-black-beans-case/107GOYA2459.html", "https://www.webstaurantstore.com/goya-4-lb-lentils-case/111GOYA2516.html", "https://www.webstaurantstore.com/iqf-diced-butternut-squash-20-lb/877RE490130.html"]},
+  {"id": "soup-colombian-lentil", "cat": "soup", "group": "Soup", "name": "Soup of the day: Colombian lentil", "size": "12 oz bowl", "price": 5.0, "cost": 0.747, "est": true, "mix": 20, "notes": "lentils with sofrito-style base; one soup per day, rotating", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/2-lb-bag-iqf-broccoli-florets-12-case/877RE77921.html", "https://www.webstaurantstore.com/better-than-bouillon-premium-vegetable-flavor-base-10-lb/104BTBVEG10.html", "https://www.webstaurantstore.com/choice-12-oz-double-poly-coated-white-paper-soup-hot-food-cup-with-vented-paper-lid-case/760SOUP12WPA.html", "https://www.webstaurantstore.com/choice-black-heavy-weight-wrapped-polypropylene-plastic-soup-spoon-case/130HPPWRBSS.html", "https://www.webstaurantstore.com/furmanos-bella-vista-10-can-crushed-tomatoes-case/10710906.html", "https://www.webstaurantstore.com/goya-10-can-black-beans-case/107GOYA2459.html", "https://www.webstaurantstore.com/goya-4-lb-lentils-case/111GOYA2516.html", "https://www.webstaurantstore.com/iqf-diced-butternut-squash-20-lb/877RE490130.html"]},
+  {"id": "soup-tomato", "cat": "soup", "group": "Soup", "name": "Soup of the day: Tomato", "size": "12 oz bowl", "price": 5.0, "cost": 0.822, "est": true, "mix": 20, "notes": "blended tomato basil; one soup per day, rotating", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/2-lb-bag-iqf-broccoli-florets-12-case/877RE77921.html", "https://www.webstaurantstore.com/better-than-bouillon-premium-vegetable-flavor-base-10-lb/104BTBVEG10.html", "https://www.webstaurantstore.com/choice-12-oz-double-poly-coated-white-paper-soup-hot-food-cup-with-vented-paper-lid-case/760SOUP12WPA.html", "https://www.webstaurantstore.com/choice-black-heavy-weight-wrapped-polypropylene-plastic-soup-spoon-case/130HPPWRBSS.html", "https://www.webstaurantstore.com/furmanos-bella-vista-10-can-crushed-tomatoes-case/10710906.html", "https://www.webstaurantstore.com/goya-10-can-black-beans-case/107GOYA2459.html", "https://www.webstaurantstore.com/goya-4-lb-lentils-case/111GOYA2516.html", "https://www.webstaurantstore.com/iqf-diced-butternut-squash-20-lb/877RE490130.html"]},
+  {"id": "soup-taco-bean", "cat": "soup", "group": "Soup", "name": "Soup of the day: Taco bean", "size": "12 oz bowl", "price": 5.0, "cost": 0.853, "est": true, "mix": 20, "notes": "black bean, tomato, corn; one soup per day, rotating", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/2-lb-bag-iqf-broccoli-florets-12-case/877RE77921.html", "https://www.webstaurantstore.com/better-than-bouillon-premium-vegetable-flavor-base-10-lb/104BTBVEG10.html", "https://www.webstaurantstore.com/choice-12-oz-double-poly-coated-white-paper-soup-hot-food-cup-with-vented-paper-lid-case/760SOUP12WPA.html", "https://www.webstaurantstore.com/choice-black-heavy-weight-wrapped-polypropylene-plastic-soup-spoon-case/130HPPWRBSS.html", "https://www.webstaurantstore.com/furmanos-bella-vista-10-can-crushed-tomatoes-case/10710906.html", "https://www.webstaurantstore.com/goya-10-can-black-beans-case/107GOYA2459.html", "https://www.webstaurantstore.com/goya-4-lb-lentils-case/111GOYA2516.html", "https://www.webstaurantstore.com/iqf-diced-butternut-squash-20-lb/877RE490130.html"]},
+  {"id": "soup-broccoli", "cat": "soup", "group": "Soup", "name": "Soup of the day: Broccoli", "size": "12 oz bowl", "price": 5.0, "cost": 1.159, "est": true, "mix": 20, "notes": "no-cheese \"healthy heart\" broccoli; one soup per day, rotating", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/2-lb-bag-iqf-broccoli-florets-12-case/877RE77921.html", "https://www.webstaurantstore.com/better-than-bouillon-premium-vegetable-flavor-base-10-lb/104BTBVEG10.html", "https://www.webstaurantstore.com/choice-12-oz-double-poly-coated-white-paper-soup-hot-food-cup-with-vented-paper-lid-case/760SOUP12WPA.html", "https://www.webstaurantstore.com/choice-black-heavy-weight-wrapped-polypropylene-plastic-soup-spoon-case/130HPPWRBSS.html", "https://www.webstaurantstore.com/furmanos-bella-vista-10-can-crushed-tomatoes-case/10710906.html", "https://www.webstaurantstore.com/goya-10-can-black-beans-case/107GOYA2459.html", "https://www.webstaurantstore.com/goya-4-lb-lentils-case/111GOYA2516.html", "https://www.webstaurantstore.com/iqf-diced-butternut-squash-20-lb/877RE490130.html"]},
+  {"id": "cake-black-forest", "cat": "cake", "group": "Cake", "name": "Black forest cake", "size": "1 slice (1/12 of 9in)", "price": 8.0, "cost": 1.894, "est": true, "mix": 25, "notes": "wholesale frozen 9in, cut 12", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/choice-5-clear-hinged-slice-container-with-medium-dome-lid/433MSLCPIE300.html", "https://www.webstaurantstore.com/choice-white-heavy-weight-polypropylene-plastic-cutlery-pack-with-napkin-and-salt-and-pepper-packets-case/130HPPWFKSNSP500.html", "https://www.webstaurantstore.com/pellman-9-black-forest-cake-case/108PELL4204.html"]},
+  {"id": "cake-white-chocolate", "cat": "cake", "group": "Cake", "name": "White chocolate cake", "size": "1 slice", "price": 8.0, "cost": 1.307, "est": true, "mix": 25, "notes": "in-house; no wholesale white-chocolate cake found (Eli's WC raspberry cheesecake listed ~$5/slice, unavailable)", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.webstaurantstore.com/choice-5-clear-hinged-slice-container-with-medium-dome-lid/433MSLCPIE300.html", "https://www.webstaurantstore.com/ghirardelli-10-lb-classic-white-chocolate-1m-baking-chips/40864104.html", "https://www.webstaurantstore.com/gold-medal-chocolate-chocolate-cake-mix-5-lb-case/104GM11116.html"]},
+  {"id": "cake-nutella-hazelnut-raisin", "cat": "cake", "group": "Cake", "name": "Nutella hazelnut raisin cake", "size": "1 slice", "price": 8.0, "cost": 1.266, "est": true, "mix": 25, "notes": "in-house", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://app.warehouserunner.com/costco/1080890-nutella-hazelnut-spread-6-6-lb", "https://app.warehouserunner.com/costco/1388860-sun-maid-select-raisins-30-lb", "https://www.webstaurantstore.com/choice-5-clear-hinged-slice-container-with-medium-dome-lid/433MSLCPIE300.html", "https://www.webstaurantstore.com/gold-medal-chocolate-chocolate-cake-mix-5-lb-case/104GM11116.html"]},
+  {"id": "cake-matcha", "cat": "cake", "group": "Cake", "name": "Matcha cake", "size": "1 slice (65 g)", "price": 8.0, "cost": 2.728, "est": false, "mix": 25, "notes": "wholesale frozen slice", "src": ["drink-unit-costs-2026-10-22.md (KB)", "https://www.tengenusatrading.com/zh_CN/shop/category/frozen-15", "https://www.webstaurantstore.com/choice-5-clear-hinged-slice-container-with-medium-dome-lid/433MSLCPIE300.html", "https://www.webstaurantstore.com/choice-white-heavy-weight-polypropylene-plastic-cutlery-pack-with-napkin-and-salt-and-pepper-packets-case/130HPPWFKSNSP500.html"]}
+];
+// menu v1 item defaults {id: [price, cost, mix %, name]} — used only to tell which saved v1 item values were user edits
+const MENU_V1_DEFAULTS = {"espresso-single":[3.0,0.239,3.0,"Espresso (single) 1 oz in 4 oz cup"],"espresso-double":[3.75,0.39,5.0,"Espresso (double) 2 oz in 4 oz cup"],"macchiato":[4.0,0.417,3.0,"Macchiato (Italian) 2.5 oz in 4 oz cup"],"cappuccino-12":[5.25,0.592,8.25,"Cappuccino 12 oz hot"],"cappuccino-16":[5.95,0.681,6.75,"Cappuccino 16 oz hot"],"flat-white-12":[5.5,0.646,10.0,"Flat white 12 oz hot"],"mocha-12":[6.5,0.922,3.85,"Mocha 12 oz hot"],"mocha-16":[7.0,1.09,3.15,"Mocha 16 oz hot"],"white-mocha-12":[6.5,1.065,3.3,"White chocolate mocha 12 oz hot"],"white-mocha-16":[7.0,1.304,2.7,"White chocolate mocha 16 oz hot"],"seasonal-12":[6.75,1.114,3.85,"Seasonal specialty latte (rotating) 12 oz hot"],"seasonal-16":[7.25,1.339,3.15,"Seasonal specialty latte (rotating) 16 oz hot"],"matcha-hot-12":[5.75,0.588,1.65,"Matcha latte (hot) 12 oz hot"],"matcha-hot-16":[6.25,0.755,1.35,"Matcha latte (hot) 16 oz hot"],"iced-coffee":[6.5,0.572,6.0,"Iced coffee (cold brew) 16 oz iced"],"iced-flat-white":[6.5,0.677,5.0,"Iced flat white 16 oz iced"],"iced-mocha":[7.0,1.006,5.0,"Iced mocha 16 oz iced"],"iced-white-mocha":[7.0,1.22,4.0,"Iced white chocolate mocha 16 oz iced"],"iced-seasonal":[7.25,1.205,4.0,"Iced seasonal specialty 16 oz iced"],"iced-matcha":[6.5,0.697,3.0,"Iced matcha latte 16 oz iced"],"frappe-caramel":[7.25,2.516,4.0,"Caramel Marvel Frappuccino 16 oz iced"],"tea-green-12":[3.25,0.329,1.38,"Green tea 12 oz hot"],"tea-green-16":[3.75,0.536,1.12,"Green tea 16 oz hot"],"tea-black-12":[3.25,0.28,1.38,"Black tea (English Breakfast) 12 oz hot"],"tea-black-16":[3.75,0.437,1.12,"Black tea (English Breakfast) 16 oz hot"],"tea-mint-12":[3.25,0.329,1.1,"Herbal: Peppermint 12 oz hot"],"tea-mint-16":[3.75,0.536,0.9,"Herbal: Peppermint 16 oz hot"],"tea-ginger-lemon-12":[3.25,0.329,0.83,"Herbal: Lemon Ginger 12 oz hot"],"tea-ginger-lemon-16":[3.75,0.536,0.68,"Herbal: Lemon Ginger 16 oz hot"],"tea-peach-12":[3.25,0.38,0.83,"Herbal: Peach 12 oz hot"],"tea-peach-16":[3.75,0.637,0.68,"Herbal: Peach 16 oz hot"],"sm-mango":[9.75,1.699,22.0,"Mango smoothie 16 oz"],"sm-berry-kingdom":[9.75,1.951,22.0,"Berry Kingdom 16 oz"],"sm-green-power":[9.75,1.259,18.0,"Green Power 16 oz"],"sm-carrot-vision":[9.75,1.754,18.0,"Carrot Vision 16 oz"],"sm-seas-banana-pb":[9.75,0.99,5.0,"Seasonal: Banana Peanut Butter 16 oz"],"sm-seas-melon":[9.75,1.053,5.0,"Seasonal: Melon 16 oz"],"sm-seas-pineapple":[9.75,1.667,5.0,"Seasonal: Pineapple 16 oz"],"sm-seas-guava":[9.75,2.329,5.0,"Seasonal: Guava 16 oz"],"pa-nutella-croissant":[3.4,1.624,30.0,"Nutella croissant 1 ea"],"pa-cheese-triangle":[3.4,1.278,25.0,"Cheese triangle 1 ea"],"pa-tri-pbj":[3.4,1.162,8.33,"Triangle of the month: PB&J 1 ea"],"pa-tri-dubai":[3.4,1.912,8.33,"Triangle of the month: Dubai chocolate 1 ea"],"pa-tri-pistachio":[3.4,1.74,8.33,"Triangle of the month: Pistachio 1 ea"],"pa-banana-raisin-bread":[3.4,0.79,10.0,"Bake slot: Banana raisin bread (slice) 1 slice ~4 oz"],"pa-rasp-wc-muffin":[3.4,1.037,10.0,"Bake slot: Raspberry white chocolate muffin 1 large muffin"],"sw-avocado-chicken-melt":[8.2,2.752,30.0,"Avocado chicken melt 1 ciabatta"],"sw-chipotle-chicken":[8.2,2.594,30.0,"Chipotle chicken 1 ciabatta"],"sw-veggie-fresh":[8.2,1.861,20.0,"Veggie fresh 1 ciabatta"],"sw-curry-bread":[8.2,2.558,20.0,"Curry bread (baked, 2 buns) 2 buns ~5 oz each"],"soup-squash":[5.0,1.345,20.0,"Soup of the day: Butternut squash 12 oz bowl"],"soup-colombian-lentil":[5.0,0.747,20.0,"Soup of the day: Colombian lentil 12 oz bowl"],"soup-tomato":[5.0,0.822,20.0,"Soup of the day: Tomato 12 oz bowl"],"soup-taco-bean":[5.0,0.853,20.0,"Soup of the day: Taco bean 12 oz bowl"],"soup-broccoli":[5.0,1.159,20.0,"Soup of the day: Broccoli 12 oz bowl"],"cake-black-forest":[8.0,1.894,25.0,"Black forest cake 1 slice (1/12 of 9in)"],"cake-white-chocolate":[8.0,1.307,25.0,"White chocolate cake 1 slice"],"cake-nutella-hazelnut-raisin":[8.0,1.266,25.0,"Nutella hazelnut raisin cake 1 slice"],"cake-matcha":[8.0,2.728,25.0,"Matcha cake 1 slice (65 g)"],"quiche":[7.6,2.3,100,"Quiche (slice) 1 slice"]};
+const MENU_VERSION = "menu-v2-2026-10-27";
+const LEGACY_LOCKED = { coffee: [6.50, 0.78], smoothie: [9.75, 1.90], pastry: [3.40, 0.95], sandwich: [8.20, 2.30], quiche: [7.60, 2.30] };
+function menuItemDefaults() {
+  const o = {}; MENU_ITEMS.forEach(it => { o[`mi_${it.id}_p`] = it.price; o[`mi_${it.id}_c`] = it.cost; o[`mi_${it.id}_m`] = it.mix; });
+  return o;
+}
+function itemsOf(cat) { return MENU_ITEMS.filter(it => it.cat === cat); }
+// mix-weighted roll-up for one category from a state object (falls back to item defaults for missing keys)
+function menuRollup(s, cat) {
+  const v = (k, d) => { const x = s[k]; return (typeof x === "number" && isFinite(x)) ? x : d; };
+  let m = 0, ps = 0, cs = 0; const items = itemsOf(cat);
+  items.forEach(it => { const mm = Math.max(0, v(`mi_${it.id}_m`, it.mix)); m += mm; ps += mm * v(`mi_${it.id}_p`, it.price); cs += mm * v(`mi_${it.id}_c`, it.cost); });
+  return { n: items.length, mix: m, sale: m > 0 ? ps / m : 0, cost: m > 0 ? cs / m : 0 };
+}
 
 const DEFAULTS = {
   // Open days/yr: 300 (365 − 52 Saturdays − 9 holidays = 304, rounded down to 300 for cushion) — Boyan LOCKED Oct 7 2026
@@ -440,6 +533,7 @@ const DEFAULTS = {
   pastry_attach: 0.20, pastry_sale: 3.40, pastry_cost: 0.95,
   sandwich_attach: 0.20, sandwich_sale: 8.20, sandwich_cost: 2.30,
   quiche_attach: 0.08, quiche_sale: 7.60, quiche_cost: 2.30,
+  soup_attach: 0.0625, soup_sale: 5.00, soup_cost: 0.99, cake_attach: 0.0625, cake_sale: 8.00, cake_cost: 1.80,
   rsf: 7000, cafeSf: 1800, ministrySf: 4700, baseRent: 20, nnn: 5.6, esc: 3,
   sundayMo: 6500, sundayMonths: 10, eventsN: 9, eventsFee: 1100,
   confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: false,
@@ -456,6 +550,17 @@ const DEFAULTS = {
   subSf: 2800, subRate: 30.3571, subEsc: 0, cafeUtil: 30000, cafeIns: 5000, cafeOff: 10000, // Boyan Oct 8 2026: $85k sublease
   preset: "breakeven"
 };
+// menuRollup (Boyan 2026-10-27): OFF by default = categories use the planned Sale $ / Cost $ above (LOCKED_MENU / DEFAULTS);
+// ON = Sale $ / Cost $ are the live mix-weighted item roll-ups. <id>_saleFixed / _costFixed keep the planned (editable) values while ON.
+Object.assign(DEFAULTS, menuItemDefaults(), { menuVersion: MENU_VERSION, menuRollup: false });
+CAT_IDS.forEach(id => { DEFAULTS[id + "_saleFixed"] = DEFAULTS[id + "_sale"]; DEFAULTS[id + "_costFixed"] = DEFAULTS[id + "_cost"]; });
+const rollupOn = () => !!($("menuRollup") && $("menuRollup").checked);
+function applyRollupMode(on) { // category Sale $ / Cost $ inputs: read-only roll-ups when ON, editable planned values when OFF
+  CAT_IDS.forEach(id => ["sale", "cost"].forEach(f => { const el = $(`${id}_${f}`); if (!el) return;
+    el.readOnly = on; el.classList.toggle("ro", on); el.tabIndex = on ? -1 : 0;
+    el.title = on ? `Mix-weighted average of the ${CAT_LABELS[id]} items below (switch “Category prices from menu items” off to edit)` : `Planned ${CAT_LABELS[id]} ${f === "sale" ? "sale price" : "unit cost"} (editable)`; }));
+  if ($("menuRollupState")) $("menuRollupState").textContent = on ? "ON — categories use the menu-item averages" : "OFF — categories use the planned prices";
+}
 
 const AIM = {
   customers: 160, openDays: 300, eventsN: 10, eventsFee: 1200, preset: "aimfor",
@@ -483,12 +588,119 @@ function buildMenuInputs() {
       <td>${CAT_LABELS[id]}</td>
       <td><input type="number" id="${id}_attach" step="0.01" min="0" /></td>
       <td><span id="${id}_units">—</span></td>
-      <td><input type="number" id="${id}_sale" step="0.01" min="0" /></td>
-      <td><input type="number" id="${id}_cost" step="0.01" min="0" /></td>
+      <td><input type="number" id="${id}_sale" step="0.01" min="0" title="Planned ${CAT_LABELS[id]} sale price (editable)" /></td>
+      <td><input type="number" id="${id}_cost" step="0.01" min="0" title="Planned ${CAT_LABELS[id]} unit cost (editable)" /></td>
       <td><span id="${id}_dsales">—</span></td>
       <td><span id="${id}_dcogs">—</span></td>
       <td><span id="${id}_contrib">—</span></td>
     </tr>`).join("");
+  buildMenuItems();
+}
+
+const MENU_CSS = `
+#menuItems { margin-top: 16px; }
+#menuItems .mi-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; margin: 0 0 8px; }
+#menuItems .mi-head h3 { font-size: .95rem; margin: 0; color: var(--accent); }
+#menuItems .mi-head button { background: #fff; color: var(--accent); border: 1px solid var(--line); font-size: .78rem; padding: 6px 12px; }
+#menuItems details.mi-group { border: 1px solid var(--line); border-radius: 10px; margin: 0 0 10px; background: #fff; }
+#menuItems details.mi-group > summary { cursor: pointer; padding: 9px 12px; font-weight: 700; color: var(--accent); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; list-style: none; }
+#menuItems details.mi-group > summary::-webkit-details-marker { display: none; }
+#menuItems details.mi-group > summary::before { content: "▸"; color: var(--accent2); }
+#menuItems details.mi-group[open] > summary::before { content: "▾"; }
+#menuItems details.mi-group > summary .mi-roll { font-weight: 500; font-size: .8rem; color: var(--muted); }
+#menuItems details.mi-group .table-wrap { padding: 0 8px 8px; }
+#menuItems table.mi-table td { vertical-align: top; }
+#menuItems table.mi-table td.mi-name { min-width: 200px; white-space: normal; }
+#menuItems .mi-name b { font-weight: 600; color: var(--ink); }
+#menuItems .mi-name .hint { display: block; }
+#menuItems .mi-src { font-size: .7rem; color: var(--muted); }
+#menuItems .mi-src a { color: var(--accent2); margin-right: 4px; }
+#menuItems tr.mi-sub td { background: #f6f3ee; font-weight: 700; font-size: .78rem; color: var(--accent); text-transform: uppercase; letter-spacing: .03em; padding: 5px 10px; }
+#menuItems .mi-cost { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+#menuItems input.mi-est { border: 1px dashed var(--accent2); background: #fdebd9; }
+#menuItems .est-badge { display: inline-block; font-size: .62rem; font-weight: 800; letter-spacing: .04em; color: #fff; background: var(--accent2); border-radius: 999px; padding: 1px 6px; }
+#menuItems .cit-badge { display: inline-block; font-size: .62rem; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 6px; }
+#menuItems .mi-warn { color: var(--bad); font-weight: 700; }
+#menuItems .menu-table input { min-width: 4.5rem; max-width: 6.5rem; }
+#menuMigrate:empty { display: none; }
+#menuRollupBox { border: 1px solid var(--line); border-left: 4px solid var(--accent2); border-radius: 10px; background: #fff; padding: 10px 12px; margin: 0 0 12px; }
+#menuRollupBox .mr-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; cursor: pointer; flex-direction: row; margin: 0 0 4px; }
+#menuRollupBox .mr-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+#menuRollupBox .mr-track { position: relative; width: 42px; height: 24px; border-radius: 999px; background: #c9c4ba; transition: background .15s; flex: none; }
+#menuRollupBox .mr-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .15s; }
+#menuRollupBox input:checked + .mr-track { background: var(--accent2); }
+#menuRollupBox input:checked + .mr-track::after { left: 21px; }
+#menuRollupBox input:focus-visible + .mr-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+#menuRollupBox strong { color: var(--accent); font-size: .95rem; }
+#menuRollupBox .mr-state { font-size: .78rem; font-weight: 700; color: var(--muted); }
+#menuRollupBox input:checked ~ .mr-state { color: var(--accent2); }
+#menuItems .mi-ref { color: var(--accent2); font-weight: 600; }
+#menuItems tr.mi-off td { opacity: .5; }
+#menuItems tr.mi-off td input { background: #f1f1f1; }
+#menuItems tr.mi-off td[data-l="Mix %"] { opacity: 1; }
+@media (max-width: 600px) {
+  #menuItems table.mi-table thead { display: none; }
+  #menuItems table.mi-table, #menuItems table.mi-table tbody, #menuItems table.mi-table tfoot { display: block; width: 100%; }
+  #menuItems table.mi-table tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; padding: 8px 2px; border-bottom: 1px solid var(--line); }
+  #menuItems table.mi-table td { display: block; border: 0; padding: 0; text-align: left; white-space: normal; min-width: 0; }
+  #menuItems table.mi-table td.mi-name, #menuItems tr.mi-sub td, #menuItems tr.total td:first-child { grid-column: 1 / -1; }
+  #menuItems tr.mi-sub { padding: 0; } #menuItems tr.mi-sub td { padding: 5px 8px; }
+  #menuItems table.mi-table td[data-l]::before { content: attr(data-l); display: block; font-size: .62rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+  #menuItems .mi-cost { justify-content: flex-start; }
+  #menuItems .menu-table input { max-width: none; min-width: 0; font-size: 16px; }
+  #menuItems tr.total { background: #eaf4fb; }
+}`;
+function escH(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function buildMenuItems() {
+  if (!document.getElementById("menuItemsCss")) { const st = document.createElement("style"); st.id = "menuItemsCss"; st.textContent = MENU_CSS; document.head.appendChild(st); }
+  let box = $("menuItems");
+  if (!$("menuRollupBox")) {
+    const sw = document.createElement("div"); sw.id = "menuRollupBox";
+    sw.innerHTML = `<label class="mr-switch" for="menuRollup"><input type="checkbox" id="menuRollup" role="switch" aria-describedby="menuRollupHint" /><span class="mr-track" aria-hidden="true"></span><strong>Category prices from menu items</strong><span class="mr-state" id="menuRollupState">OFF — categories use the planned prices</span></label>
+      <div class="hint" id="menuRollupHint">Off (default, planned scenario): each category uses its planned Sale $ / Cost $ (coffee $6.50 / $0.78 …), editable in the table. On: Sale $ / Cost $ become the live mix-weighted averages of the menu items below (read-only). Soup and cake are categories in both modes.</div>`;
+    $("menuTable").closest(".table-wrap").before(sw);
+    // capture phase on document for both "input" and "change" (a checkbox fires input first): runs before the per-input
+    // render listeners, so the category values are swapped before recalculating. dataset.mode makes it run once per switch.
+    const onToggle = e => { if (!e.target || e.target.id !== "menuRollup") return;
+      const on = rollupOn(), cb = $("menuRollup"); if (cb.dataset.mode === (on ? "1" : "0")) return; cb.dataset.mode = on ? "1" : "0";
+      CAT_IDS.forEach(id => ["sale", "cost"].forEach(f => { const el = $(`${id}_${f}`); if (!el) return;
+        if (on) { if (el.dataset.fixed === undefined || el.dataset.fixed === "") el.dataset.fixed = el.value; } // planned value (kept in sync by read() while OFF)
+        else el.value = el.dataset.fixed ?? DEFAULTS[`${id}_${f}`]; }));
+      applyRollupMode(on);
+    };
+    document.addEventListener("input", onToggle, true); document.addEventListener("change", onToggle, true);
+  }
+  if (!box) { box = document.createElement("div"); box.id = "menuItems"; $("menuTable").closest(".table-wrap").after(box); }
+  const nEst = MENU_ITEMS.filter(it => it.est).length;
+  const src = it => { let n = 0; const parts = it.src.map(u => /^https?:\/\//.test(u) ? `<a href="${escH(u)}" target="_blank" rel="noopener noreferrer" title="${escH(u)}">[${++n}]</a>` : `<span title="${escH(u)}">${escH(u.replace(/ \(KB\)$/, ""))} (KB)</span>`);
+    return `<div class="mi-src">Sources: ${parts.join(" ")}</div>`; };
+  const row = it => `<tr data-item="${it.id}">
+      <td class="mi-name"><b>${escH(it.name)}</b><span class="hint">${escH(it.size)}${it.notes ? " · " + escH(it.notes) : ""}</span>${src(it)}</td>
+      <td data-l="Price $"><input type="number" id="mi_${it.id}_p" step="0.05" min="0" aria-label="${escH(it.name)} ${escH(it.size)} price" /></td>
+      <td data-l="Cost $"><span class="mi-cost"><input type="number" id="mi_${it.id}_c" step="0.01" min="0" class="${it.est ? "mi-est" : ""}" aria-label="${escH(it.name)} ${escH(it.size)} projected cost${it.est ? " (estimate)" : ""}" />${it.est ? '<span class="est-badge" title="Estimated cost (not built from a quoted price)">EST</span>' : '<span class="cit-badge" title="Built from quoted unit prices">cited</span>'}</span></td>
+      <td data-l="Mix %"><input type="number" id="mi_${it.id}_m" step="0.05" min="0" aria-label="${escH(it.name)} ${escH(it.size)} mix % of ${escH(CAT_LABELS[it.cat])}" /></td>
+      <td data-l="Units/day"><span id="mi_${it.id}_u">—</span></td>
+      <td data-l="COGS %"><span id="mi_${it.id}_k">—</span></td>
+      <td data-l="Daily sales"><span id="mi_${it.id}_s">—</span></td>
+    </tr>`;
+  const groups = CAT_IDS.filter(c => itemsOf(c).length).map(c => {
+    const its = itemsOf(c); let last = null, body = "";
+    const subs = new Set(its.map(i => i.group)).size > 1;
+    its.forEach(it => { if (subs && it.group !== last) { body += `<tr class="mi-sub"><td colspan="7">${escH(it.group)}</td></tr>`; last = it.group; } body += row(it); });
+    return `<details class="mi-group" open data-cat="${c}"><summary>${CAT_LABELS[c]} <span class="mi-roll" id="mr_${c}"></span></summary>
+      <div class="table-wrap"><table class="menu-table mi-table"><thead><tr><th>Item · size</th><th>Price $</th><th>Projected cost $</th><th>Mix % of ${CAT_LABELS[c].toLowerCase()}</th><th>Units/day</th><th>COGS %</th><th>Daily sales</th></tr></thead>
+      <tbody>${body}</tbody><tfoot><tr class="total"><td id="mt_${c}_l">${CAT_LABELS[c]} roll-up (mix-weighted)</td><td data-l="Avg sale $" id="mt_${c}_p"></td><td data-l="Avg cost $" id="mt_${c}_c"></td><td data-l="Σ mix %" id="mt_${c}_m"></td><td data-l="Units/day" id="mt_${c}_u"></td><td data-l="COGS %" id="mt_${c}_k"></td><td data-l="Daily sales" id="mt_${c}_s"></td></tr></tfoot></table></div></details>`;
+  }).join("");
+  box.innerHTML = `<div class="mi-head"><h3>Menu items (menu v2, 2026-10-27) · ${MENU_ITEMS.length} items</h3><button type="button" id="btnMenuReset">Reset menu items to menu v2</button></div>
+    <div class="hint" style="margin:0 0 8px">Edit any item’s price, projected cost or mix % (share of its category’s units). Item averages = Σ(item × mix %) ÷ Σ mix % (a category whose mix doesn’t add to 100% is re-normalized, flagged in red); they drive the category Sale $ / Cost $ above only when “Category prices from menu items” is on, otherwise they are shown as “items would give”. <span class="est-badge">EST</span> = estimated cost (${nEst} items, no quoted price; dashed orange box); <span class="cit-badge">cited</span> = built from quoted unit prices. Soup and cake: 10/day each at 160 customers (attach 0.0625). Quiche is a menu item at the app’s $7.60 / $2.30. A row set to 0% mix is greyed out (inactive).</div>
+    <div class="flag" id="menuMigrate"></div>
+    ${groups}`;
+  $("btnMenuReset").addEventListener("click", () => {
+    const d = menuItemDefaults(); Object.keys(d).forEach(k => { if ($(k)) $(k).value = d[k]; });
+    $("menuMigrate").innerHTML = "";
+    const first = $(Object.keys(d)[0]); first.dispatchEvent(new Event("change", { bubbles: true })); // full recalc + save
+    render();
+  });
 }
 
 function readCats(s) {
@@ -554,11 +766,18 @@ function read() {
     cafeUtil: g("cafeUtil"), cafeIns: g("cafeIns"), cafeOff: g("cafeOff"),
     preset: document.querySelector(".preset.active")?.dataset.preset || "breakeven"
   });
+  MENU_ITEMS.forEach(it => { ["p","c","m"].forEach(f => { const k = `mi_${it.id}_${f}`; o[k] = $(k) ? g(k) : menuItemDefaults()[k]; }); });
   CAT_IDS.forEach(id => {
     o[id + "_attach"] = g(id + "_attach");
-    o[id + "_sale"] = g(id + "_sale");
-    o[id + "_cost"] = g(id + "_cost");
+    const on = rollupOn(), r = menuRollup(o, id);
+    ["sale", "cost"].forEach(f => { const el = $(`${id}_${f}`), k = `${id}_${f}`;
+      const fixed = on ? (el && el.dataset.fixed !== undefined && el.dataset.fixed !== "" ? parseFloat(el.dataset.fixed) || 0 : DEFAULTS[k]) : g(k);
+      o[k + "Fixed"] = fixed; // planned value, kept while ON
+      if (!on && el) el.dataset.fixed = fixed;
+      o[k] = on && r.n ? r[f] : fixed; // ON: mix-weighted item average; OFF: planned category value
+    });
   });
+  o.menuVersion = MENU_VERSION; o.menuRollup = rollupOn();
   return o;
 }
 
@@ -568,11 +787,50 @@ function write(s) {
   set("customers", s.customers); set("openDays", s.openDays);
   set("processing", (s.processing <= 1 ? s.processing*100 : s.processing));
   set("waste", (s.waste <= 1 ? s.waste*100 : s.waste));
+  const md = menuItemDefaults();
+  // Menu-version migration: item overrides saved under another menu version (e.g. menu v1) are NOT applied — item ids,
+  // mix shares and Boyan's price decisions changed, so stale values would double-count mix or undo decisions. Every
+  // non-item input (customers, attach rates, …) is kept; items start from this menu's defaults; v1 edits are listed below.
+  const savedVer = s.menuVersion, staleItems = !!savedVer && savedVer !== MENU_VERSION, staleEdits = [];
+  if (staleItems) {
+    Object.keys(s).filter(k => /^mi_.+_[pcm]$/.test(k)).forEach(k => {
+      const mm = k.match(/^mi_(.+)_([pcm])$/), d = savedVer === "menu-v1-2026-10-26" ? MENU_V1_DEFAULTS[mm[1]] : null;
+      if (d && typeof s[k] === "number" && Math.abs(s[k] - d["pcm".indexOf(mm[2])]) > 0.0005)
+        staleEdits.push(`${d[3]} ${{ p: "price", c: "cost", m: "mix" }[mm[2]]} ${mm[2] === "m" ? s[k] + "%" : "$" + s[k]}`);
+      delete s[k];
+    });
+  }
+  Object.keys(md).forEach(k => set(k, s[k] ?? md[k]));
+  // Category price mode. Saves without the setting default to OFF. Their stored category prices are only real
+  // user values for pre-menu saves (no menuVersion); menu v1/v2 saves stored item roll-ups, so those fall back to planned.
+  const noSetting = s.menuRollup === undefined, preMenu = !s.menuVersion;
+  const on = !noSetting && !!s.menuRollup;
+  if ($("menuRollup")) { $("menuRollup").checked = on; $("menuRollup").dataset.mode = on ? "1" : "0"; }
   CAT_IDS.forEach(id => {
     set(id + "_attach", s[id + "_attach"] ?? LOCKED_MENU[id].attach);
-    set(id + "_sale", s[id + "_sale"] ?? LOCKED_MENU[id].sale);
-    set(id + "_cost", s[id + "_cost"] ?? LOCKED_MENU[id].cost);
+    const r = menuRollup({ ...md, ...s }, id);
+    ["sale", "cost"].forEach(f => {
+      const k = `${id}_${f}`, planned = DEFAULTS[k] ?? LOCKED_MENU[id][f];
+      const fixed = noSetting ? (preMenu ? (s[k] ?? planned) : planned) : (s[k + "Fixed"] ?? (on ? planned : (s[k] ?? planned)));
+      set(k, on && r.n ? +r[f].toFixed(4) : fixed);
+      if ($(k)) $(k).dataset.fixed = fixed;
+    });
   });
+  applyRollupMode(on);
+  // Migration: a scenario saved before menu items existed (no menuVersion) keeps every input incl. attach rates; its category
+  // sale/cost are replaced by the item roll-ups (soup/cake get their defaults). Custom category prices are reported, not lost.
+  if ($("menuMigrate")) {
+    const legacy = !s.menuVersion && CAT_IDS.some(id => s[id + "_sale"] !== undefined);
+    const diffs = legacy ? Object.keys(LEGACY_LOCKED).filter(id => s[id + "_sale"] !== undefined &&
+      (Math.abs(s[id + "_sale"] - LEGACY_LOCKED[id][0]) > 0.005 || Math.abs((s[id + "_cost"] ?? LEGACY_LOCKED[id][1]) - LEGACY_LOCKED[id][1]) > 0.005)) : [];
+    const offNote = " “Category prices from menu items” is off, so categories use the planned prices; switch it on to use the menu-item averages.";
+    $("menuMigrate").innerHTML = legacy ? `<strong>Saved scenario updated to menu v2:</strong> all inputs were kept, including its category prices` +
+      (diffs.length ? ` (custom: ${diffs.map(id => `${CAT_LABELS[id]} $${(+s[id + "_sale"]).toFixed(2)} / $${(+(s[id + "_cost"] ?? 0)).toFixed(2)}`).join(" · ")})` : "") +
+      `; soup and cake were added at 10/day.` + offNote
+      : staleItems ? `<strong>Saved scenario updated from ${escH(savedVer)} to menu v2:</strong> customers, attach rates and all other inputs were kept; the menu items were reset to menu v2 (new items and prices, quiche as an item).` +
+      (staleEdits.length ? ` Your earlier item edits were not carried over: ${escH(staleEdits.join(" · "))}. Re-enter any that still apply.` : " The saved scenario had no item edits.") + (noSetting ? offNote : "")
+      : noSetting && s.menuVersion ? `<strong>Saved scenario updated:</strong> it was saved before the “Category prices from menu items” switch, when category prices came from the menu items.` + offNote : "";
+  }
   set("rsf", s.rsf); set("cafeSf", s.cafeSf); set("ministrySf", s.ministrySf);
   set("baseRent", s.baseRent); set("nnn", s.nnn); set("esc", s.esc <= 1 ? s.esc*100 : s.esc);
   set("sundayMo", s.sundayMo); set("sundayMonths", s.sundayMonths);
@@ -648,9 +906,11 @@ function catsForYear(s, year) {
   if (year === 1) return base;
   const pas = [null, s.pastry_attach, s.pasY2, s.pasY3, s.pasY4, s.pasY5][year];
   const qui = [null, s.quiche_attach, s.quiY2, s.quiY3, s.quiY4, s.quiY5][year];
+  const cust = [null, s.customers, s.cY2, s.cY3, s.cY4, s.cY5][year];
   return base.map(c => {
     if (c.id === "pastry") return { ...c, attach: pas };
     if (c.id === "quiche") return { ...c, attach: qui };
+    if ((c.id === "soup" || c.id === "cake") && cust > 0) return { ...c, attach: c.attach * s.customers / cust }; // hold Y1 units/day (10/day batch)
     return c;
   });
 }
@@ -731,6 +991,25 @@ function updateMenuDisplay(s, cm) {
   </tr>`;
   $("ticket").value = cm.ticket.toFixed(2);
   $("unitCogs").value = cm.unitCogs.toFixed(3);
+  const pc = v => isFinite(v) ? (v * 100).toFixed(1) + "%" : "—";
+  cm.lines.forEach(l => {
+    const r = menuRollup(s, l.id); if (!r.n) return;
+    const on = !!s.menuRollup;
+    if (on && $(l.id + "_sale")) $(l.id + "_sale").value = +r.sale.toFixed(4);
+    if (on && $(l.id + "_cost")) $(l.id + "_cost").value = +r.cost.toFixed(4);
+    itemsOf(l.id).forEach(it => {
+      const m = Math.max(0, s[`mi_${it.id}_m`]), u = r.mix > 0 ? l.units * m / r.mix : 0, p = s[`mi_${it.id}_p`], c = s[`mi_${it.id}_c`];
+      const tr = $(`mi_${it.id}_u`).closest("tr"); if (tr) tr.classList.toggle("mi-off", !(m > 0));
+      $(`mi_${it.id}_u`).textContent = u.toFixed(1); $(`mi_${it.id}_k`).textContent = p > 0 ? pc(c / p) : "—"; $(`mi_${it.id}_s`).textContent = money2(u * p);
+    });
+    const off = Math.abs(r.mix - 100) > 0.005, mixT = `${(+r.mix.toFixed(2))}%`;
+    $(`mt_${l.id}_p`).textContent = money2(r.sale); $(`mt_${l.id}_c`).textContent = "$" + r.cost.toFixed(3);
+    $(`mt_${l.id}_m`).innerHTML = off ? `<span class="mi-warn" title="Mix doesn’t add to 100%; items are re-normalized">${mixT}</span>` : mixT;
+    $(`mt_${l.id}_u`).textContent = l.units.toFixed(1); $(`mt_${l.id}_k`).textContent = r.sale > 0 ? pc(r.cost / r.sale) : "—"; $(`mt_${l.id}_s`).textContent = money2(l.units * r.sale);
+    $(`mt_${l.id}_l`).textContent = on ? `${CAT_LABELS[l.id]} roll-up (mix-weighted, in use)` : `Items would give (reference; planned ${money2(l.sale)} / $${(+l.cost).toFixed(2)} in use)`;
+    const nAll = itemsOf(l.id).length, nOn = itemsOf(l.id).filter(it => s[`mi_${it.id}_m`] > 0).length;
+    $(`mr_${l.id}`).innerHTML = `${nOn === nAll ? nAll + " item" + (nAll > 1 ? "s" : "") : nOn + " active of " + nAll + " items"} · ${on ? `avg ${money2(r.sale)} / ${"$" + r.cost.toFixed(2)} (in use)` : `<span class="mi-ref">items would give ${money2(r.sale)} / ${"$" + r.cost.toFixed(2)}</span> · planned ${money2(l.sale)} / $${(+l.cost).toFixed(2)} in use`} · ${l.units.toFixed(1)}/day · mix ${off ? `<span class="mi-warn">${mixT}</span>` : mixT}`;
+  });
 }
 
 // ---- Non-profit vs for-profit (mirrors Excel TaxStructure sheet; Oct 8 2026 sublease base) ----
@@ -814,11 +1093,13 @@ function renderTax(s) {
 const PL_ROWS = [
   ["cust", "Customers / day", 1], ["coffee", "Coffee attach", 0.01], ["smoothie", "Smoothie attach", 0.01],
   ["pastry", "Pastry attach", 0.01], ["sandwich", "Cold sandwich attach", 0.01], ["quiche", "Quiche attach", 0.01],
+  ["soup", "Soup attach (10/day ÷ customers)", 0.0001], ["cake", "Cake attach (10/day ÷ customers)", 0.0001],
   ["add", "Paid add-ons (% of customers)", 1], ["cat", "Catering (% of counter sales)", 0.5], ["upl", "Price increase % (all items)", 0.5]
 ];
 const PLAN_VALUES = {
   cust: [160, 180, 210, 225, 225], coffee: [0.78, 0.78, 0.78, 0.78, 0.78], smoothie: [0.22, 0.20, 0.20, 0.35, 0.35],
   pastry: [0.20, 0.27, 0.40, 0.50, 0.50], sandwich: [0.20, 0.22, 0.23, 0.35, 0.35], quiche: [0.08, 0.10, 0.11, 0.20, 0.20],
+  soup: [0.0625, 0.0556, 0.0476, 0.0444, 0.0444], cake: [0.0625, 0.0556, 0.0476, 0.0444, 0.0444], // menu v1/v2: 10/day every year (10 ÷ 160/180/210/225/225)
   add: [0, 30, 35, 38, 40], cat: [0, 4, 6, 7, 8], upl: [0, 0, 8.5, 0, 0]
 };
 const PLANNED = {
@@ -873,7 +1154,8 @@ function planMix(s, y) {
 }
 function baseMix(s, y) {
   const att = {}; CAT_IDS.forEach(id => { att[id] = s[id + "_attach"]; });
-  if (y > 1) { att.pastry = s["pasY" + y]; att.quiche = s["quiY" + y]; }
+  if (y > 1) { att.pastry = s["pasY" + y]; att.quiche = s["quiY" + y];
+    ["soup", "cake"].forEach(id => { if (s["cY" + y] > 0) att[id] = s[id + "_attach"] * s.customers / s["cY" + y]; }); } // hold Y1 units/day
   return { cust: y === 1 ? s.customers : s["cY" + y], att, add: 0, cat: 0, upl: 0 };
 }
 function planModel(s) {
@@ -963,7 +1245,7 @@ function renderPlan(s) {
   const R = Math.round, chk = [];
   m.cafe.forEach((c, i) => { if (R(c.rev) !== PLAN_TARGETS.rev[i] || R(c.P) !== PLAN_TARGETS.P[i] || c.taxR !== PLAN_TARGETS.tax[i] || c.atR !== PLAN_TARGETS.at[i] || R(m.base[i].at) !== PLAN_TARGETS.base[i]) chk.push("Y" + (i + 1)); });
   [y.net, ...L("net")].forEach((v, i) => { if (R(v) !== PLAN_TARGETS.net[i] || R(m.cum[i]) !== PLAN_TARGETS.cum[i]) chk.push("LS Y" + i); });
-  $("planStatus").textContent = chk.length ? `edited — differs from v2 statement (${chk.join(", ")})` : "✓ matches v2 statement (no donations)";
+  $("planStatus").textContent = chk.length ? `differs from v2 statement (${chk.join(", ")}) — ${s.menuRollup ? "v2 used the locked category menu; this uses menu v2 item averages + soup & cake" : "v2 had no soup or cake; this adds both at 10/day (planned category prices)"}` : "✓ matches v2 statement (no donations)";
   window.__plan = m;
 }
 
@@ -1155,10 +1437,13 @@ function bind() {
     r.cm.lines.forEach(l => {
       rows.push([CAT_LABELS[l.id], l.attach, l.units.toFixed(1), l.sale, l.cost, l.ds.toFixed(2), l.dc.toFixed(2)]);
     });
+    rows.push([]);
+    rows.push(["Menu item (" + MENU_VERSION + ")","Category","Size","Price","Projected cost","Cost is estimate","Mix % of category"]);
+    MENU_ITEMS.forEach(it => rows.push([it.name, CAT_LABELS[it.cat], it.size, s[`mi_${it.id}_p`], s[`mi_${it.id}_c`], it.est ? "yes" : "no", s[`mi_${it.id}_m`]]));
     const sol = requiredCustomers(s);
     rows.push([]);
     rows.push(["BE locked menu required cust", sol ? sol.cust : "unreachable"]);
-    const csv = rows.map(r => r.map(x => `"${x}"`).join(",")).join("\n");
+    const csv = rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -1195,6 +1480,164 @@ render();
   window.addEventListener("beforeprint", window.__printPrep);
   window.addEventListener("afterprint", window.__printDone);
   btn.addEventListener("click", () => { window.__printPrep(); window.print(); });
+})();
+</script>
+<script>
+/* ---- Drink Costs tab: per-cup cost of coffee drinks and smoothies from unit prices (display only; does not feed the locked menu or the Summary) ---- */
+(function(){
+  const KEY = "rls-drink-costs-v1", LB = 453.6;
+  // unit-price defaults: Research, drink-unit-costs-2026-10-22 (same values as renewal-cafe-plan/drink-costs/drink-costs.json)
+  const DC_DEFAULTS = {
+    dc_cups: "disp", dc_beans: "kirk", dc_liquid: "almond",
+    dc_espK: 7.58, dc_espS: 12.85, dc_drip: 7.18, dc_milk: 0.027, dc_hh: 0.056, dc_choc: 0.158, dc_matcha: 0.079, dc_coldbrew: 0.43, dc_ice: 0.12,
+    dc_hot12: 0.046, dc_hot16: 0.0535, dc_sleeve: 0.0346, dc_hotlid: 0.035, dc_cold16: 0.058, dc_cold20: 0.066, dc_flatlid: 0.032, dc_domelid: 0.033,
+    dc_stir: 0.0031, dc_straw: 0.0142, dc_sstraw: 0.0221, dc_sugar: 0.0075, dc_napkin: 0.0035,
+    dc_strawb: 2.53, dc_mango: 2.13, dc_pine: 2.00, dc_berry: 3.03, dc_banana: 0.55, dc_banYield: 65, dc_spinach: 1.24,
+    dc_almond: 0.046, dc_oat: 0.066, dc_water: 0,
+    dc_rHotQty: 1000, dc_rHotUnit: 2.69, dc_rColdQty: 1000, dc_rColdUnit: 0.63, dc_rSetup: 55
+  };
+  const TOG = { dc_cups: [["disp","Disposable cups"],["reuse","Reusable branded cups"]],
+    dc_beans: [["kirk","Commercial (Kirkland)"],["spec","Specialty"]],
+    dc_liquid: [["almond","Almond milk"],["water","Water"],["oat","Oat milk"]] };
+  const GROUPS = [
+    ["Coffee, dairy &amp; extras", [["dc_espK","Espresso beans, Kirkland $/lb"],["dc_espS","Espresso beans, specialty $/lb"],["dc_drip","Drip beans (Kirkland House) $/lb"],
+      ["dc_milk","Whole milk $/oz"],["dc_hh","Half-and-half $/oz"],["dc_choc","Chocolate syrup $/oz"],["dc_matcha","Matcha $/g"],["dc_coldbrew","Cold brew, in-house $/16 oz drink"],["dc_ice","Ice $/lb"]]],
+    ["Disposables (per unit)", [["dc_hot12","12 oz hot cup"],["dc_hot16","16 oz hot cup"],["dc_sleeve","Hot cup sleeve"],["dc_hotlid","Hot lid (10–24 oz)"],
+      ["dc_cold16","16 oz cold cup (PET)"],["dc_cold20","20 oz cold cup (PET)"],["dc_flatlid","Cold flat lid"],["dc_domelid","Cold dome lid"],
+      ["dc_stir","Wood stirrer"],["dc_straw","Straw (iced)"],["dc_sstraw","Smoothie straw (paper)"],["dc_sugar","Sugar packet"],["dc_napkin","Napkin"]]],
+    ["Smoothie fruit &amp; liquids", [["dc_strawb","Strawberries (IQF) $/lb"],["dc_mango","Mango (IQF) $/lb"],["dc_pine","Pineapple (IQF) $/lb"],["dc_berry","Mixed berries (IQF) $/lb"],
+      ["dc_banana","Bananas $/lb"],["dc_banYield","Banana usable yield %"],["dc_spinach","Spinach (frozen) $/lb"],["dc_almond","Almond milk $/oz"],["dc_oat","Oat milk (barista) $/oz"],["dc_water","Water $/oz"]]]
+  ];
+  const STEP = { dc_banYield: "1", dc_rHotQty: "50", dc_rColdQty: "50", dc_rSetup: "5" };
+  const field = ([id, lab]) => `<label><strong>${lab}</strong><input type="number" id="${id}" step="${STEP[id] || "any"}" min="0" /></label>`;
+  const seg = id => `<div class="dc-seg" role="radiogroup">${TOG[id].map(([v, l]) => `<label><input type="radio" name="${id}" value="${v}" /><span>${l}</span></label>`).join("")}</div>`;
+  const css = `
+  #drinks .dc-toggles { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px 14px; margin: 0 0 12px; }
+  #drinks .dc-seg { display: flex; flex-wrap: wrap; gap: 4px; }
+  #drinks .dc-seg label { flex-direction: row; gap: 0; }
+  #drinks .dc-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  #drinks .dc-seg span { display: inline-block; font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--yellow); color: var(--accent); cursor: pointer; white-space: nowrap; }
+  #drinks .dc-seg input:checked + span { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #drinks .dc-seg input:focus-visible + span { outline: 2px solid var(--accent2); }
+  #drinks .dc-prices { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px 12px; }
+  #drinks details.dc-group { margin: 10px 0 0; } #drinks details.dc-group > summary { cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--accent); margin-bottom: 8px; }
+  #drinks h3 { font-size: .95rem; margin: 16px 0 6px; }
+  #drinks td.dc-zero { color: var(--muted); }
+  #drinks .dc-pos { color: var(--bad); } #drinks .dc-neg { color: var(--ok); }
+  @media (max-width: 600px) { #drinks .dc-toggles { grid-template-columns: 1fr; } #drinks .dc-prices { grid-template-columns: repeat(2, minmax(0,1fr)); } }`;
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+  const sec = document.createElement("section"); sec.className = "card"; sec.id = "drinks";
+  sec.innerHTML = `<h2>Drink Costs <span>cost per cup from unit prices · yellow = editable</span></h2>
+    <div class="dc-toggles">
+      <div><div class="hint" style="margin-bottom:4px"><strong>Cups</strong></div>${seg("dc_cups")}</div>
+      <div><div class="hint" style="margin-bottom:4px"><strong>Espresso beans</strong></div>${seg("dc_beans")}</div>
+      <div><div class="hint" style="margin-bottom:4px"><strong>Smoothie liquid</strong></div>${seg("dc_liquid")}</div>
+    </div>
+    <h3>Comparison with the locked menu costs</h3>
+    <div class="table-wrap" id="dcCompare"></div>
+    <h3>Coffee drinks (12 and 16 oz)</h3>
+    <div class="table-wrap" id="dcCoffee"></div>
+    <div class="hint" id="dcCoffeeNote"></div>
+    <h3>Smoothies (16 and 20 oz)</h3>
+    <div class="table-wrap" id="dcSmooth"></div>
+    <div class="hint">Flavors and recipes are placeholders (no final smoothie menu). 16 oz = 10 oz fruit + 6 oz liquid; 20 oz = 1.25 × the 16 oz recipe. Banana cost is per usable oz (price ÷ yield). No syrups or sugar.</div>
+    <h3>Reusable branded cups (one-time purchase)</h3>
+    <div class="dc-prices">${[["dc_rHotQty","Hot tumblers, qty"],["dc_rHotUnit","Hot tumbler $/cup"],["dc_rColdQty","Cold cups, qty"],["dc_rColdUnit","Cold cup $/cup"],["dc_rSetup","Setup $ (one-time)"]].map(field).join("")}</div>
+    <div class="table-wrap" id="dcReuse" style="margin-top:10px"></div>
+    <div class="hint" id="dcReuseNote"></div>
+    <h3>Unit prices</h3>
+    ${GROUPS.map(([t, f]) => `<details class="dc-group" open><summary>${t}</summary><div class="dc-prices">${f.map(field).join("")}</div></details>`).join("")}
+    <div class="hint" style="margin-top:10px">Prices: low-end wholesale/club prices checked 2026-10-22 (WebstaurantStore, Costco, Sam’s Club, 4imprint), before MD sales tax and shipping. Portion sizes are estimates; weigh a test batch before finalizing. This tab is for reference only; it does not change the locked menu costs or the Summary.</div>`;
+  const cafe = $("cafe"); if (cafe) cafe.after(sec); else document.querySelector("main").appendChild(sec);
+
+  const num = id => { const v = parseFloat($(id).value); return isFinite(v) ? v : 0; };
+  const radio = id => { const r = sec.querySelector(`input[name="${id}"]:checked`); return r ? r.value : DC_DEFAULTS[id]; };
+  function dcRead() { const o = {}; Object.keys(DC_DEFAULTS).forEach(k => { o[k] = TOG[k] ? radio(k) : num(k); }); return o; }
+  function dcWrite(o) {
+    Object.keys(DC_DEFAULTS).forEach(k => { const v = o && o[k] !== undefined ? o[k] : DC_DEFAULTS[k];
+      if (TOG[k]) sec.querySelectorAll(`input[name="${k}"]`).forEach(r => { r.checked = r.value === v; });
+      else $(k).value = v; });
+  }
+  // recipes (model.py): beans g, milk oz, half-and-half oz, chocolate oz, matcha g, ice oz
+  const COFFEE = [
+    ["Drip / batch coffee",12,{g:21,bean:"drip",hh:1}],["Drip / batch coffee",16,{g:28,bean:"drip",hh:1}],
+    ["Americano",12,{g:18}],["Americano",16,{g:27}],["Cappuccino",12,{g:18,milk:6}],["Cappuccino",16,{g:18,milk:9}],
+    ["Latte",12,{g:18,milk:9}],["Latte",16,{g:18,milk:12}],["Mocha",12,{g:18,milk:8,choc:1}],["Mocha",16,{g:18,milk:11,choc:1.5}],
+    ["Matcha latte",12,{milk:10,matcha:2}],["Matcha latte",16,{milk:13,matcha:3}],
+    ["Iced latte",16,{g:18,milk:8,ice:6,cold:true}],["Cold brew",16,{coldbrew:true,cold:true}]];
+  const FRUIT_NAMES = { dc_strawb: "strawberries", dc_mango: "mango", dc_pine: "pineapple", dc_berry: "mixed berries", dc_banana: "banana", dc_spinach: "spinach" };
+  const SMOOTH = [["Strawberry Banana",{dc_strawb:6,dc_banana:4}],["Mango Pineapple",{dc_mango:5,dc_pine:5}],
+    ["Mixed Berry Banana",{dc_berry:6,dc_banana:4}],["Green (pineapple, banana, spinach)",{dc_pine:4,dc_banana:4,dc_spinach:2}]];
+  function dcCalc(p) {
+    const reuse = p.dc_cups === "reuse", esp = (p.dc_beans === "spec" ? p.dc_espS : p.dc_espK) / LB;
+    const coffee = COFFEE.map(([name, size, r]) => {
+      const cupD = r.cold ? p.dc_cold16 : (size === 12 ? p.dc_hot12 : p.dc_hot16) + p.dc_sleeve, lidD = r.cold ? p.dc_flatlid : p.dc_hotlid;
+      const x = { name, size: size + (r.cold ? " oz iced" : " oz hot"), cold: !!r.cold, cupD, lidD, cup: reuse ? 0 : cupD, lid: reuse ? 0 : lidD,
+        straw: r.cold ? p.dc_straw : p.dc_stir,
+        coffee: r.coldbrew ? p.dc_coldbrew : (r.g || 0) * (r.bean === "drip" ? p.dc_drip / LB : esp),
+        milk: (r.milk || 0) * p.dc_milk + (r.hh || 0) * p.dc_hh,
+        other: (r.choc || 0) * p.dc_choc + (r.matcha || 0) * p.dc_matcha + (r.ice || 0) / 16 * p.dc_ice,
+        sugar: p.dc_sugar + p.dc_napkin };
+      x.total = x.cup + x.lid + x.straw + x.coffee + x.milk + x.other + x.sugar; return x;
+    });
+    const per = k => k === "dc_banana" ? p.dc_banana / 16 / ((p.dc_banYield || 100) / 100) : p[k] / 16;
+    const liqP = p["dc_" + p.dc_liquid];
+    const smooth = [];
+    SMOOTH.forEach(([name, rec]) => [[16, 1], [20, 1.25]].forEach(([size, f]) => {
+      const ks = Object.keys(rec), cupD = size === 16 ? p.dc_cold16 : p.dc_cold20, lidD = p.dc_domelid;
+      const x = { name, size: size + " oz", cold: true, cupD, lidD, cup: reuse ? 0 : cupD, lid: reuse ? 0 : lidD,
+        fruitOz: ks.reduce((a, k) => a + rec[k] * f, 0), fruit: ks.reduce((a, k) => a + rec[k] * f * per(k), 0),
+        detail: ks.map(k => `${+(rec[k] * f).toFixed(2)} oz ${FRUIT_NAMES[k]}`).join(", "),
+        liqOz: 6 * f, liq: 6 * f * liqP, straw: p.dc_sstraw, napkin: p.dc_napkin };
+      x.total = x.fruit + x.liq + x.cup + x.lid + x.straw + x.napkin; smooth.push(x);
+    }));
+    const avg = a => a.length ? a.reduce((s, x) => s + x.total, 0) / a.length : 0;
+    const mean = a => a.length ? a.reduce((s, v) => s + v, 0) / a.length : 0;
+    const hotRows = coffee.filter(x => !x.cold), coldRows = coffee.filter(x => x.cold).concat(smooth);
+    const saveHot = mean(hotRows.map(x => x.cupD + x.lidD)), saveCold = mean(coldRows.map(x => x.cupD + x.lidD));
+    const qty = p.dc_rHotQty + p.dc_rColdQty, setupEach = qty > 0 ? p.dc_rSetup / qty : 0;
+    const hotEach = p.dc_rHotUnit + setupEach, coldEach = p.dc_rColdUnit + setupEach;
+    return { coffee, smooth, avgCoffee: avg(coffee), avgSmooth: avg(smooth), avg16: avg(smooth.filter(x => x.size === "16 oz")), avg20: avg(smooth.filter(x => x.size === "20 oz")),
+      reuse, saveHot, saveCold, setupEach, hotEach, coldEach, beHot: saveHot > 0 ? hotEach / saveHot : NaN, beCold: saveCold > 0 ? coldEach / saveCold : NaN,
+      purchase: p.dc_rHotQty * p.dc_rHotUnit + p.dc_rColdQty * p.dc_rColdUnit + p.dc_rSetup };
+  }
+  const f3 = v => "$" + v.toFixed(3), f2 = v => "$" + v.toFixed(2);
+  const cell = v => `<td${v === 0 ? ' class="dc-zero"' : ""}>${v === 0 ? "—" : f3(v)}</td>`;
+  const diff = v => `<td class="${v > 0.0005 ? "dc-pos" : v < -0.0005 ? "dc-neg" : ""}">${v > 0 ? "+" : v < 0 ? "−" : ""}${f3(Math.abs(v))}</td>`;
+  function renderDrinks() {
+    const p = dcRead(), m = dcCalc(p), lockC = LOCKED_MENU.coffee.cost, lockS = LOCKED_MENU.smoothie.cost;
+    const pct = (a, b) => `<td>${(a / b * 100).toFixed(0)}%</td>`;
+    const LQ = { almond: "almond", water: "water", oat: "oat" }[p.dc_liquid];
+    $("dcCompare").innerHTML = `<table id="dcCompareT"><thead><tr><th>Average cost per drink (${m.reuse ? "reusable cups" : "disposable cups"})</th><th>This tab</th><th>Locked menu cost</th><th>Difference</th><th>% of locked</th></tr></thead><tbody>
+      <tr class="total"><td>Coffee drinks (14 drinks, ${p.dc_beans === "spec" ? "specialty" : "Kirkland"} beans)</td><td data-v="${m.avgCoffee}">${f3(m.avgCoffee)}</td><td>${f2(lockC)}</td>${diff(m.avgCoffee - lockC)}${pct(m.avgCoffee, lockC)}</tr>
+      <tr class="total"><td>Smoothies (8: 4 flavors × 16/20 oz, ${LQ})</td><td data-v="${m.avgSmooth}">${f3(m.avgSmooth)}</td><td>${f2(lockS)}</td>${diff(m.avgSmooth - lockS)}${pct(m.avgSmooth, lockS)}</tr>
+      <tr><td>&nbsp;&nbsp;Smoothies, 16 oz only</td><td>${f3(m.avg16)}</td><td>${f2(lockS)}</td>${diff(m.avg16 - lockS)}${pct(m.avg16, lockS)}</tr>
+      <tr><td>&nbsp;&nbsp;Smoothies, 20 oz only</td><td>${f3(m.avg20)}</td><td>${f2(lockS)}</td>${diff(m.avg20 - lockS)}${pct(m.avg20, lockS)}</tr>
+    </tbody></table><div class="hint">Simple (unweighted) averages of the rows below. Difference = this tab − locked menu cost (Boyan: coffee $${lockC.toFixed(2)}, smoothie $${lockS.toFixed(2)}); negative means cheaper than the locked cost. Locked costs are not changed here.</div>`;
+    $("dcCoffee").innerHTML = `<table id="dcCoffeeT"><thead><tr><th>Drink</th><th>Size</th><th>Cup + sleeve</th><th>Lid</th><th>Stirrer / straw</th><th>Coffee</th><th>Milk / cream</th><th>Other</th><th>Sugar + napkin</th><th>Total</th></tr></thead><tbody>
+      ${m.coffee.map(x => `<tr><td>${x.name}</td><td>${x.size}</td>${cell(x.cup)}${cell(x.lid)}${cell(x.straw)}${cell(x.coffee)}${cell(x.milk)}${cell(x.other)}${cell(x.sugar)}<td data-v="${x.total}"><strong>${f3(x.total)}</strong></td></tr>`).join("")}
+      <tr class="total"><td>Average</td><td></td><td colspan="7"></td><td>${f3(m.avgCoffee)}</td></tr></tbody></table>`;
+    $("dcCoffeeNote").innerHTML = `Recipes: espresso drinks 18 g (Americano 16 oz 27 g); drip 21/28 g + 1 oz half-and-half; milk 6–13 oz by drink; mocha 1/1.5 oz chocolate; matcha 2/3 g; iced latte 6 oz ice. Other = chocolate, matcha or ice. Specialty beans change espresso drinks only (drip uses drip beans; cold brew is the in-house $/drink price).${m.reuse ? " Reusable cups: cup, sleeve and lid shown as —." : ""}`;
+    $("dcSmooth").innerHTML = `<table id="dcSmoothT"><thead><tr><th>Flavor</th><th>Size</th><th>Fruit oz</th><th>Fruit $</th><th>Liquid (${LQ})</th><th>Cup</th><th>Lid</th><th>Straw</th><th>Napkin</th><th>Total</th></tr></thead><tbody>
+      ${m.smooth.map(x => `<tr><td title="${x.detail}">${x.name}<div class="hint">${x.detail}</div></td><td>${x.size}</td><td>${+x.fruitOz.toFixed(2)}</td>${cell(x.fruit)}<td>${+x.liqOz.toFixed(2)} oz · ${f3(x.liq)}</td>${cell(x.cup)}${cell(x.lid)}${cell(x.straw)}${cell(x.napkin)}<td data-v="${x.total}"><strong>${f3(x.total)}</strong></td></tr>`).join("")}
+      <tr class="total"><td>Average</td><td></td><td colspan="7"></td><td>${f3(m.avgSmooth)}</td></tr></tbody></table>`;
+    const be = v => isFinite(v) ? (+v.toFixed(1)).toLocaleString("en-US") : "n/a";
+    $("dcReuse").innerHTML = `<table id="dcReuseT"><thead><tr><th>Reusable cup</th><th>Qty</th><th>Purchase $</th><th>Cost per cup (incl. setup share)</th><th>Disposable cup + sleeve + lid saved per use</th><th>Break-even uses per cup</th></tr></thead><tbody>
+      <tr><td>Hot tumbler (replaces 12/16 oz hot cup, sleeve, lid)</td><td>${p.dc_rHotQty.toLocaleString("en-US")}</td><td>${money(p.dc_rHotQty * p.dc_rHotUnit)}</td><td>${f3(m.hotEach)}</td><td>${f3(m.saveHot)}</td><td data-v="${m.beHot}"><strong>${be(m.beHot)}</strong></td></tr>
+      <tr><td>Cold cup (replaces 16/20 oz cold cup and lid)</td><td>${p.dc_rColdQty.toLocaleString("en-US")}</td><td>${money(p.dc_rColdQty * p.dc_rColdUnit)}</td><td>${f3(m.coldEach)}</td><td>${f3(m.saveCold)}</td><td data-v="${m.beCold}"><strong>${be(m.beCold)}</strong></td></tr>
+      <tr class="total"><td>One-time purchase (qty × unit cost + ${money(p.dc_rSetup)} setup)</td><td>${(p.dc_rHotQty + p.dc_rColdQty).toLocaleString("en-US")}</td><td data-v="${m.purchase}">${money(m.purchase)}</td><td></td><td></td><td></td></tr></tbody></table>`;
+    $("dcReuseNote").innerHTML = `Break-even = cost of one reusable cup (unit price + its share of setup) ÷ the disposable cup, sleeve and lid it replaces each use (average over the hot or cold drinks above); washing, breakage and cups that walk out the door are not included. The reusable toggle removes cup, sleeve and lid costs from every drink and keeps everything else; the one-time purchase is not spread into the per-drink totals.`;
+    window.__drinks = { p, m };
+  }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(dcRead())); } catch (e) {} };
+  dcWrite(DC_DEFAULTS);
+  try { const raw = localStorage.getItem(KEY); if (raw) dcWrite(JSON.parse(raw)); } catch (e) {}
+  sec.addEventListener("input", save); sec.addEventListener("change", save);
+  const reset = () => { dcWrite(DC_DEFAULTS); try { localStorage.removeItem(KEY); } catch (e) {} renderDrinks(); };
+  $("btnPlanned").addEventListener("click", reset);
+  $("btnReset").addEventListener("click", reset);
+  window.__renderDrinks = renderDrinks; window.__drinkCalc = dcCalc; window.__drinkDefaults = DC_DEFAULTS;
+  renderDrinks();
 })();
 </script>
 <script>
@@ -1255,7 +1698,7 @@ render();
   if (!banner) { banner = document.createElement("div"); banner.className = "draft-banner"; banner.setAttribute("role", "note");
     banner.textContent = "DRAFT — planning estimates only; not a financial offer or guarantee. Figures subject to CPA review."; }
   header.parentNode.insertBefore(top, header); top.appendChild(header); top.appendChild(banner);
-  const TABS = [["summary","Summary"],["planned","Planned Statement"],["cafe","Café Menu"],["occupancy","Occupancy"],["income","Other Income"],
+  const TABS = [["summary","Summary"],["planned","Planned Statement"],["cafe","Café Menu"],["drinks","Drink Costs"],["occupancy","Occupancy"],["income","Other Income"],
     ["staffing","Staffing"],["startup","Startup"],["other","Other Analysis"],["assumptions","Assumptions"],["renditions","Renditions"]];
   const bar = document.createElement("nav"); bar.id = "tabBar"; bar.setAttribute("role", "tablist");
   bar.innerHTML = TABS.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}">${l}</button>`).join("");
@@ -1269,6 +1712,7 @@ render();
   const groups = { summary: [sum] };
   ["planned","cafe","occupancy","income","staffing","startup"].forEach(k => { groups[k] = [$(k)]; });
   if ($("opex")) groups.occupancy.push($("opex"));
+  if ($("drinks")) groups.drinks = [$("drinks")];
   if ($("other")) groups.other = [$("other")];
   else {
     const right = $("results").parentElement;
@@ -1352,7 +1796,7 @@ render();
       </div>
       <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
       <div class="table-wrap" id="sumT1">${cloneTable("planT1")}</div>
-      <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use the locked menu prices; Years 4–5 assume an expanded sales mix.</div>
+      <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use ${s.menuRollup ? "the menu v2 item prices (mix-weighted by category" : "the planned category prices (menu items not applied"}, incl. soup and cake at 10/day each); Years 4–5 assume an expanded sales mix.</div>
       <h3 style="font-size:.95rem;margin:16px 0 8px">Table 2. Renewal Life Space (whole non-profit): Year 0 start-up and Years 1–5 operations</h3>
       <div class="table-wrap" id="sumT2">${cloneTable("planT2")}</div>
       <h3 style="font-size:.95rem;margin:16px 0 6px">Notes &amp; key assumptions</h3>
@@ -1364,7 +1808,7 @@ render();
         <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN) = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr. Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(lease1 - work)} lower in Year 1 (about ${M(Math.round((lease5 - work) / 100) * 100)} lower by Year 5).</li>
         <li>The café pays all utilities (${M(s.cafeUtil)}, +${pct(s.oxInfl * 100)}%/yr), insurance (${M(s.cafeIns)}, +${pct(s.oxInfl * 100)}%/yr) and its own office (${M(s.cafeOff)}/yr). These are deducted before its donation, so they show as $0 here to avoid counting them twice.</li>
       </ol>
-      <p class="hint">Café: open ${s.openDays} days/yr (closed Saturdays and 9 holidays); locked menu prices${upl ? `, +${pct(upl)}% in Year 3` : ""}; Year 4–5 mix: pastry ${pct(s.pl_pastry_y4 * 100)}%, sandwich ${pct(s.pl_sandwich_y4 * 100)}%, quiche ${pct(s.pl_quiche_y4 * 100)}%, smoothie ${pct(s.pl_smoothie_y4 * 100)}% of customers, plus add-ons and catering. Card fees ${pct(s.processing * 100)}%. Privately owned C-corp donating 100% of after-tax profit; tax at ${pct(s.taxFed)}% federal + ${pct(s.taxMd)}% Maryland, with the charitable deduction capped at about ${pct(s.taxCeil - s.taxFloor)}% of taxable income. Sublease ${M(m.ls[0].rent)}/yr${s.subEsc ? `, +${pct(s.subEsc * 100)}%/yr` : ", flat"}. Events use the base case (${s.eventsN} × ${M(s.eventsFee)}); the aim-for case (${AIM.eventsN} × ${M(AIM.eventsFee)}) adds ${M(aimEv)}/yr.</p>
+      <p class="hint">Café: open ${s.openDays} days/yr (closed Saturdays and 9 holidays); ${s.menuRollup ? `menu v2 item prices (${MENU_ITEMS.length} items; average coffee ${money2(s.coffee_sale)})` : `planned category prices (coffee ${money2(s.coffee_sale)}; menu items not applied)`}${upl ? `, +${pct(upl)}% in Year 3` : ""}; Year 4–5 mix: pastry ${pct(s.pl_pastry_y4 * 100)}%, sandwich ${pct(s.pl_sandwich_y4 * 100)}%, quiche ${pct(s.pl_quiche_y4 * 100)}%, smoothie ${pct(s.pl_smoothie_y4 * 100)}% of customers, soup and cake ${Math.round(s.pl_soup_y4 * s.pl_cust_y4)} and ${Math.round(s.pl_cake_y4 * s.pl_cust_y4)}/day, plus add-ons and catering. Card fees ${pct(s.processing * 100)}%. Privately owned C-corp donating 100% of after-tax profit; tax at ${pct(s.taxFed)}% federal + ${pct(s.taxMd)}% Maryland, with the charitable deduction capped at about ${pct(s.taxCeil - s.taxFloor)}% of taxable income. Sublease ${M(m.ls[0].rent)}/yr${s.subEsc ? `, +${pct(s.subEsc * 100)}%/yr` : ", flat"}. Events use the base case (${s.eventsN} × ${M(s.eventsFee)}); the aim-for case (${AIM.eventsN} × ${M(AIM.eventsFee)}) adds ${M(aimEv)}/yr.</p>
       <p class="hint">These are planning estimates. They are not audited, and the final structure must be confirmed by a Maryland CPA.</p>`;
   }
   // ---- Staffing: Pay summary (display only; reuses payroll()/onShift() exactly) ----
@@ -1406,7 +1850,7 @@ render();
   document.addEventListener("input", e => { const o = LINK[e.target.id]; if (o && $(o) && $(o).value !== e.target.value) $(o).value = e.target.value; }, true);
   document.addEventListener("change", e => { const o = LINK[e.target.id]; if (o && $(o) && $(o).value !== e.target.value) $(o).value = e.target.value; }, true);
   // every input/change anywhere (incl. inputs added later) → full recalc + re-render, debounced ≤100 ms
-  let tmr = 0; const full = () => { clearTimeout(tmr); tmr = 0; render(); renderSummary(); };
+  let tmr = 0; const full = () => { clearTimeout(tmr); tmr = 0; render(); renderSummary(); if (window.__renderDrinks) window.__renderDrinks(); };
   const kick = e => { if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) { clearTimeout(tmr); tmr = setTimeout(full, 100); } };
   document.addEventListener("input", kick); document.addEventListener("change", kick);
   window.__fullRender = full;
@@ -1430,16 +1874,29 @@ render();
 })();
 </script>
 <script>
-/* public copy: save/restore inputs (display state only; no calculation changes) */
+/* public copy: save/restore inputs (display state only; no calculation changes)
+   v2 (menu items; menu v1 2026-10-26, menu v2 2026-10-27): scenarios are saved under rls-scenarios-v2. A v2 entry saved
+   under an older menu version is migrated by write() (item overrides reset to the current menu, other inputs kept) and re-saved.
+   Saves without the menuRollup setting load with it OFF (planned category prices) and are re-saved. A scenario saved under rls-scenarios-v1
+   (before menu items) is migrated once: write() keeps every input incl. attach rates, category prices now come from the
+   item roll-ups and soup/cake get their defaults; the v1 entry is left untouched so the previous app version still works. */
 (function(){
-  const KEY = "rls-scenarios-v1";
+  const KEY = "rls-scenarios-v2", OLD = "rls-scenarios-v1", DONE = "rls-scenarios-v2-migrated";
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(read())); } catch (e) {} };
-  try { const raw = localStorage.getItem(KEY); if (raw) { write(JSON.parse(raw)); render(); } } catch (e) {}
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const st = JSON.parse(raw); write(st); render(); if (st.menuVersion !== MENU_VERSION || st.menuRollup === undefined) save(); }
+    else if (!localStorage.getItem(DONE)) {
+      const old = localStorage.getItem(OLD);
+      if (old) { write(JSON.parse(old)); render(); save(); }
+      localStorage.setItem(DONE, "1");
+    }
+  } catch (e) {}
   document.addEventListener("input", save);
   document.addEventListener("change", save);
   document.querySelectorAll(".preset").forEach(el => el.addEventListener("click", save));
   $("btnReset").addEventListener("click", save);
-  $("btnPlanned").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} });
+  $("btnPlanned").addEventListener("click", () => { try { localStorage.removeItem(KEY); localStorage.setItem(DONE, "1"); } catch (e) {} });
 })();
 </script>
 </body>
