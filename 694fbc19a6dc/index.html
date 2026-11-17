@@ -184,7 +184,7 @@ details.panel li { margin-bottom:6px; }
     <a href="#assumptions">Assumptions</a>
   </nav>
   <section class="card" id="planned">
-    <h2>Planned scenario — Projected Financials v2 (no donations) <span id="planStatus">statement layout · yellow = editable</span></h2>
+    <h2>Planned scenario — Five-Year Financial Summary (Nov v2, Founding Partner Proposal p.12) <span id="planStatus">statement layout · yellow = editable</span></h2>
     <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
     <div class="table-wrap" id="planT1"></div>
     <h3 style="font-size:.95rem;margin:16px 0 8px">Table 2. Renewal Life Space (whole non-profit): Year 0 start-up and Years 1–5 operations</h3>
@@ -269,7 +269,7 @@ details.panel li { margin-bottom:6px; }
           <label><strong>Conference paid hours / year</strong><input type="number" id="confHrs" step="1" min="0" /></label>
           <label><strong>Tech space (Briqo) $/year</strong><input type="number" id="tech" step="100" min="0" /><span class="hint">$0 now — editable</span></label>
           <label><strong>Church facility support $/month</strong><input type="number" id="churchMo" step="100" min="0" /><span class="hint">Sheets $2k/mo — toggle below</span></label>
-          <label><strong>Donations &amp; fundraising $/year (Y1–Y5)</strong><input type="number" id="donAnnual" step="1000" min="0" /><span class="hint">Default $0 (Boyan Oct 8 v2). Optional: earlier draft used $15,000</span></label>
+          <label><strong>Donations &amp; fundraising $/year (Y1–Y5)</strong><input type="number" id="donAnnual" step="1000" min="0" /><span class="hint">Planned scenario: $15,000 (Founding Partner Proposal p.12)</span></label>
         </div>
         <div class="toggle-row">
           <input type="checkbox" id="useChurch" />
@@ -302,7 +302,7 @@ details.panel li { margin-bottom:6px; }
           <label><strong>Fundraising $</strong><input type="number" id="fundraise" step="1000" min="0" /></label>
           <label><strong>Church seed $</strong><input type="number" id="churchSeed" step="1000" min="0" /></label>
           <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /></label>
-          <label><strong>Year 0 donations &amp; fundraising $</strong><input type="number" id="donY0" step="1000" min="0" /><span class="hint">Default $0 (Boyan Oct 8 v2). Optional: earlier draft used $15,000</span></label>
+          <label><strong>Year 0 donations &amp; fundraising $</strong><input type="number" id="donY0" step="1000" min="0" /><span class="hint">Planned scenario: $15,000 (Founding Partner Proposal p.12)</span></label>
           <label><strong>Remodel BASE $</strong><input type="number" id="remodelBase" step="1000" min="0" /><span class="hint">Primary — site STARTUP $70k</span></label>
           <label style="display:none" aria-hidden="true"><strong>Remodel alternate $</strong><input type="number" id="remodelAlt" step="1000" min="0" tabindex="-1" /></label>
           <label><strong>Café equipment $</strong><input type="number" id="equip" step="1000" min="0" /></label>
@@ -338,7 +338,7 @@ details.panel li { margin-bottom:6px; }
   <div class="presets">
     <div class="preset" data-preset="planned" id="presetPlan">
       <h3>Scenario C — Planned (v2 statement)</h3>
-      <p>Saved Oct 2026 plan: OptMix sales mix, Y3 +8.5% price, add-ons &amp; catering, $85k sublease, C-corp donates 100%, no donations. Matches the v2 PDF statement.</p>
+      <p>Saved Oct 2026 plan: OptMix sales mix, Y3 +8.5% price, add-ons &amp; catering, $85k sublease, C-corp donates 100%, $60k church seed, $15k/yr donations &amp; fundraising. Matches the Founding Partner Proposal p.12 five-year summary (Nov v2).</p>
     </div>
     <div class="preset active" data-preset="breakeven" id="presetBE">
       <h3>Scenario A — Break-even</h3>
@@ -540,7 +540,7 @@ const DEFAULTS = {
   wBarista: 19.5, wManager: 25, wAdmin: 20, bBarista: 16, bMgmt: 20,
   dayHrs: 10, mgrHrs: 40, admHrs: 20, includeAdmin: true,
   baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, ingrInfl: 3, nolLimit: 80, preopenAlt: 90000,
-  fundraise: 400000, churchSeed: 50000, ti: 140000, donY0: 0, donAnnual: 0, // donations & fundraising: optional, default 0 (Boyan Oct 8 v2)
+  fundraise: 400000, churchSeed: 60000, ti: 140000, donY0: 0, donAnnual: 0, // church seed $60,000 (Founding Partner Proposal p.12, Nov 17 2026); donations: see PLANNED
   remodelBase: 70000, remodelAlt: 300000, equip: 30000, pos: 5000, permits: 8028, wc: 25000, opReserve: 150000,
   oxUtil: 12000, oxIns: 2000, oxOffice: 4800, oxMisc: 4000, oxMkt: 6000, oxPos: 2400, oxClean: 6000, oxRepair: 6000, oxCoffee: 600, oxInfl: 3,
   cY2: 180, cY3: 210, cY4: 225, cY5: 225,
@@ -1105,18 +1105,19 @@ const PLAN_VALUES = {
 };
 const PLANNED = {
   ...DEFAULTS, preset: "planned",
-  useChurch: true, churchMo: 2000, donAnnual: 0, donY0: 0, eventsN: 9, eventsFee: 1100, sundayMo: 6500, sundayMonths: 10,
+  // Founding Partner Proposal p.12 / Nov v2 summary (Boyan, Nov 17 2026): church seed $60,000, donations & fundraising $15,000 in Year 0 and $15,000/yr Years 1–5
+  useChurch: true, churchMo: 2000, churchSeed: 60000, donAnnual: 15000, donY0: 15000, eventsN: 9, eventsFee: 1100, sundayMo: 6500, sundayMonths: 10,
   confHrs: 0, tech: 0, permits: 8000, subSf: 2800, subRate: 85000 / 2800, subEsc: 0,
   pl_addP: 0.85, pl_addC: 25, pl_catC: 30, pl_catL: 0, pl_buildSf: 7000, pl_buildRate: 50, pl_arch: 30000, pl_furn: 30000,
-  pl_wc: 25000, pl_sign: 8000, pl_reserve: false
+  pl_wc: 25000, pl_sign: 8028, pl_reserve: false // permits/signage/smallwares $8,028 (p.12)
 };
 PL_ROWS.forEach(([k]) => PLAN_VALUES[k].forEach((v, i) => { PLANNED[`pl_${k}_y${i + 1}`] = v; }));
-// Statement targets (v2 no-donations PDF) for the on-screen check
+// Statement targets (Nov v2 summary = Founding Partner Proposal p.12) for the on-screen check
 const PLAN_TARGETS = {
   rev: [486864, 604113, 825966, 1075827, 1087121], P: [24800, 102105, 200699, 353695, 350556],
-  tax: [6257, 25760, 50633, 89231, 88439], at: [18543, 76345, 150066, 264464, 262117],
-  base: [18543, 56966, 57349, 103248, 100250], net: [112000, -4157, 47447, 114785, 222607, 213488],
-  cum: [112000, 107843, 155290, 270075, 492682, 706170]
+  tax: [6257, 25759, 50633, 89231, 88439], at: [18543, 76345, 150066, 264464, 262117],
+  base: [18543, 56966, 57349, 103248, 100250], net: [136972, 10843, 62447, 129785, 237607, 228488],
+  cum: [136972, 147815, 210262, 340047, 577654, 806142] // Founding Partner Proposal p.12 (Nov 17 2026)
 };
 const PL_SCALAR = ["pl_addP", "pl_addC", "pl_catC", "pl_catL", "pl_buildSf", "pl_buildRate", "pl_arch", "pl_furn", "pl_wc", "pl_sign"];
 function plIds() { const a = [...PL_SCALAR]; PL_ROWS.forEach(([k]) => { for (let y = 1; y <= 5; y++) a.push(`pl_${k}_y${y}`); }); return a; }
@@ -1163,9 +1164,9 @@ function planModel(s) {
   const run = mixFn => { let nol = 0; return [1,2,3,4,5].map(y => { const c = planCafeYear(s, y, mixFn(s, y)); const t = corpTax(s, c.P, nol); nol = t.nolEnd; return { ...c, tax: t.tax, at: t.donated }; }); };
   const cafe = run(planMix), base = run(baseMix);
   // Statement convention (build_summary_report.py): every line rounded to the dollar, totals = sum of rounded lines,
-  // displayed tax = rounded pre-tax − rounded after-tax so Table 1 foots exactly.
+  // displayed tax = the tax rounded on its own, as on proposal p.12 (Year 2: $25,759; a line may differ by $1 from pre-tax − after-tax).
   const R = Math.round;
-  [cafe, base].forEach(a => a.forEach(c => { c.atR = R(c.at); c.taxR = R(c.P) - c.atR; }));
+  [cafe, base].forEach(a => a.forEach(c => { c.atR = R(c.at); c.taxR = R(c.tax); }));
   const ls = cafe.map((c, i) => {
     const g = Math.pow(1 + s.oxInfl, i), G = v => R(v * g);
     const church = s.useChurch ? s.churchMo * 12 : 0, sunday = s.sundayMo * s.sundayMonths, events = s.eventsN * s.eventsFee;
@@ -1246,7 +1247,7 @@ function renderPlan(s) {
   const R = Math.round, chk = [];
   m.cafe.forEach((c, i) => { if (R(c.rev) !== PLAN_TARGETS.rev[i] || R(c.P) !== PLAN_TARGETS.P[i] || c.taxR !== PLAN_TARGETS.tax[i] || c.atR !== PLAN_TARGETS.at[i] || R(m.base[i].at) !== PLAN_TARGETS.base[i]) chk.push("Y" + (i + 1)); });
   [y.net, ...L("net")].forEach((v, i) => { if (R(v) !== PLAN_TARGETS.net[i] || R(m.cum[i]) !== PLAN_TARGETS.cum[i]) chk.push("LS Y" + i); });
-  $("planStatus").textContent = chk.length ? `differs from v2 statement (${chk.join(", ")}) — ${s.menuRollup ? "v2 used the locked category menu; this uses menu v2 item averages + soup & cake" : "planned category prices; soup and cake at the units/day entered"}` : "✓ matches v2 statement (no donations)";
+  $("planStatus").textContent = chk.length ? `differs from the five-year summary (${chk.join(", ")}) — ${s.menuRollup ? "v2 used the locked category menu; this uses menu v2 item averages + soup & cake" : "planned category prices; soup and cake at the units/day entered"}` : "✓ matches the five-year summary (Founding Partner Proposal p.12)";
   window.__plan = m;
 }
 
@@ -1456,7 +1457,7 @@ function bind() {
 
 buildMenuInputs();
 buildPlanInputs();
-write({ ...PLANNED }); // default-loaded saved scenario: v2 statement (no donations)
+write({ ...PLANNED }); // default-loaded saved scenario: Nov v2 five-year summary (proposal p.12)
 bind();
 render();
 </script>
@@ -1803,7 +1804,7 @@ render();
       <h3 style="font-size:.95rem;margin:16px 0 6px">Notes &amp; key assumptions</h3>
       <ol class="notes">
         <li>This is the model’s “church facility support” (${M(s.churchMo)}/mo), which is switched off in the model’s base case.</li>
-        <li>Year 0 funding: ${K(s.fundraise)} fundraising, ${K(s.churchSeed)} church seed and a ${K(s.ti)} TI (tenant improvement) allowance.</li>
+        <li>Year 0 funding: ${K(s.fundraise)} fundraising, ${K(s.churchSeed)} church seed, a ${K(s.ti)} TI (tenant improvement) allowance${s.donY0 ? ` and ${K(s.donY0)} donations &amp; fundraising` : ""}${s.donAnnual ? `; donations &amp; fundraising ${K(s.donAnnual)}/yr in Years 1–5` : ""}.</li>
         <li>Estimate: about ${M(s.pl_buildRate)}/sf on the whole ${s.pl_buildSf.toLocaleString("en-US")} sf leased space. The model’s base remodel figure is ${M(s.remodelBase)} (with a ${M(s.remodelAlt)} alternate). Year 0 excludes rent during build-out (the model has none).</li>
         <li>Signage &amp; permits ${M(s.pl_sign)}. Equipment ${M(s.equip)}, POS ${M(s.pos)} and working capital ${M(s.pl_wc)} are from the café plan and the model.</li>
         <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN) = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr. Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(lease1 - work)} lower in Year 1 (about ${M(Math.round((lease5 - work) / 100) * 100)} lower by Year 5).</li>
@@ -1885,8 +1886,8 @@ render();
   const KEY = "rls-scenarios-v2", OLD = "rls-scenarios-v1", DONE = "rls-scenarios-v2-migrated";
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(read())); } catch (e) {} };
   /* Nov 17 2026 (Boyan): soup $4.95/$0.30 and cake $7.90/$2.50 at 0/day by default. A scenario saved with the earlier
-     soup/cake defaults (10/day, $5.00/$0.99 and $8.00/$1.80) gets the new defaults once; any value the user changed is kept. */
-  const SC = "rls-soupcake-0-2026-11-17";
+     soup/cake defaults (10/day, $5.00/$0.99 and $8.00/$1.80) gets the new defaults once; any value the user changed is kept. Same for the proposal p.12 inputs below. */
+  const SC = "rls-p12-soupcake-2026-11-17";
   const migrateSoupCake = st => {
     let ch = false; const eq = (k, v) => typeof st[k] === "number" && Math.abs(st[k] - v) < 1e-6;
     const setIf = (k, oldV, newV) => { if (eq(k, oldV)) { st[k] = newV; ch = true; } };
@@ -1901,6 +1902,8 @@ render();
         if (oldC !== undefined) setIf(`mi_${it.id}_c`, oldC, it.cost);
       });
     });
+    // proposal p.12 inputs (Nov 17 2026): earlier defaults → new defaults
+    [["churchSeed", 50000, 60000], ["donY0", 0, 15000], ["donAnnual", 0, 15000], ["pl_sign", 8000, 8028]].forEach(([k, o, n]) => setIf(k, o, n));
     return ch;
   };
   try {
