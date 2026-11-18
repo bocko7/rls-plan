@@ -58,6 +58,13 @@ main { max-width: 1180px; margin: 0 auto; padding: 18px 16px 60px; }
 .preset.active { border-color: var(--accent); background: #eaf4fb; }
 .preset h3 { margin: 0 0 4px; font-size: 1rem; }
 .preset p { margin: 0; color: var(--muted); font-size: .85rem; }
+.scen-switch { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; }
+.scen-btn { border:2px solid var(--line); background:#fff; color:var(--ink); border-radius:999px; padding:6px 14px; font-weight:700; cursor:pointer; font-size:.85rem; }
+.scen-btn.active { border-color:var(--accent); background:var(--accent); color:#fff; }
+table.cmp td.neg { color:#b42318; }
+table.cmp td:first-child { min-width:210px; }
+table.cmp td, table.cmp th { white-space:nowrap; }
+table.cmp td:first-child { white-space:normal; }
 .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
 @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
 .card {
@@ -168,7 +175,7 @@ details.panel li { margin-bottom:6px; }
     <label class="file-btn ghost">Load JSON<input type="file" id="fileLoad" accept="application/json,.json" /></label>
     <button type="button" class="ghost" id="btnCsv">Download CSV</button>
     <button type="button" class="ghost" id="btnReset">Reset defaults</button>
-    <button type="button" class="primary" id="btnPlanned">Reset to planned scenario</button>
+    <button type="button" class="primary" id="btnPlanned">Reset to Default (Nov v2)</button>
   </div>
 </header>
 <main>
@@ -184,11 +191,17 @@ details.panel li { margin-bottom:6px; }
     <a href="#assumptions">Assumptions</a>
   </nav>
   <section class="card" id="planned">
-    <h2>Planned scenario — Five-Year Financial Summary (Nov v2, Founding Partner Proposal p.12) <span id="planStatus">statement layout · yellow = editable</span></h2>
+    <h2><span id="planTitle" style="all:unset">Planned scenario — Five-Year Financial Summary (Nov v2, Founding Partner Proposal p.12)</span> <span id="planStatus">statement layout · yellow = editable</span></h2>
+    <div class="scen-switch" role="group" aria-label="Lease scenario">
+      <button type="button" class="scen-btn" data-scen="planned">Default — Nov v2 proposal</button>
+      <button type="button" class="scen-btn" data-scen="landlord">Landlord response — Nov 16, 2026</button>
+    </div>
     <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
     <div class="table-wrap" id="planT1"></div>
     <h3 style="font-size:.95rem;margin:16px 0 8px">Table 2. Renewal Life Space (whole non-profit): Year 0 start-up and Years 1–5 operations</h3>
     <div class="table-wrap" id="planT2"></div>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">Lease comparison — Default (Nov v2) vs Landlord response (Nov 16, 2026)</h3>
+    <div class="table-wrap" id="planCmp"></div>
     <h3 style="font-size:.95rem;margin:16px 0 8px">Planned-scenario drivers (per year)</h3>
     <div class="table-wrap">
       <table class="menu-table" id="planInputs"><thead><tr><th>Driver</th><th>Y1</th><th>Y2</th><th>Y3</th><th>Y4</th><th>Y5</th></tr></thead><tbody id="planInBody"></tbody></table>
@@ -255,6 +268,10 @@ details.panel li { margin-bottom:6px; }
           <label><strong>Base rent $/RSF/yr</strong><input type="number" id="baseRent" step="0.01" min="0" /></label>
           <label><strong>NNN $/RSF/yr</strong><input type="number" id="nnn" step="0.01" min="0" /></label>
           <label><strong>Escalation % / yr (base &amp; NNN from Y2)</strong><input type="number" id="esc" step="0.1" min="0" /></label>
+          <label><strong>Base rent abatement %</strong><input type="number" id="abatePct" step="1" min="0" max="100" /><span class="hint">Landlord Nov 16: 50% (NNN still payable)</span></label>
+          <label><strong>Abatement months (from rent commencement)</strong><input type="number" id="abateMonths" step="1" min="0" /><span class="hint">Landlord Nov 16: 24 (Year 1 = rent commencement)</span></label>
+          <label><strong>Security deposit (months of base rent, Year 0)</strong><input type="number" id="depMonths" step="1" min="0" /><span class="hint">LOI: 2 months at signing (refundable at lease end)</span></label>
+          <label><strong>Rent prepayment (months of base rent, Year 0)</strong><input type="number" id="prepayMonths" step="1" min="0" /><span class="hint">LOI: 1 month at signing, credited against Year 1 rent</span></label>
         </div>
       </section>
 
@@ -301,7 +318,7 @@ details.panel li { margin-bottom:6px; }
         <div class="fields">
           <label><strong>Fundraising $</strong><input type="number" id="fundraise" step="1000" min="0" /></label>
           <label><strong>Church seed $</strong><input type="number" id="churchSeed" step="1000" min="0" /></label>
-          <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /></label>
+          <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /><span class="hint">Default $140,000 (7,000 × $20). Landlord Nov 16: 13,241 × $15.00 = $198,615 less 1% of build-out hard cost ($3,500) = $195,115</span></label>
           <label><strong>Year 0 donations &amp; fundraising $</strong><input type="number" id="donY0" step="1000" min="0" /><span class="hint">Planned scenario: $15,000 (Founding Partner Proposal p.12)</span></label>
           <label><strong>Remodel BASE $</strong><input type="number" id="remodelBase" step="1000" min="0" /><span class="hint">Primary — site STARTUP $70k</span></label>
           <label style="display:none" aria-hidden="true"><strong>Remodel alternate $</strong><input type="number" id="remodelAlt" step="1000" min="0" tabindex="-1" /></label>
@@ -337,8 +354,12 @@ details.panel li { margin-bottom:6px; }
   <div class="kpis" id="kpis"></div>
   <div class="presets">
     <div class="preset" data-preset="planned" id="presetPlan">
-      <h3>Scenario C — Planned (v2 statement)</h3>
+      <h3>Default — Nov v2 proposal (Scenario C, planned)</h3>
       <p>Saved Oct 2026 plan: OptMix sales mix, Y3 +8.5% price, add-ons &amp; catering, $85k sublease, C-corp donates 100%, $60k church seed, $15k/yr donations &amp; fundraising. Matches the Founding Partner Proposal p.12 five-year summary (Nov v2).</p>
+    </div>
+    <div class="preset" data-preset="landlord" id="presetLL">
+      <h3>Scenario D — Landlord response (Nov 16, 2026)</h3>
+      <p>Default plan with only the lease changed to the landlord’s Nov 16, 2026 LOI redline: 13,241 RSF, $20.00 NNN base +3%/yr, NNN $6.00, base rent 50% abated for 24 months, TI $15.00/RSF less 1% oversight fee, 2 months’ deposit + 1 month prepaid at signing, 11-year term.</p>
     </div>
     <div class="preset active" data-preset="breakeven" id="presetBE">
       <h3>Scenario A — Break-even</h3>
@@ -534,7 +555,7 @@ const DEFAULTS = {
   sandwich_attach: 0.20, sandwich_sale: 8.20, sandwich_cost: 2.30,
   quiche_attach: 0.08, quiche_sale: 7.60, quiche_cost: 2.30,
   soup_attach: 0, soup_sale: 4.95, soup_cost: 0.30, cake_attach: 0, cake_sale: 7.90, cake_cost: 2.50, // Boyan Nov 17 2026: 0/day by default
-  rsf: 7000, cafeSf: 1800, ministrySf: 4700, baseRent: 20, nnn: 5.6, esc: 3,
+  rsf: 7000, cafeSf: 1800, ministrySf: 4700, baseRent: 20, nnn: 5.6, esc: 3, abatePct: 0, abateMonths: 0, depMonths: 0, prepayMonths: 0,
   sundayMo: 6500, sundayMonths: 10, eventsN: 9, eventsFee: 1100,
   confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: false,
   wBarista: 19.5, wManager: 25, wAdmin: 20, bBarista: 16, bMgmt: 20,
@@ -740,6 +761,7 @@ function read() {
     processing: g("processing")/100, waste: g("waste")/100,
     rsf: g("rsf"), cafeSf: g("cafeSf"), ministrySf: g("ministrySf"),
     baseRent: g("baseRent"), nnn: g("nnn"), esc: g("esc")/100,
+    abatePct: g("abatePct"), abateMonths: g("abateMonths"), depMonths: g("depMonths"), prepayMonths: g("prepayMonths"),
     sundayMo: g("sundayMo"), sundayMonths: g("sundayMonths"),
     eventsN: g("eventsN"), eventsFee: g("eventsFee"),
     confHourly: g("confHourly"), confHrs: g("confHrs"), tech: g("tech"),
@@ -833,6 +855,7 @@ function write(s) {
   }
   set("rsf", s.rsf); set("cafeSf", s.cafeSf); set("ministrySf", s.ministrySf);
   set("baseRent", s.baseRent); set("nnn", s.nnn); set("esc", s.esc <= 1 ? s.esc*100 : s.esc);
+  set("abatePct", s.abatePct ?? 0); set("abateMonths", s.abateMonths ?? 0); set("depMonths", s.depMonths ?? 0); set("prepayMonths", s.prepayMonths ?? 0);
   set("sundayMo", s.sundayMo); set("sundayMonths", s.sundayMonths);
   set("eventsN", s.eventsN); set("eventsFee", s.eventsFee);
   set("confHourly", s.confHourly); set("confHrs", s.confHrs); set("tech", s.tech);
@@ -889,8 +912,12 @@ function opexY(s, year) {
 function occY(s, year) {
   const base = s.baseRent * Math.pow(1 + s.esc, year - 1);
   const nnn = s.nnn * Math.pow(1 + s.esc, year - 1);
-  return s.rsf * (base + nnn);
+  // base-rent abatement (landlord Nov 16, 2026: 50% for the 24 months after rent commencement; Year 1 = rent commencement). NNN not abated.
+  const abMo = Math.min(12, Math.max(0, (s.abateMonths || 0) - 12 * (year - 1)));
+  const abate = (s.abatePct || 0) / 100 * abMo / 12;
+  return s.rsf * (base * (1 - abate) + nnn);
 }
+const leaseMonthBase = s => s.rsf * s.baseRent / 12; // one month of Year 1 base rent (unabated)
 
 function otherIncome(s) {
   const sunday = s.sundayMo * s.sundayMonths;
@@ -1112,6 +1139,12 @@ const PLANNED = {
   pl_wc: 25000, pl_sign: 8028, pl_reserve: false // permits/signage/smallwares $8,028 (p.12)
 };
 PL_ROWS.forEach(([k]) => PLAN_VALUES[k].forEach((v, i) => { PLANNED[`pl_${k}_y${i + 1}`] = v; }));
+// Lease-only inputs. Default = Nov v2 proposal (unchanged). Landlord = Lincoln Property Co. redline of the LOI, "November 16, 2026 Landlord Response".
+const LEASE_DEFAULT = { rsf: 7000, baseRent: 20, nnn: 5.6, esc: 3, abatePct: 0, abateMonths: 0, depMonths: 0, prepayMonths: 0, ti: 140000 };
+const LEASE_LL = { rsf: 13241, baseRent: 20, nnn: 6, esc: 3, abatePct: 50, abateMonths: 24, depMonths: 2, prepayMonths: 1,
+  ti: 13241 * 15 - Math.round(0.01 * 7000 * 50) }; // $198,615 TI less 1% oversight fee on the $350,000 build-out hard cost = $195,115
+const PLANNED_LL = { ...PLANNED, ...LEASE_LL, preset: "landlord" };
+const leaseRead = L => ({ ...L, esc: L.esc / 100 }); // read()-format lease fields
 // Statement targets (Nov v2 summary = Founding Partner Proposal p.12) for the on-screen check
 const PLAN_TARGETS = {
   rev: [486864, 604113, 825966, 1075827, 1087121], P: [24800, 102105, 200699, 353695, 350556],
@@ -1172,20 +1205,36 @@ function planModel(s) {
     const church = s.useChurch ? s.churchMo * 12 : 0, sunday = s.sundayMo * s.sundayMonths, events = s.eventsN * s.eventsFee;
     const other = s.confHourly * s.confHrs + s.tech + (s.donAnnual || 0);
     const inc = R(church) + R(sunday) + R(events) + R(other) + R(c.rent) + c.atR;
-    const lease = R(occY(s, i + 1)), office = G(s.oxOffice), upkeep = G(s.oxClean) + G(s.oxRepair), mkt = G(s.oxMisc) + G(s.oxMkt) + G(s.oxCoffee);
+    const lease = R(occY(s, i + 1)) - (i === 0 ? R(leaseMonthBase(s) * (s.prepayMonths || 0)) : 0), office = G(s.oxOffice), upkeep = G(s.oxClean) + G(s.oxRepair), mkt = G(s.oxMisc) + G(s.oxMkt) + G(s.oxCoffee);
     const exp = lease + office + upkeep + mkt;
     return { church, sunday, events, other, rent: c.rent, don: c.atR, inc, lease, office, upkeep, mkt, exp, net: inc - exp };
   });
   const y0 = {
     fund: s.fundraise, seed: s.churchSeed, ti: s.ti, don: s.donY0 || 0,
     build: R(s.pl_buildSf * s.pl_buildRate), arch: s.pl_arch, furn: s.pl_furn, sign: s.pl_sign, equip: s.equip, pos: s.pos, wc: s.pl_wc,
-    reserve: s.pl_reserve ? s.opReserve : 0
+    reserve: s.pl_reserve ? s.opReserve : 0,
+    dep: R(leaseMonthBase(s) * (s.depMonths || 0)), prepay: R(leaseMonthBase(s) * (s.prepayMonths || 0))
   };
   y0.inc = y0.fund + y0.seed + y0.ti + y0.don;
-  y0.exp = y0.build + y0.arch + y0.furn + y0.sign + y0.equip + y0.pos + y0.wc + y0.reserve;
+  y0.exp = y0.build + y0.arch + y0.furn + y0.sign + y0.equip + y0.pos + y0.wc + y0.reserve + y0.dep + y0.prepay;
   y0.net = y0.inc - y0.exp;
   let cum = y0.net; const cumA = [cum]; ls.forEach(l => { cum += l.net; cumA.push(cum); });
   return { cafe, base, ls, y0, cum: cumA };
+}
+function renderCompare(s) {
+  const a = planModel({ ...s, ...leaseRead(LEASE_DEFAULT) }), b = planModel({ ...s, ...leaseRead(LEASE_LL) });
+  const sm = stmtMoney, d = (x, y) => { const v = Math.round(y - x); return `<td class="${v < 0 ? "neg" : ""}">${v > 0 ? "+" : ""}${v < 0 ? "−" + sm(-v) : sm(v)}</td>`; };
+  const row = (lab, fa, fb) => `<tr><td>${lab}</td>${[0,1,2,3,4,5].map(i => { const x = fa(a, i), y = fb(b, i); return x === null ? "<td>–</td><td>–</td><td>–</td>" : `<td>${sm(x)}</td><td>${sm(y)}</td>${d(x, y)}`; }).join("")}</tr>`;
+  const lease = (m, i) => i === 0 ? m.y0.dep + m.y0.prepay : m.ls[i - 1].lease;
+  $("planCmp").innerHTML = `<table class="cmp"><thead><tr><th rowspan="2"></th>${["Year 0","Year 1","Year 2","Year 3","Year 4","Year 5"].map(y => `<th colspan="3">${y}</th>`).join("")}</tr>
+    <tr>${[0,1,2,3,4,5].map(() => "<th>Default</th><th>Landlord</th><th>Change</th>").join("")}</tr></thead><tbody>
+    ${row("Lease cash (Y0 deposit + prepaid rent; Y1–Y5 base + NNN)", lease, lease)}
+    ${row("TI allowance", (m, i) => i ? null : m.y0.ti, (m, i) => i ? null : m.y0.ti)}
+    ${row("Total income (Y0 = start-up funding)", (m, i) => i ? m.ls[i - 1].inc : m.y0.inc, (m, i) => i ? m.ls[i - 1].inc : m.y0.inc)}
+    ${row("Total expenses", (m, i) => i ? m.ls[i - 1].exp : m.y0.exp, (m, i) => i ? m.ls[i - 1].exp : m.y0.exp)}
+    ${row("Net surplus / (deficit)", (m, i) => i ? m.ls[i - 1].net : m.y0.net, (m, i) => i ? m.ls[i - 1].net : m.y0.net)}
+    ${row("Cumulative cash", (m, i) => m.cum[i], (m, i) => m.cum[i])}
+  </tbody></table><div class="hint">Both columns use every other input as currently entered; only the lease inputs differ. Default: 7,000 RSF × ($20.00 + $5.60 NNN), +3%/yr, no abatement, $140,000 TI. Landlord: 13,241 RSF × ($20.00 + $6.00 NNN), +3%/yr, base 50% abated for 24 months, TI $195,115, 2 months’ deposit + 1 month prepaid in Year 0 (prepaid month credited in Year 1). Build-out stays $350,000 on 7,000 sf; no income is assumed from the extra 6,241 sf.</div>`;
 }
 function stmtMoney(n) {
   if (!isFinite(n)) return "—";
@@ -1234,7 +1283,9 @@ function renderPlan(s) {
     ${r6("Café point of sale (POS / network / security)", y.pos, N5)}
     ${r6("Café opening working capital", y.wc, N5)}
     ${y.reserve ? r6("Operating reserve", y.reserve, N5) : ""}
-    ${r6(`Master lease (${s.rsf.toLocaleString("en-US")} sf, base + NNN)`, null, L("lease"), "", "lease")}
+    ${y.dep ? r6(`Lease security deposit (${s.depMonths} mo base rent, refundable at lease end)`, y.dep, N5, "", "dep") : ""}
+    ${y.prepay ? r6(`Rent prepaid at signing (${s.prepayMonths} mo, credited in Year 1)`, y.prepay, N5, "", "prepay") : ""}
+    ${r6(`Master lease (${s.rsf.toLocaleString("en-US")} sf, base + NNN${s.abatePct && s.abateMonths ? `; base ${s.abatePct}% abated ${s.abateMonths} mo` : ""}${y.prepay ? "; Y1 net of prepaid rent" : ""})`, null, L("lease"), "", "lease")}
     ${r6("Utilities &amp; insurance (paid by café)", null, m.ls.map(() => 0))}
     ${r6("Church office / admin", null, L("office"), "", "office")}
     ${r6("Building upkeep (cleaning, repairs)", null, L("upkeep"), "", "upkeep")}
@@ -1247,6 +1298,11 @@ function renderPlan(s) {
   const R = Math.round, chk = [];
   m.cafe.forEach((c, i) => { if (R(c.rev) !== PLAN_TARGETS.rev[i] || R(c.P) !== PLAN_TARGETS.P[i] || c.taxR !== PLAN_TARGETS.tax[i] || c.atR !== PLAN_TARGETS.at[i] || R(m.base[i].at) !== PLAN_TARGETS.base[i]) chk.push("Y" + (i + 1)); });
   [y.net, ...L("net")].forEach((v, i) => { if (R(v) !== PLAN_TARGETS.net[i] || R(m.cum[i]) !== PLAN_TARGETS.cum[i]) chk.push("LS Y" + i); });
+  const isLL = s.preset === "landlord";
+  $("planTitle").textContent = isLL ? "Scenario D — Landlord response (Nov 16, 2026 LOI redline): Five-Year Financial Summary" : "Default — Five-Year Financial Summary (Nov v2, Founding Partner Proposal p.12)";
+  document.querySelectorAll(".scen-btn").forEach(b => b.classList.toggle("active", b.dataset.scen === (isLL ? "landlord" : s.preset === "planned" ? "planned" : "")));
+  renderCompare(s);
+  if (isLL) { $("planStatus").textContent = `Landlord response scenario · Year 5 cumulative cash ${stmtMoney(m.cum[5])} vs Default ${stmtMoney(PLAN_TARGETS.cum[5])}`; window.__plan = m; return; }
   $("planStatus").textContent = chk.length ? `differs from the five-year summary (${chk.join(", ")}) — ${s.menuRollup ? "v2 used the locked category menu; this uses menu v2 item averages + soup & cake" : "planned category prices; soup and cake at the units/day entered"}` : "✓ matches the five-year summary (Founding Partner Proposal p.12)";
   window.__plan = m;
 }
@@ -1374,6 +1430,8 @@ function setPreset(name, applyValues) {
   if (applyValues) {
     if (name === "planned") {
       write({ ...PLANNED }); return;
+    } else if (name === "landlord") {
+      write({ ...PLANNED_LL }); return;
     } else if (name === "aimfor") {
       const cur = read();
       write({ ...cur, ...AIM }); // AIM sets openDays: 300
@@ -1393,6 +1451,8 @@ function bind() {
   $("presetBE").addEventListener("click", () => setPreset("breakeven", true));
   $("presetAim").addEventListener("click", () => setPreset("aimfor", true));
   $("presetPlan").addEventListener("click", () => setPreset("planned", true));
+  $("presetLL").addEventListener("click", () => setPreset("landlord", true));
+  document.querySelectorAll(".scen-btn").forEach(b => b.addEventListener("click", () => setPreset(b.dataset.scen, true)));
   $("btnPlanned").addEventListener("click", () => { write({ ...PLANNED }); render(); });
   $("btnSave").addEventListener("click", () => {
     const data = read();
@@ -1787,6 +1847,7 @@ render();
     const article = /^(8|11|18)/.test(String(upl)) ? "an" : "a";
     sum.innerHTML = `
       <h2 style="display:block">Renewal Life Space Projected Financials</h2>
+      <div class="scen-switch" role="group" aria-label="Lease scenario"><button type="button" class="scen-btn${s.preset === "landlord" ? "" : s.preset === "planned" ? " active" : ""}" data-scen="planned">Default — Nov v2 proposal</button><button type="button" class="scen-btn${s.preset === "landlord" ? " active" : ""}" data-scen="landlord">Landlord response — Nov 16, 2026</button></div>
       <div class="sub">Rockville, MD · October 2026 · Prepared for Boyan L, Lead Church Planting Pastor, Renewal Church</div>
       <p class="lead">Renewal Life Space is a non-profit community and worship space. Renewal Café, a legally separate entity created for the sole purpose of supporting the Renewal church-planting ministry, subleases part of the space, pays the building’s utilities and insurance, and gives 100% of its after-tax profit to the Renewal Ministry Center. Figures are planning estimates from the working financial model.</p>
       <p class="sub" id="sumStatus" style="margin:6px 0 0">${$("planStatus").textContent}</p>
@@ -1796,6 +1857,7 @@ render();
         <div><small>Year 5</small><b data-s="y5net">${M(m.ls[y5].net)}</b><small>Net surplus / (deficit)</small></div>
         <div><small>Year 5</small><b data-s="y5cum">${M(m.cum[5])}</b><small>Cumulative cash</small></div>
       </div>
+      ${s.preset === "landlord" ? `<h3 style="font-size:.95rem;margin:4px 0 8px">Lease comparison — Default (Nov v2) vs Landlord response (Nov 16, 2026)</h3><div class="table-wrap">${$("planCmp").innerHTML}</div>` : ""}
       <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
       <div class="table-wrap" id="sumT1">${cloneTable("planT1")}</div>
       <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use ${s.menuRollup ? "the menu v2 item prices (mix-weighted by category" : "the planned category prices (menu items not applied"}, incl. soup and cake at the units/day entered, 0/day by default); Years 4–5 assume an expanded sales mix.</div>
@@ -1807,7 +1869,7 @@ render();
         <li>Year 0 funding: ${K(s.fundraise)} fundraising, ${K(s.churchSeed)} church seed, a ${K(s.ti)} TI (tenant improvement) allowance${s.donY0 ? ` and ${K(s.donY0)} donations &amp; fundraising` : ""}${s.donAnnual ? `; donations &amp; fundraising ${K(s.donAnnual)}/yr in Years 1–5` : ""}.</li>
         <li>Estimate: about ${M(s.pl_buildRate)}/sf on the whole ${s.pl_buildSf.toLocaleString("en-US")} sf leased space. The model’s base remodel figure is ${M(s.remodelBase)} (with a ${M(s.remodelAlt)} alternate). Year 0 excludes rent during build-out (the model has none).</li>
         <li>Signage &amp; permits ${M(s.pl_sign)}. Equipment ${M(s.equip)}, POS ${M(s.pos)} and working capital ${M(s.pl_wc)} are from the café plan and the model.</li>
-        <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN) = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr. Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(lease1 - work)} lower in Year 1 (about ${M(Math.round((lease5 - work) / 100) * 100)} lower by Year 5).</li>
+        <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN)${s.abatePct && s.abateMonths ? `, base rent ${pct(s.abatePct)}% abated for the first ${s.abateMonths} months` : ""}${m.y0.prepay ? `, Year 1 net of ${M(m.y0.prepay)} rent prepaid at signing` : ""} = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr.${m.y0.dep ? ` Year 0 includes a ${M(m.y0.dep)} security deposit and ${M(m.y0.prepay)} prepaid rent.` : ""} Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(lease1 - work)} lower in Year 1 (about ${M(Math.round((lease5 - work) / 100) * 100)} lower by Year 5).</li>
         <li>The café pays all utilities (${M(s.cafeUtil)}, +${pct(s.oxInfl * 100)}%/yr), insurance (${M(s.cafeIns)}, +${pct(s.oxInfl * 100)}%/yr) and its own office (${M(s.cafeOff)}/yr). These are deducted before its donation, so they show as $0 here to avoid counting them twice.</li>
       </ol>
       <p class="hint">Café: open ${s.openDays} days/yr (closed Saturdays and 9 holidays); ${s.menuRollup ? `menu v2 item prices (${MENU_ITEMS.length} items; average coffee ${money2(s.coffee_sale)})` : `planned category prices (coffee ${money2(s.coffee_sale)}; menu items not applied)`}${upl ? `, +${pct(upl)}% in Year 3` : ""}; Year 4–5 mix: pastry ${pct(s.pl_pastry_y4 * 100)}%, sandwich ${pct(s.pl_sandwich_y4 * 100)}%, quiche ${pct(s.pl_quiche_y4 * 100)}%, smoothie ${pct(s.pl_smoothie_y4 * 100)}% of customers, soup and cake ${Math.round(s.pl_soup_y4 * s.pl_cust_y4)} and ${Math.round(s.pl_cake_y4 * s.pl_cust_y4)}/day, plus add-ons and catering. Card fees ${pct(s.processing * 100)}%. Privately owned C-corp donating 100% of after-tax profit; tax at ${pct(s.taxFed)}% federal + ${pct(s.taxMd)}% Maryland, with the charitable deduction capped at about ${pct(s.taxCeil - s.taxFloor)}% of taxable income. Sublease ${M(m.ls[0].rent)}/yr${s.subEsc ? `, +${pct(s.subEsc * 100)}%/yr` : ", flat"}. Events use the base case (${s.eventsN} × ${M(s.eventsFee)}); the aim-for case (${AIM.eventsN} × ${M(AIM.eventsFee)}) adds ${M(aimEv)}/yr.</p>
@@ -1856,6 +1918,7 @@ render();
   const kick = e => { if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) { clearTimeout(tmr); tmr = setTimeout(full, 100); } };
   document.addEventListener("input", kick); document.addEventListener("change", kick);
   window.__fullRender = full;
+  sum.addEventListener("click", e => { const b = e.target.closest(".scen-btn"); if (b) { setPreset(b.dataset.scen, true); try { document.dispatchEvent(new Event("change")); } catch (x) {} } });
   const mo = new MutationObserver(renderSummary);
   ["planT1","planT2","planStatus"].forEach(id => mo.observe($(id), { childList: true, subtree: true, characterData: true }));
   renderSummary();
@@ -1918,7 +1981,7 @@ render();
   } catch (e) {}
   document.addEventListener("input", save);
   document.addEventListener("change", save);
-  document.querySelectorAll(".preset").forEach(el => el.addEventListener("click", save));
+  document.querySelectorAll(".preset, .scen-btn").forEach(el => el.addEventListener("click", save));
   $("btnReset").addEventListener("click", save);
   $("btnPlanned").addEventListener("click", () => { try { localStorage.removeItem(KEY); localStorage.setItem(DONE, "1"); } catch (e) {} });
 })();
