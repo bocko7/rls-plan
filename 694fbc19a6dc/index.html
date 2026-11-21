@@ -174,8 +174,8 @@ details.panel li { margin-bottom:6px; }
     <button type="button" class="ghost" id="btnSave">Save JSON</button>
     <label class="file-btn ghost">Load JSON<input type="file" id="fileLoad" accept="application/json,.json" /></label>
     <button type="button" class="ghost" id="btnCsv">Download CSV</button>
-    <button type="button" class="ghost" id="btnReset">Reset defaults</button>
-    <button type="button" class="primary" id="btnPlanned">Reset to Default (Nov v2)</button>
+    <button type="button" class="ghost" id="btnReset">Reset scenario</button>
+    <button type="button" class="primary" id="btnPlanned">Reset to Scenario 1 (p.12)</button>
   </div>
 </header>
 <main>
@@ -192,15 +192,11 @@ details.panel li { margin-bottom:6px; }
   </nav>
   <section class="card" id="planned">
     <h2><span id="planTitle" style="all:unset">Planned scenario — Five-Year Financial Summary (Nov v2, Founding Partner Proposal p.12)</span> <span id="planStatus">statement layout · yellow = editable</span></h2>
-    <div class="scen-switch" role="group" aria-label="Lease scenario">
-      <button type="button" class="scen-btn" data-scen="planned">Default — Nov v2 proposal</button>
-      <button type="button" class="scen-btn" data-scen="landlord">Landlord response — Nov 16, 2026</button>
-    </div>
     <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
     <div class="table-wrap" id="planT1"></div>
     <h3 style="font-size:.95rem;margin:16px 0 8px">Table 2. Renewal Life Space (whole non-profit): Year 0 start-up and Years 1–5 operations</h3>
     <div class="table-wrap" id="planT2"></div>
-    <h3 style="font-size:.95rem;margin:16px 0 8px">Lease comparison — Default (Nov v2) vs Landlord response (Nov 16, 2026)</h3>
+    <h3 style="font-size:.95rem;margin:16px 0 8px">Lease comparison — Scenario 1 (Nov v2, p.12) vs Scenario 2 (landlord terms, 7,000 sf)</h3>
     <div class="table-wrap" id="planCmp"></div>
     <h3 style="font-size:.95rem;margin:16px 0 8px">Planned-scenario drivers (per year)</h3>
     <div class="table-wrap">
@@ -318,7 +314,7 @@ details.panel li { margin-bottom:6px; }
         <div class="fields">
           <label><strong>Fundraising $</strong><input type="number" id="fundraise" step="1000" min="0" /></label>
           <label><strong>Church seed $</strong><input type="number" id="churchSeed" step="1000" min="0" /></label>
-          <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /><span class="hint">Default $140,000 (7,000 × $20). Landlord Nov 16: 13,241 × $15.00 = $198,615 less 1% of build-out hard cost ($3,500) = $195,115</span></label>
+          <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /><span class="hint">Scenario 1: $140,000 (7,000 × $20). Scenario 2 (landlord Nov 16 terms, 7,000 sf): 7,000 × $15.00 = $105,000 less 1% oversight fee on the $350,000 build-out hard cost ($3,500) = $101,500</span></label>
           <label><strong>Year 0 donations &amp; fundraising $</strong><input type="number" id="donY0" step="1000" min="0" /><span class="hint">Planned scenario: $15,000 (Founding Partner Proposal p.12)</span></label>
           <label><strong>Remodel BASE $</strong><input type="number" id="remodelBase" step="1000" min="0" /><span class="hint">Primary — site STARTUP $70k</span></label>
           <label style="display:none" aria-hidden="true"><strong>Remodel alternate $</strong><input type="number" id="remodelAlt" step="1000" min="0" tabindex="-1" /></label>
@@ -353,21 +349,13 @@ details.panel li { margin-bottom:6px; }
   <p class="note-lead">These panels use earlier modeling assumptions (incl. 3%/yr ingredient inflation) and will not match the planned statement.</p>
   <div class="kpis" id="kpis"></div>
   <div class="presets">
-    <div class="preset" data-preset="planned" id="presetPlan">
-      <h3>Default — Nov v2 proposal (Scenario C, planned)</h3>
-      <p>Saved Oct 2026 plan: OptMix sales mix, Y3 +8.5% price, add-ons &amp; catering, $85k sublease, C-corp donates 100%, $60k church seed, $15k/yr donations &amp; fundraising. Matches the Founding Partner Proposal p.12 five-year summary (Nov v2).</p>
+    <div class="preset active" data-preset="planned" id="presetPlan">
+      <h3>Scenario 1 — Nov v2 proposal (p.12)</h3>
+      <p>The plan before the landlord’s response (default): Nov v2 five-year summary, 210 customers/day in Year 3, 7,000 sf at $20.00 base + $5.60 NNN, $140,000 TI, $60k church seed, $15k/yr donations &amp; fundraising. Matches the Founding Partner Proposal p.12.</p>
     </div>
     <div class="preset" data-preset="landlord" id="presetLL">
-      <h3>Scenario D — Landlord response (Nov 16, 2026)</h3>
-      <p>Default plan with only the lease changed to the landlord’s Nov 16, 2026 LOI redline: 13,241 RSF, $20.00 NNN base +3%/yr, NNN $6.00, base rent 50% abated for 24 months, TI $15.00/RSF less 1% oversight fee, 2 months’ deposit + 1 month prepaid at signing, 11-year term.</p>
-    </div>
-    <div class="preset active" data-preset="breakeven" id="presetBE">
-      <h3>Scenario A — Break-even</h3>
-      <p>Locked menu prices/costs. Solve customers/day for integrated surplus ≈ $0 Y1 (Sunday $65k, events mid, tech $0).</p>
-    </div>
-    <div class="preset" data-preset="aimfor" id="presetAim">
-      <h3>Scenario B — Aim-for / Volume path</h3>
-      <p>Sheet volumes Y1–Y5 (160→225) × locked category menu. Events 10×$1,200, Sunday $65k, tech $0.</p>
+      <h3>Scenario 2 — Landlord lease terms, 7,000 sf (Nov 16, 2026)</h3>
+      <p>Scenario 1 with only the lease changed to the landlord’s Nov 16, 2026 redline terms, applied to our 7,000 sf only: $20.00 base +3%/yr, NNN $6.00, base rent 50% abated for 24 months, TI $15.00/sf ($105,000) less the 1% oversight fee, 2 months’ deposit + 1 month prepaid at signing. The rest of the floor (6,241 sf) is left out (it will be leased by a daycare or other business and pays for itself).</p>
     </div>
   </div>
       <section class="card" id="results">
@@ -569,7 +557,7 @@ const DEFAULTS = {
   quiY2: 0.10, quiY3: 0.10, quiY4: 0.11, quiY5: 0.13,
   taxFed: 21, taxMd: 8.25, taxCeil: 10, taxFloor: 1, ubitSpec: 1000,
   subSf: 2800, subRate: 30.3571, subEsc: 0, cafeUtil: 30000, cafeIns: 5000, cafeOff: 10000, // Boyan Oct 8 2026: $85k sublease
-  preset: "breakeven"
+  preset: "planned"
 };
 // menuRollup (Boyan 2026-10-27): OFF by default = categories use the planned Sale $ / Cost $ above (LOCKED_MENU / DEFAULTS);
 // ON = Sale $ / Cost $ are the live mix-weighted item roll-ups. <id>_saleFixed / _costFixed keep the planned (editable) values while ON.
@@ -786,7 +774,7 @@ function read() {
     ubitSpec: g("ubitSpec"),
     subSf: g("subSf"), subRate: g("subRate"), subEsc: g("subEsc")/100,
     cafeUtil: g("cafeUtil"), cafeIns: g("cafeIns"), cafeOff: g("cafeOff"),
-    preset: document.querySelector(".preset.active")?.dataset.preset || "breakeven"
+    preset: document.querySelector(".preset.active")?.dataset.preset === "landlord" ? "landlord" : "planned"
   });
   MENU_ITEMS.forEach(it => { ["p","c","m"].forEach(f => { const k = `mi_${it.id}_${f}`; o[k] = $(k) ? g(k) : menuItemDefaults()[k]; }); });
   CAT_IDS.forEach(id => {
@@ -884,7 +872,7 @@ function write(s) {
   set("quiY2", s.quiY2 ?? 0.10); set("quiY3", s.quiY3 ?? 0.10); set("quiY4", s.quiY4 ?? 0.11); set("quiY5", s.quiY5 ?? 0.13);
   ["baseBaristas","shiftCliff","shiftStep","wageGrowth","ingrInfl","nolLimit","preopenAlt"].forEach(k => set(k, s[k] ?? DEFAULTS[k]));
   writePlan(s);
-  setPreset(s.preset || "breakeven", false);
+  setPreset(s.preset === "landlord" ? "landlord" : "planned", false);
 }
 
 function onShift(cust, s) {
@@ -1139,10 +1127,10 @@ const PLANNED = {
   pl_wc: 25000, pl_sign: 8028, pl_reserve: false // permits/signage/smallwares $8,028 (p.12)
 };
 PL_ROWS.forEach(([k]) => PLAN_VALUES[k].forEach((v, i) => { PLANNED[`pl_${k}_y${i + 1}`] = v; }));
-// Lease-only inputs. Default = Nov v2 proposal (unchanged). Landlord = Lincoln Property Co. redline of the LOI, "November 16, 2026 Landlord Response".
+// Lease-only inputs. Scenario 1 = Nov v2 proposal / p.12 (unchanged). Scenario 2 = Lincoln Property Co. redline of the LOI ("November 16, 2026 Landlord Response") applied to 7,000 sf only.
 const LEASE_DEFAULT = { rsf: 7000, baseRent: 20, nnn: 5.6, esc: 3, abatePct: 0, abateMonths: 0, depMonths: 0, prepayMonths: 0, ti: 140000 };
-const LEASE_LL = { rsf: 13241, baseRent: 20, nnn: 6, esc: 3, abatePct: 50, abateMonths: 24, depMonths: 2, prepayMonths: 1,
-  ti: 13241 * 15 - Math.round(0.01 * 7000 * 50) }; // $198,615 TI less 1% oversight fee on the $350,000 build-out hard cost = $195,115
+const LEASE_LL = { rsf: 7000, baseRent: 20, nnn: 6, esc: 3, abatePct: 50, abateMonths: 24, depMonths: 2, prepayMonths: 1,
+  ti: 7000 * 15 - Math.round(0.01 * 7000 * 50) }; // Scenario 2 (Boyan, Nov 21 2026): landlord Nov 16 terms on our 7,000 sf only. TI $105,000 less 1% oversight fee on the $350,000 build-out hard cost ($3,500) = $101,500. Remaining 6,241 sf excluded (no rent, NNN, TI or income).
 const PLANNED_LL = { ...PLANNED, ...LEASE_LL, preset: "landlord" };
 const leaseRead = L => ({ ...L, esc: L.esc / 100 }); // read()-format lease fields
 // Statement targets (Nov v2 summary = Founding Partner Proposal p.12) for the on-screen check
@@ -1227,14 +1215,14 @@ function renderCompare(s) {
   const row = (lab, fa, fb) => `<tr><td>${lab}</td>${[0,1,2,3,4,5].map(i => { const x = fa(a, i), y = fb(b, i); return x === null ? "<td>–</td><td>–</td><td>–</td>" : `<td>${sm(x)}</td><td>${sm(y)}</td>${d(x, y)}`; }).join("")}</tr>`;
   const lease = (m, i) => i === 0 ? m.y0.dep + m.y0.prepay : m.ls[i - 1].lease;
   $("planCmp").innerHTML = `<table class="cmp"><thead><tr><th rowspan="2"></th>${["Year 0","Year 1","Year 2","Year 3","Year 4","Year 5"].map(y => `<th colspan="3">${y}</th>`).join("")}</tr>
-    <tr>${[0,1,2,3,4,5].map(() => "<th>Default</th><th>Landlord</th><th>Change</th>").join("")}</tr></thead><tbody>
+    <tr>${[0,1,2,3,4,5].map(() => "<th>Scen. 1</th><th>Scen. 2</th><th>Change</th>").join("")}</tr></thead><tbody>
     ${row("Lease cash (Y0 deposit + prepaid rent; Y1–Y5 base + NNN)", lease, lease)}
     ${row("TI allowance", (m, i) => i ? null : m.y0.ti, (m, i) => i ? null : m.y0.ti)}
     ${row("Total income (Y0 = start-up funding)", (m, i) => i ? m.ls[i - 1].inc : m.y0.inc, (m, i) => i ? m.ls[i - 1].inc : m.y0.inc)}
     ${row("Total expenses", (m, i) => i ? m.ls[i - 1].exp : m.y0.exp, (m, i) => i ? m.ls[i - 1].exp : m.y0.exp)}
     ${row("Net surplus / (deficit)", (m, i) => i ? m.ls[i - 1].net : m.y0.net, (m, i) => i ? m.ls[i - 1].net : m.y0.net)}
     ${row("Cumulative cash", (m, i) => m.cum[i], (m, i) => m.cum[i])}
-  </tbody></table><div class="hint">Both columns use every other input as currently entered; only the lease inputs differ. Default: 7,000 RSF × ($20.00 + $5.60 NNN), +3%/yr, no abatement, $140,000 TI. Landlord: 13,241 RSF × ($20.00 + $6.00 NNN), +3%/yr, base 50% abated for 24 months, TI $195,115, 2 months’ deposit + 1 month prepaid in Year 0 (prepaid month credited in Year 1). Build-out stays $350,000 on 7,000 sf; no income is assumed from the extra 6,241 sf.</div>`;
+  </tbody></table><div class="hint">Both columns use every other input as currently entered; only the lease inputs differ. Scenario 1 (p.12): 7,000 RSF × ($20.00 + $5.60 NNN), +3%/yr, no abatement, $140,000 TI. Scenario 2 (landlord Nov 16 terms, 7,000 sf only): 7,000 RSF × ($20.00 + $6.00 NNN), +3%/yr, base 50% abated for the 24 months after rent commencement (Years 1–2), TI $101,500 ($105,000 less the 1% oversight fee), 2 months’ deposit ($23,333) + 1 month prepaid ($11,667) in Year 0 (prepaid month credited in Year 1). Year 0 = the 9 rent-free months before rent commencement. Build-out stays $350,000 on 7,000 sf. The remaining 6,241 sf is excluded (no rent, NNN, TI or income).</div>`;
 }
 function stmtMoney(n) {
   if (!isFinite(n)) return "—";
@@ -1299,10 +1287,10 @@ function renderPlan(s) {
   m.cafe.forEach((c, i) => { if (R(c.rev) !== PLAN_TARGETS.rev[i] || R(c.P) !== PLAN_TARGETS.P[i] || c.taxR !== PLAN_TARGETS.tax[i] || c.atR !== PLAN_TARGETS.at[i] || R(m.base[i].at) !== PLAN_TARGETS.base[i]) chk.push("Y" + (i + 1)); });
   [y.net, ...L("net")].forEach((v, i) => { if (R(v) !== PLAN_TARGETS.net[i] || R(m.cum[i]) !== PLAN_TARGETS.cum[i]) chk.push("LS Y" + i); });
   const isLL = s.preset === "landlord";
-  $("planTitle").textContent = isLL ? "Scenario D — Landlord response (Nov 16, 2026 LOI redline): Five-Year Financial Summary" : "Default — Five-Year Financial Summary (Nov v2, Founding Partner Proposal p.12)";
+  $("planTitle").textContent = isLL ? "Scenario 2 — Landlord lease terms, 7,000 sf (Nov 16, 2026): Five-Year Financial Summary" : "Scenario 1 — Nov v2 proposal (p.12): Five-Year Financial Summary";
   document.querySelectorAll(".scen-btn").forEach(b => b.classList.toggle("active", b.dataset.scen === (isLL ? "landlord" : s.preset === "planned" ? "planned" : "")));
   renderCompare(s);
-  if (isLL) { $("planStatus").textContent = `Landlord response scenario · Year 5 cumulative cash ${stmtMoney(m.cum[5])} vs Default ${stmtMoney(PLAN_TARGETS.cum[5])}`; window.__plan = m; return; }
+  if (isLL) { $("planStatus").textContent = `Scenario 2 (landlord terms, 7,000 sf) · Year 5 cumulative cash ${stmtMoney(m.cum[5])} vs Scenario 1 ${stmtMoney(PLAN_TARGETS.cum[5])}`; window.__plan = m; return; }
   $("planStatus").textContent = chk.length ? `differs from the five-year summary (${chk.join(", ")}) — ${s.menuRollup ? "v2 used the locked category menu; this uses menu v2 item averages + soup & cake" : "planned category prices; soup and cake at the units/day entered"}` : "✓ matches the five-year summary (Founding Partner Proposal p.12)";
   window.__plan = m;
 }
@@ -1426,20 +1414,9 @@ function render() {
 }
 
 function setPreset(name, applyValues) {
+  if (name !== "landlord") name = "planned"; // only two scenarios (Boyan, Nov 21 2026): Scenario 1 = planned (p.12), Scenario 2 = landlord terms on 7,000 sf
   document.querySelectorAll(".preset").forEach(el => el.classList.toggle("active", el.dataset.preset === name));
-  if (applyValues) {
-    if (name === "planned") {
-      write({ ...PLANNED }); return;
-    } else if (name === "landlord") {
-      write({ ...PLANNED_LL }); return;
-    } else if (name === "aimfor") {
-      const cur = read();
-      write({ ...cur, ...AIM }); // AIM sets openDays: 300
-    } else {
-      const cur = read();
-      write({ ...cur, ...BE_PRESET }); // BE_PRESET sets openDays: 300
-    }
-  }
+  if (applyValues) { write(name === "landlord" ? { ...PLANNED_LL } : { ...PLANNED }); return; }
   render();
 }
 
@@ -1448,8 +1425,6 @@ function bind() {
     el.addEventListener("input", render);
     el.addEventListener("change", render);
   });
-  $("presetBE").addEventListener("click", () => setPreset("breakeven", true));
-  $("presetAim").addEventListener("click", () => setPreset("aimfor", true));
   $("presetPlan").addEventListener("click", () => setPreset("planned", true));
   $("presetLL").addEventListener("click", () => setPreset("landlord", true));
   document.querySelectorAll(".scen-btn").forEach(b => b.addEventListener("click", () => setPreset(b.dataset.scen, true)));
@@ -1512,7 +1487,7 @@ function bind() {
     a.download = `rls-scenario-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
   });
-  $("btnReset").addEventListener("click", () => { write({ ...DEFAULTS }); render(); });
+  $("btnReset").addEventListener("click", () => { setPreset(read().preset, true); render(); }); // reset the selected scenario to its saved values
 }
 
 buildMenuInputs();
@@ -1711,6 +1686,10 @@ render();
   #appTop .draft-banner { margin: 0; border-radius: 0; border-width: 0 0 2px; padding: 6px 14px; font-size: .8rem; text-align: center; }
   #tabBar { display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 6px 10px; background: #fff; border-bottom: 1px solid var(--line); }
   #tabBar::-webkit-scrollbar { display: none; }
+  #scenBar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 10px 8px; background: #f3f7fb; border-bottom: 1px solid var(--line); }
+  #scenBar .scen-lab { font-weight: 800; font-size: .8rem; color: var(--accent); margin-right: 2px; }
+  #scenBar .scen-btn { font-size: .8rem; padding: 5px 12px; }
+  @media (max-width: 600px) { #scenBar .scen-btn { font-size: .72rem; padding: 4px 9px; } }
   #tabBar button { flex: none; white-space: nowrap; font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--accent); cursor: pointer; }
   #tabBar button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   body.has-tabs main .section-nav { display: none !important; }
@@ -1765,6 +1744,13 @@ render();
   const bar = document.createElement("nav"); bar.id = "tabBar"; bar.setAttribute("role", "tablist");
   bar.innerHTML = TABS.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}">${l}</button>`).join("");
   top.appendChild(bar);
+  // ---- global scenario selector (Boyan, Nov 21 2026): the whole app, incl. the Summary / Planned Statement, follows the selected scenario ----
+  const scenBar = document.createElement("div"); scenBar.id = "scenBar"; scenBar.setAttribute("role", "group"); scenBar.setAttribute("aria-label", "Scenario");
+  scenBar.innerHTML = `<span class="scen-lab">Scenario:</span><button type="button" class="scen-btn" data-scen="planned">Scenario 1 — Nov v2 proposal (p.12)</button><button type="button" class="scen-btn" data-scen="landlord">Scenario 2 — Landlord lease terms, 7,000 sf (Nov 16, 2026)</button>`;
+  top.appendChild(scenBar);
+  const markScen = () => { const cur = read().preset === "landlord" ? "landlord" : "planned"; scenBar.querySelectorAll(".scen-btn").forEach(b => { const on = b.dataset.scen === cur; b.classList.toggle("active", on); b.setAttribute("aria-pressed", on); }); };
+  scenBar.addEventListener("click", e => { const b = e.target.closest(".scen-btn"); if (!b) return; setPreset(b.dataset.scen, true); markScen(); try { document.dispatchEvent(new Event("change")); } catch (x) {} if (window.__fullRender) window.__fullRender(); });
+  markScen(); window.__markScen = markScen;
   const pad = () => { document.body.style.paddingTop = top.offsetHeight + "px"; };
   pad(); window.addEventListener("resize", pad); if (window.ResizeObserver) new ResizeObserver(pad).observe(top);
   // Summary section
@@ -1847,7 +1833,7 @@ render();
     const article = /^(8|11|18)/.test(String(upl)) ? "an" : "a";
     sum.innerHTML = `
       <h2 style="display:block">Renewal Life Space Projected Financials</h2>
-      <div class="scen-switch" role="group" aria-label="Lease scenario"><button type="button" class="scen-btn${s.preset === "landlord" ? "" : s.preset === "planned" ? " active" : ""}" data-scen="planned">Default — Nov v2 proposal</button><button type="button" class="scen-btn${s.preset === "landlord" ? " active" : ""}" data-scen="landlord">Landlord response — Nov 16, 2026</button></div>
+      <div class="sub" id="sumScen" style="font-weight:800;color:var(--accent);font-size:.95rem">${s.preset === "landlord" ? "Scenario 2 — Landlord lease terms, 7,000 sf (Nov 16, 2026)" : "Scenario 1 — Nov v2 proposal (p.12)"}</div>
       <div class="sub">Rockville, MD · October 2026 · Prepared for Boyan L, Lead Church Planting Pastor, Renewal Church</div>
       <p class="lead">Renewal Life Space is a non-profit community and worship space. Renewal Café, a legally separate entity created for the sole purpose of supporting the Renewal church-planting ministry, subleases part of the space, pays the building’s utilities and insurance, and gives 100% of its after-tax profit to the Renewal Ministry Center. Figures are planning estimates from the working financial model.</p>
       <p class="sub" id="sumStatus" style="margin:6px 0 0">${$("planStatus").textContent}</p>
@@ -1857,7 +1843,7 @@ render();
         <div><small>Year 5</small><b data-s="y5net">${M(m.ls[y5].net)}</b><small>Net surplus / (deficit)</small></div>
         <div><small>Year 5</small><b data-s="y5cum">${M(m.cum[5])}</b><small>Cumulative cash</small></div>
       </div>
-      ${s.preset === "landlord" ? `<h3 style="font-size:.95rem;margin:4px 0 8px">Lease comparison — Default (Nov v2) vs Landlord response (Nov 16, 2026)</h3><div class="table-wrap">${$("planCmp").innerHTML}</div>` : ""}
+      ${s.preset === "landlord" ? `<h3 style="font-size:.95rem;margin:4px 0 8px">Lease comparison — Scenario 1 (Nov v2, p.12) vs Scenario 2 (landlord terms, 7,000 sf)</h3><div class="table-wrap">${$("planCmp").innerHTML}</div>` : ""}
       <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
       <div class="table-wrap" id="sumT1">${cloneTable("planT1")}</div>
       <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use ${s.menuRollup ? "the menu v2 item prices (mix-weighted by category" : "the planned category prices (menu items not applied"}, incl. soup and cake at the units/day entered, 0/day by default); Years 4–5 assume an expanded sales mix.</div>
@@ -1970,7 +1956,9 @@ render();
     return ch;
   };
   try {
-    const raw = localStorage.getItem(KEY);
+    let raw = localStorage.getItem(KEY);
+    /* Nov 21 2026 (Boyan): only Scenario 1 (planned, p.12) and Scenario 2 (landlord terms, 7,000 sf) remain; a save from a removed scenario (break-even / aim-for) is dropped so the page opens on Scenario 1. */
+    try { const p0 = raw && JSON.parse(raw).preset; if (raw && p0 !== "planned" && p0 !== "landlord") { localStorage.removeItem(KEY); raw = null; } } catch (e) { raw = null; }
     if (raw) { const st = JSON.parse(raw); const mig = !localStorage.getItem(SC) && migrateSoupCake(st); write(st); render(); if (mig || st.menuVersion !== MENU_VERSION || st.menuRollup === undefined) save(); }
     else if (!localStorage.getItem(DONE)) {
       const old = localStorage.getItem(OLD);
