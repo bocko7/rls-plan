@@ -355,7 +355,7 @@ details.panel li { margin-bottom:6px; }
     </div>
     <div class="preset" data-preset="landlord" id="presetLL">
       <h3>Scenario 2 — Landlord lease terms, Nov 24, 2026, 7,000 sf</h3>
-      <p>Scenario 1 with only the lease changed to the landlord’s Nov 24, 2026 Landlord Response terms, applied to our 7,000 sf only: $20.00 base +3%/yr, NNN $6.00, base rent 50% abated for 24 months, TI $20.00/sf ($140,000) less the 1% oversight fee ($3,500) = $136,500, 2 months’ deposit + 1 month prepaid at signing, and 12 months to rent commencement. The remaining 6,241 sf is subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income).</p>
+      <p>Scenario 1 with only the lease changed to the landlord’s Nov 24, 2026 Landlord Response terms, applied to our 7,000 sf only: $20.00 base +3%/yr, NNN $6.00, base rent 50% abated for 24 months, TI $20.00/sf ($140,000) less the 1% oversight fee ($3,500) = $136,500, 2 months’ deposit + 1 month prepaid at signing, and 12 months to rent commencement. The remaining 6,241 sf is to be subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income). The Nov 24 LOI allows Tenant to sublease all or part of the Premises with Landlord’s prior written consent, not to be unreasonably withheld, conditioned or delayed; conditions to be set forth in the Lease.</p>
     </div>
   </div>
       <section class="card" id="results">
@@ -1127,10 +1127,10 @@ const PLANNED = {
   pl_wc: 25000, pl_sign: 8028, pl_reserve: false // permits/signage/smallwares $8,028 (p.12)
 };
 PL_ROWS.forEach(([k]) => PLAN_VALUES[k].forEach((v, i) => { PLANNED[`pl_${k}_y${i + 1}`] = v; }));
-// Lease-only inputs. Scenario 1 = Nov v2 proposal / p.12 (unchanged). Scenario 2 = Nov 24, 2026 Landlord Response terms applied to 7,000 sf only; remaining 6,241 sf subleased out and excluded.
+// Lease-only inputs. Scenario 1 = Nov v2 proposal / p.12 (unchanged). Scenario 2 = Nov 24, 2026 Landlord Response terms applied to 7,000 sf only; remaining 6,241 sf to be subleased out and excluded (LOI Subletting & Assignment: Landlord consent not to be unreasonably withheld; conditions to be set in the Lease).
 const LEASE_DEFAULT = { rsf: 7000, baseRent: 20, nnn: 5.6, esc: 3, abatePct: 0, abateMonths: 0, depMonths: 0, prepayMonths: 0, ti: 140000 };
 const LEASE_LL = { rsf: 7000, baseRent: 20, nnn: 6, esc: 3, abatePct: 50, abateMonths: 24, depMonths: 2, prepayMonths: 1,
-  ti: 7000 * 20 - Math.round(0.01 * 7000 * 50) }; // Scenario 2 (Nov 24, 2026 LOI on 7,000 sf only): TI $140,000 ($20.00/sf) less 1% oversight fee on the $350,000 build-out hard cost ($3,500) = $136,500. Remaining 6,241 sf is subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income).
+  ti: 7000 * 20 - Math.round(0.01 * 7000 * 50) }; // Scenario 2 (Nov 24, 2026 LOI on 7,000 sf only): TI $140,000 ($20.00/sf) less 1% oversight fee on the $350,000 build-out hard cost ($3,500) = $136,500. Remaining 6,241 sf is to be subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income). LOI allows subleasing all or part with Landlord consent (not to be unreasonably withheld); conditions to be set in the Lease.
 const PLANNED_LL = { ...PLANNED, ...LEASE_LL, preset: "landlord" };
 const leaseRead = L => ({ ...L, esc: L.esc / 100 }); // read()-format lease fields
 // Statement targets (Nov v2 summary = Founding Partner Proposal p.12) for the on-screen check
@@ -1222,7 +1222,7 @@ function renderCompare(s) {
     ${row("Total expenses", (m, i) => i ? m.ls[i - 1].exp : m.y0.exp, (m, i) => i ? m.ls[i - 1].exp : m.y0.exp)}
     ${row("Net surplus / (deficit)", (m, i) => i ? m.ls[i - 1].net : m.y0.net, (m, i) => i ? m.ls[i - 1].net : m.y0.net)}
     ${row("Cumulative cash", (m, i) => m.cum[i], (m, i) => m.cum[i])}
-  </tbody></table><div class="hint">Both columns use every other input as currently entered; only the lease inputs differ. Scenario 1 (p.12): 7,000 RSF × ($20.00 + $5.60 NNN), +3%/yr, no abatement, $140,000 TI. Scenario 2 (landlord Nov 24 LOI, 7,000 sf only): 7,000 RSF × ($20.00 + $6.00 NNN), +3%/yr, base 50% abated for the 24 months after rent commencement (Years 1–2), TI $136,500 ($140,000 less the 1% oversight fee), 2 months’ deposit ($23,333) + 1 month prepaid ($11,667) in Year 0 (prepaid month credited in Year 1). Year 0 = the 12 rent-free months before rent commencement. Build-out stays $350,000 on 7,000 sf. The remaining 6,241 sf is subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income).</div>`;
+  </tbody></table><div class="hint">Both columns use every other input as currently entered; only the lease inputs differ. Scenario 1 (p.12): 7,000 RSF × ($20.00 + $5.60 NNN), +3%/yr, no abatement, $140,000 TI. Scenario 2 (landlord Nov 24 LOI, 7,000 sf only): 7,000 RSF × ($20.00 + $6.00 NNN), +3%/yr, base 50% abated for the 24 months after rent commencement (Years 1–2), TI $136,500 ($140,000 less the 1% oversight fee), 2 months’ deposit ($23,333) + 1 month prepaid ($11,667) in Year 0 (prepaid month credited in Year 1). Year 0 = the 12 rent-free months before rent commencement. Build-out stays $350,000 on 7,000 sf. The remaining 6,241 sf is to be subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income). The Nov 24 LOI allows Tenant to sublease all or part of the Premises with Landlord’s prior written consent, not to be unreasonably withheld, conditioned or delayed; conditions to be set forth in the Lease.</div>`;
 }
 function stmtMoney(n) {
   if (!isFinite(n)) return "—";
