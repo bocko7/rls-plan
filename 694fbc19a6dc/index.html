@@ -286,7 +286,7 @@ details.panel li { margin-bottom:6px; }
         </div>
         <div class="toggle-row">
           <input type="checkbox" id="useChurch" />
-          <label for="useChurch" style="flex-direction:row;gap:8px;align-items:center"><strong>Include church facility support</strong> <span class="hint">(ministry arm; default off for conservative BE)</span></label>
+          <label for="useChurch" style="flex-direction:row;gap:8px;align-items:center"><strong>Include church facility support</strong> <span class="hint">(ministry arm; on in both presets)</span></label>
         </div>
         <div class="flag"><strong>Conflict flagged:</strong> Older sheets use Sunday $6,000×12=$72k. This model uses Boyan’s $6,500×10=$65k.</div>
       </section>
@@ -310,14 +310,12 @@ details.panel li { margin-bottom:6px; }
       </section>
 
       <section class="card" id="startup">
-        <h2>Startup (Year 0) <span>one BASE remodel + alternate note</span></h2>
+        <h2>Startup (Year 0) <span>build-out hard cost $350,000 is on the Planned Statement</span></h2>
         <div class="fields">
           <label><strong>Fundraising $</strong><input type="number" id="fundraise" step="1000" min="0" /></label>
           <label><strong>Church seed $</strong><input type="number" id="churchSeed" step="1000" min="0" /></label>
           <label><strong>TI allowance $</strong><input type="number" id="ti" step="1000" min="0" /><span class="hint">ORIGINAL SCENARIO: $140,000 (7,000 × $20). CURRENT SCENARIO (landlord Nov 24 LOI, 7,000 sf): 7,000 × $20.00 = $140,000 less 1% oversight fee on the $350,000 build-out hard cost ($3,500) = $136,500</span></label>
           <label><strong>Year 0 donations &amp; fundraising $</strong><input type="number" id="donY0" step="1000" min="0" /><span class="hint">Planned scenario: $15,000 (Founding Partner Proposal p.12)</span></label>
-          <label><strong>Remodel BASE $</strong><input type="number" id="remodelBase" step="1000" min="0" /><span class="hint">Primary — site STARTUP $70k</span></label>
-          <label style="display:none" aria-hidden="true"><strong>Remodel alternate $</strong><input type="number" id="remodelAlt" step="1000" min="0" tabindex="-1" /></label>
           <label><strong>Café equipment $</strong><input type="number" id="equip" step="1000" min="0" /></label>
           <label><strong>POS / security $</strong><input type="number" id="pos" step="100" min="0" /></label>
           <label><strong>Permits / smallwares $</strong><input type="number" id="permits" step="100" min="0" /></label>
@@ -354,7 +352,7 @@ details.panel li { margin-bottom:6px; }
       <p>The plan before the landlord’s response: Nov v2 five-year summary, 210 customers/day in Year 3, 7,000 sf at $20.00 base + $5.60 NNN, $140,000 TI, $60k church seed, $15k/yr donations &amp; fundraising. Matches the Founding Partner Proposal p.12.</p>
     </div>
     <div class="preset active" data-preset="landlord" id="presetLL">
-      <h3>CURRENT SCENARIO (default) — Landlord Nov 24, 2026 LOI, 7,000 sf only</h3>
+      <h3>CURRENT SCENARIO (default) — Landlord LOI as offered Nov 24, 2026 (7,000 sf)</h3>
       <p>The ORIGINAL SCENARIO with only the lease changed to the landlord’s Nov 24, 2026 Landlord Response terms, applied to our 7,000 sf only: $20.00 base +3%/yr, NNN $6.00, base rent 50% abated for 24 months, TI $20.00/sf ($140,000) less the 1% oversight fee ($3,500) = $136,500, 2 months’ deposit + 1 month prepaid at signing, rent commencement at the earlier of 12 months or opening (Year 0 = the 12 rent-free months), an 11-year term plus a 5-year option, windows at tenant’s cost and HVAC as-is (no dollar amount in the model). The remaining 6,241 sf is to be subleased to an outside entity at the same terms and is excluded (no rent, NNN, TI, deposit, or income). The Nov 24 LOI allows Tenant to sublease all or part of the Premises with Landlord’s prior written consent, not to be unreasonably withheld, conditioned or delayed; conditions to be set forth in the Lease.</p>
     </div>
   </div>
@@ -372,7 +370,7 @@ details.panel li { margin-bottom:6px; }
           <label><strong>Charitable ceiling % of taxable income</strong><input type="number" id="taxCeil" step="0.5" min="0" /><span class="hint">IRC §170(b)(2) 10%</span></label>
           <label><strong>Charitable floor % (2026+)</strong><input type="number" id="taxFloor" step="0.5" min="0" /><span class="hint">OBBBA 1% floor</span></label>
           <label><strong>Café sublease sq ft</strong><input type="number" id="subSf" step="50" min="0" /><span class="hint">Boyan Oct 8: 2,800 sf (7am–5pm, ex. church event days)</span></label>
-          <label><strong>Sublease rate $/sf/yr</strong><input type="number" id="subRate" step="0.01" min="0" /><span class="hint">$30.36 → $85,000/yr base</span></label>
+          <label><strong>Sublease rate $/sf/yr</strong><input type="number" id="subRate" step="0.01" min="0" /><span class="hint">85,000 ÷ 2,800 = $30.357142…/sf → exactly $85,000/yr</span></label>
           <label><strong>Sublease escalation %/yr</strong><input type="number" id="subEsc" step="0.5" min="0" /><span class="hint">Boyan: flat (0%); master lease +3%</span></label>
           <label><strong>Café utilities $/yr (full)</strong><input type="number" id="cafeUtil" step="500" min="0" /><span class="hint">$30,000 Y1, +3%/yr (replaces site utilities)</span></label>
           <label><strong>Café insurance $/yr (full)</strong><input type="number" id="cafeIns" step="250" min="0" /><span class="hint">$5,000 Y1, +3%/yr (replaces site insurance)</span></label>
@@ -418,7 +416,7 @@ details.panel li { margin-bottom:6px; }
 <li>“Oct 7 comparison” rows in the tax panel use an earlier square-foot at-cost allocation method.</li>
 <li>Café menu (menu v2, 2026-10-27): 64 menu items are grouped into the app categories. By default (Boyan, 2026-10-27) each category uses its planned sale price and unit cost (coffee $6.50 / $0.78, smoothies $9.75 / $1.90, pastries $3.40 / $0.95, sandwiches $8.20 / $2.30, quiche $7.60 / $2.30, soup $4.95 / $0.30, cake $7.90 / $2.50). The “Category prices from menu items” switch on the Café Menu tab replaces them with the mix-weighted averages of the items (edit item price, projected cost or mix %); with it off, each category shows what the items would give for reference. Costs marked EST are estimates without a quoted price. Quiche is a menu item at the app’s $7.60 / $2.30 (attach 0.08 in Year 1). All pastries are $4.50. The Turkey pesto panini replaces curry bread as the 4th sandwich (confirmed by Boyan). Soup ($4.95/bowl, cost $0.30 incl. bowl and spoon) and cake ($7.90/piece, cost $2.50) are on the menu with default sales of 0/day, so they do not change the totals (Boyan, Nov 17 2026); the Flat White stays on the menu but is left out of the calculations. With the switch on, the coffee category averages about $5.66 / $0.79 instead of the planned $6.50 / $0.78.</li>
 <li>Break-even figures use the menu prices/costs with current attach rates; scaling customers scales all units proportionally. Required ticket = blended ticket needed at that volume.</li>
-<li>The landlord tenant-improvement (TI) allowance is assumed to be reimbursed after spending, so there is timing risk. The base remodel ($70k) and the alternate $300k remodel path are separate alternatives and are not additive. The earlier $90k pre-opening figure overlaps the equipment lines.</li>
+<li>The landlord tenant-improvement (TI) allowance is assumed to be reimbursed after spending, so there is timing risk. The build-out hard cost is $350,000 (7,000 sf × $50/sf). The earlier $90k pre-opening figure overlaps the equipment lines.</li>
 <li>All figures are planning estimates subject to CPA / exempt-organization attorney review.</li>
 </ul></details>
 </main>
@@ -543,20 +541,20 @@ const DEFAULTS = {
   sandwich_attach: 0.20, sandwich_sale: 8.20, sandwich_cost: 2.30,
   quiche_attach: 0.08, quiche_sale: 7.60, quiche_cost: 2.30,
   soup_attach: 0, soup_sale: 4.95, soup_cost: 0.30, cake_attach: 0, cake_sale: 7.90, cake_cost: 2.50, // Boyan Nov 17 2026: 0/day by default
-  rsf: 7000, cafeSf: 1800, ministrySf: 4700, baseRent: 20, nnn: 5.6, esc: 3, abatePct: 0, abateMonths: 0, depMonths: 0, prepayMonths: 0,
+  rsf: 7000, cafeSf: 2800, ministrySf: 4200, /* café = the 2,800 sf sublease (Nov 25 2026); ministry = 7,000 − 2,800 */ baseRent: 20, nnn: 5.6, esc: 3, abatePct: 0, abateMonths: 0, depMonths: 0, prepayMonths: 0,
   sundayMo: 6500, sundayMonths: 10, eventsN: 9, eventsFee: 1100,
-  confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: false,
+  confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: true,
   wBarista: 19.5, wManager: 25, wAdmin: 20, bBarista: 16, bMgmt: 20,
   dayHrs: 10, mgrHrs: 40, admHrs: 20, includeAdmin: true,
   baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, ingrInfl: 3, nolLimit: 80, preopenAlt: 90000,
-  fundraise: 400000, churchSeed: 60000, ti: 140000, donY0: 0, donAnnual: 0, // church seed $60,000 (Founding Partner Proposal p.12, Nov 17 2026); donations: see PLANNED
-  remodelBase: 70000, remodelAlt: 300000, equip: 30000, pos: 5000, permits: 8028, wc: 25000, opReserve: 150000,
+  fundraise: 400000, churchSeed: 60000, ti: 140000, donY0: 15000, donAnnual: 15000, // church seed $60,000; donations & fundraising $15,000 in Year 0 and $15,000/yr (Founding Partner Proposal p.12; on in both presets, Nov 25 2026)
+  equip: 30000, pos: 5000, permits: 8028, wc: 25000, opReserve: 150000,
   oxUtil: 12000, oxIns: 2000, oxOffice: 4800, oxMisc: 4000, oxMkt: 6000, oxPos: 2400, oxClean: 6000, oxRepair: 6000, oxCoffee: 600, oxInfl: 3,
   cY2: 180, cY3: 210, cY4: 225, cY5: 225,
   pasY2: 0.25, pasY3: 0.30, pasY4: 0.50, pasY5: 0.50, // Oct 8 2026: base Y4–Y5 pastry 50% (Boyan)
   quiY2: 0.10, quiY3: 0.10, quiY4: 0.11, quiY5: 0.13,
   taxFed: 21, taxMd: 8.25, taxCeil: 10, taxFloor: 1, ubitSpec: 1000,
-  subSf: 2800, subRate: 30.3571, subEsc: 0, cafeUtil: 30000, cafeIns: 5000, cafeOff: 10000, // Boyan Oct 8 2026: $85k sublease
+  subSf: 2800, subRate: 85000 / 2800, subEsc: 0, cafeUtil: 30000, cafeIns: 5000, cafeOff: 10000, // Boyan Oct 8 2026: $85k sublease
   preset: "planned"
 };
 // menuRollup (Boyan 2026-10-27): OFF by default = categories use the planned Sale $ / Cost $ above (LOCKED_MENU / DEFAULTS);
@@ -760,7 +758,6 @@ function read() {
     includeAdmin: $("includeAdmin").checked,
     fundraise: g("fundraise"), churchSeed: g("churchSeed"), ti: g("ti"),
     donY0: g("donY0"), donAnnual: g("donAnnual"),
-    remodelBase: g("remodelBase"), remodelAlt: g("remodelAlt"),
     equip: g("equip"), pos: g("pos"), permits: g("permits"), wc: g("wc"), opReserve: g("opReserve"),
     oxUtil: g("oxUtil"), oxIns: g("oxIns"), oxOffice: g("oxOffice"), oxMisc: g("oxMisc"),
     oxMkt: g("oxMkt"), oxPos: g("oxPos"), oxClean: g("oxClean"), oxRepair: g("oxRepair"),
@@ -855,7 +852,6 @@ function write(s) {
   $("includeAdmin").checked = s.includeAdmin !== false;
   set("fundraise", s.fundraise); set("churchSeed", s.churchSeed); set("ti", s.ti);
   set("donY0", s.donY0 ?? 0); set("donAnnual", s.donAnnual ?? 0);
-  set("remodelBase", s.remodelBase); set("remodelAlt", s.remodelAlt);
   set("equip", s.equip); set("pos", s.pos); set("permits", s.permits); set("wc", s.wc); set("opReserve", s.opReserve);
   set("oxUtil", s.oxUtil); set("oxIns", s.oxIns); set("oxOffice", s.oxOffice); set("oxMisc", s.oxMisc);
   set("oxMkt", s.oxMkt); set("oxPos", s.oxPos); set("oxClean", s.oxClean); set("oxRepair", s.oxRepair);
@@ -866,7 +862,7 @@ function write(s) {
   set("taxFed", s.taxFed ?? 21); set("taxMd", s.taxMd ?? 8.25);
   set("taxCeil", s.taxCeil ?? 10); set("taxFloor", s.taxFloor ?? 1);
   set("ubitSpec", s.ubitSpec ?? 1000);
-  set("subSf", s.subSf ?? 2800); set("subRate", s.subRate ?? 30.3571);
+  set("subSf", s.subSf ?? 2800); set("subRate", s.subRate ?? 85000 / 2800); // exact $85,000/yr on 2,800 sf
   set("subEsc", s.subEsc == null ? 0 : (s.subEsc < 1 ? s.subEsc*100 : s.subEsc));
   set("cafeUtil", s.cafeUtil ?? 30000); set("cafeIns", s.cafeIns ?? 5000); set("cafeOff", s.cafeOff ?? 10000);
   set("quiY2", s.quiY2 ?? 0.10); set("quiY3", s.quiY3 ?? 0.10); set("quiY4", s.quiY4 ?? 0.11); set("quiY5", s.quiY5 ?? 0.13);
@@ -912,7 +908,7 @@ function otherIncome(s) {
   const events = s.eventsN * s.eventsFee;
   const conf = s.confHourly * s.confHrs;
   const church = s.useChurch ? s.churchMo * 12 : 0;
-  const don = s.donAnnual || 0; // Life Space donations & fundraising (Y1–Y5), default 0
+  const don = s.donAnnual || 0; // Life Space donations & fundraising (Y1–Y5), $15,000/yr default
   return { sunday, events, conf, tech: s.tech, church, don, total: sunday + events + conf + s.tech + church + don };
 }
 
@@ -1122,7 +1118,7 @@ const PLANNED = {
   ...DEFAULTS, preset: "planned",
   // Founding Partner Proposal p.12 / Nov v2 summary (Boyan, Nov 17 2026): church seed $60,000, donations & fundraising $15,000 in Year 0 and $15,000/yr Years 1–5
   useChurch: true, churchMo: 2000, churchSeed: 60000, donAnnual: 15000, donY0: 15000, eventsN: 9, eventsFee: 1100, sundayMo: 6500, sundayMonths: 10,
-  confHrs: 0, tech: 0, permits: 8000, subSf: 2800, subRate: 85000 / 2800, subEsc: 0,
+  confHrs: 0, tech: 0, permits: 8028, subSf: 2800, subRate: 85000 / 2800, subEsc: 0,
   pl_addP: 0.85, pl_addC: 25, pl_catC: 30, pl_catL: 0, pl_buildSf: 7000, pl_buildRate: 50, pl_arch: 30000, pl_furn: 30000,
   pl_wc: 25000, pl_sign: 8028, pl_reserve: false // permits/signage/smallwares $8,028 (p.12)
 };
@@ -1285,7 +1281,7 @@ function renderPlan(s) {
     ${y.reserve ? r6("Operating reserve", y.reserve, N5) : ""}
     ${y.dep ? r6(`Lease security deposit (${s.depMonths} mo base rent, refundable at lease end)`, y.dep, N5, "", "dep") : ""}
     ${y.prepay ? r6(`Rent prepaid at signing (${s.prepayMonths} mo, credited in Year 1)`, y.prepay, N5, "", "prepay") : ""}
-    ${r6(`Master lease (${s.rsf.toLocaleString("en-US")} sf, base + NNN${s.abatePct && s.abateMonths ? `; base ${s.abatePct}% abated ${s.abateMonths} mo` : ""}${y.prepay ? "; Y1 net of prepaid rent" : ""})`, null, L("lease"), "", "lease")}
+    ${r6(`Master lease (${s.rsf.toLocaleString("en-US")} sf, base + NNN${s.preset === "landlord" ? "; rent starts Year 1" : ""}${s.abatePct && s.abateMonths ? `; base ${s.abatePct}% abated ${s.abateMonths} mo` : ""}${y.prepay ? "; Y1 net of prepaid rent" : ""})`, null, L("lease"), "", "lease")}
     ${r6("Utilities &amp; insurance (paid by café)", null, m.ls.map(() => 0))}
     ${r6("Church office / admin", null, L("office"), "", "office")}
     ${r6("Building upkeep (cleaning, repairs)", null, L("upkeep"), "", "upkeep")}
@@ -1293,14 +1289,14 @@ function renderPlan(s) {
     ${r6("Total expenses", y.exp, L("exp"), "total", "exp")}
     ${r6("Net surplus / (deficit)", y.net, L("net"), "surplus", "net")}
     ${r6("Cumulative cash", m.cum[0], m.cum.slice(1), "total", "cum")}
-  </tbody></table>`;
+  </tbody></table>${s.preset === "landlord" ? `<div class="hint">CURRENT SCENARIO: rent starts in Year 1 (LOI: the earlier of 12 months after lease commencement or opening); Year 0 has no rent or NNN. The $${s.nnn.toFixed(2)}/sf NNN is the landlord’s estimate (no cap). The landlord’s 1% oversight fee is applied to the build-out hard cost (1% × ${stmtMoney(Math.round(s.pl_buildSf * s.pl_buildRate))} = ${stmtMoney(Math.round(0.01 * s.pl_buildSf * s.pl_buildRate))}), so the TI allowance is ${stmtMoney(s.rsf * 20)} − ${stmtMoney(Math.round(0.01 * s.pl_buildSf * s.pl_buildRate))} = ${stmtMoney(s.ti)}.</div>` : ""}`;
   // on-screen reconciliation vs the v2 statement
   const R = Math.round, chk = [];
   const isLL = s.preset === "landlord", T = isLL ? PLAN_TARGETS_LL : PLAN_TARGETS;
   m.cafe.forEach((c, i) => { if (R(c.rev) !== T.rev[i] || R(c.P) !== T.P[i] || c.taxR !== T.tax[i] || c.atR !== T.at[i] || R(m.base[i].at) !== T.base[i]) chk.push("Y" + (i + 1)); });
   if (R(y.inc) !== T.fund) chk.push("Y0 funding");
   [y.net, ...L("net")].forEach((v, i) => { if (R(v) !== T.net[i] || R(m.cum[i]) !== T.cum[i]) chk.push("LS Y" + i); });
-  $("planTitle").textContent = isLL ? "CURRENT SCENARIO — Landlord Nov 24, 2026 LOI, 7,000 sf: Five-Year Financial Summary" : "ORIGINAL SCENARIO — pre-LOI plan (Nov v2, p.12): Five-Year Financial Summary";
+  $("planTitle").textContent = isLL ? "CURRENT SCENARIO — Landlord LOI as offered Nov 24, 2026 (7,000 sf): Five-Year Financial Summary" : "ORIGINAL SCENARIO — pre-LOI plan (Nov v2, p.12): Five-Year Financial Summary";
   document.querySelectorAll(".scen-btn").forEach(b => b.classList.toggle("active", b.dataset.scen === (isLL ? "landlord" : s.preset === "planned" ? "planned" : "")));
   renderCompare(s);
   if (isLL) { $("planStatus").textContent = (chk.length ? `differs from the CURRENT SCENARIO summary (${chk.join(", ")})` : "✓ matches the CURRENT SCENARIO summary (Five-Year Projection, landlord Nov 24, 2026 terms, 7,000 sf)") + ` · Year 5 cumulative cash ${stmtMoney(m.cum[5])} vs ORIGINAL SCENARIO ${stmtMoney(PLAN_TARGETS.cum[5])}`; window.__plan = m; return; }
@@ -1413,17 +1409,14 @@ function render() {
     $("scenarioLabel").textContent = "Break-even mode";
   }
 
-  const sources = s.fundraise + s.churchSeed + s.ti + (s.donY0 || 0);
-  const usesBase = s.remodelBase + s.equip + s.pos + s.permits + s.wc + s.opReserve;
-  const usesAlt = s.remodelAlt + s.preopenAlt + s.opReserve + s.churchSeed;
+  // Year 0 capital check = the planned statement's Year 0 (Nov 25 2026: leftover $70k / $300k remodel fields removed; build-out hard cost $350,000)
+  const y0c = planModel(s).y0;
   $("capTable").innerHTML = `<table>
-    <tr><td>Sources (fundraising + seed + TI + Y0 donations)</td><td>${money(sources)}</td></tr>
-    <tr><td>Uses BASE (remodel ${money(s.remodelBase)} + equip/POS/permits + WC + reserve)</td><td>${money(usesBase)}</td></tr>
-    <tr class="total"><td>Gap BASE (+ = unallocated)</td><td>${money(sources - usesBase)}</td></tr>
-    <tr><td>Uses ALTERNATE note ($300k remodel path / sheet)</td><td>${money(usesAlt)}</td></tr>
-    <tr><td>Gap ALTERNATE</td><td>${money(sources - usesAlt)}</td></tr>
+    <tr><td>Sources (fundraising + seed + TI + Y0 donations)</td><td>${money(y0c.inc)}</td></tr>
+    <tr><td>Uses (build-out ${money(y0c.build)} + architecture, furniture, permits/signage, equipment, POS, working capital${y0c.dep || y0c.prepay ? " + lease deposit/prepaid rent" : ""}${y0c.reserve ? " + reserve" : ""})</td><td>${money(y0c.exp)}</td></tr>
+    <tr class="total"><td>Year 0 surplus (+ = carried into Year 1)</td><td>${money(y0c.net)}</td></tr>
   </table>
-  <footer class="note">TI is reimbursement-after-spend (timing risk). Do not add BASE + ALTERNATE remodel. Sheet preopen $90k overlaps site equip lines.</footer>`;
+  <footer class="note">TI is reimbursement-after-spend (timing risk). Same Year 0 figures as the planned statement.</footer>`;
   renderTax(s);
 }
 
@@ -1771,7 +1764,7 @@ render();
   // ---- global scenario selector (Boyan, Nov 21 2026): the whole app, incl. the Summary / Planned Statement, follows the selected scenario ----
   // Nov 25 2026 (Boyan): two labeled preset buttons; clicking one resets every input to that preset. CURRENT SCENARIO is the default.
   const scenBar = document.createElement("div"); scenBar.id = "scenBar"; scenBar.setAttribute("role", "group"); scenBar.setAttribute("aria-label", "Preset scenarios");
-  scenBar.innerHTML = `<span class="scen-lab">Preset:</span><button type="button" class="scen-btn" data-scen="planned" title="Resets every input to the pre-LOI plan (Nov v2, Founding Partner Proposal p.12)"><b>ORIGINAL SCENARIO</b><small>Pre-LOI plan · Nov v2 / proposal p.12 · 210/day in Year 3</small></button><button type="button" class="scen-btn" data-scen="landlord" title="Resets every input to the landlord’s Nov 24, 2026 LOI terms on 7,000 sf (default)"><b>CURRENT SCENARIO</b><small>Landlord Nov 24, 2026 LOI · 7,000 sf only · default</small></button><span id="presetState" role="status" aria-live="polite"></span>`;
+  scenBar.innerHTML = `<span class="scen-lab">Preset:</span><button type="button" class="scen-btn" data-scen="planned" title="Resets every input to the pre-LOI plan (Nov v2, Founding Partner Proposal p.12)"><b>ORIGINAL SCENARIO</b><small>Pre-LOI plan · Nov v2 / proposal p.12 · 210/day in Year 3</small></button><button type="button" class="scen-btn" data-scen="landlord" title="Resets every input to the landlord’s Nov 24, 2026 LOI terms on 7,000 sf (default)"><b>CURRENT SCENARIO</b><small>Landlord LOI as offered Nov 24, 2026 (7,000 sf) · default</small></button><span id="presetState" role="status" aria-live="polite"></span>`;
   top.appendChild(scenBar);
   const markScen = st => { const s = st || read(), cur = s.preset === "landlord" ? "landlord" : "planned", diff = presetDiff(s);
     scenBar.querySelectorAll(".scen-btn").forEach(b => { const on = b.dataset.scen === cur; b.classList.toggle("active", on); b.setAttribute("aria-pressed", on); });
@@ -1859,11 +1852,12 @@ render();
     const s = read(), y5 = 4, pct = v => (+v.toFixed(2)).toString();
     const upl = s.pl_upl_y3, lease1 = m.ls[0].lease, lease5 = m.ls[4].lease;
     const work = Math.round(m.ls[0].church + m.ls[0].sunday + m.ls[0].rent);
+    const mo = planModel({ ...s, ...leaseRead(LEASE_DEFAULT) }), o1 = mo.ls[0].lease, o5 = mo.ls[4].lease; // ORIGINAL SCENARIO lease, same other inputs
     const aimEv = AIM.eventsN * AIM.eventsFee - s.eventsN * s.eventsFee;
     const article = /^(8|11|18)/.test(String(upl)) ? "an" : "a";
     sum.innerHTML = `
       <h2 style="display:block">Renewal Life Space Projected Financials</h2>
-      <div class="sub" id="sumScen" style="font-weight:800;color:var(--accent);font-size:.95rem">${s.preset === "landlord" ? "CURRENT SCENARIO — Landlord Nov 24, 2026 LOI, 7,000 sf only" : "ORIGINAL SCENARIO — pre-LOI plan (Nov v2, p.12)"}${presetDiff(s).length ? " (modified)" : ""}</div>
+      <div class="sub" id="sumScen" style="font-weight:800;color:var(--accent);font-size:.95rem">${s.preset === "landlord" ? "CURRENT SCENARIO — Landlord LOI as offered Nov 24, 2026 (7,000 sf)" : "ORIGINAL SCENARIO — pre-LOI plan (Nov v2, p.12)"}${presetDiff(s).length ? " (modified)" : ""}</div>
       <div class="sub">Rockville, MD · October 2026 · Prepared for Boyan L, Lead Church Planting Pastor, Renewal Church</div>
       <p class="lead">Renewal Life Space is a non-profit community and worship space. Renewal Café, a legally separate entity created for the sole purpose of supporting the Renewal church-planting ministry, subleases part of the space, pays the building’s utilities and insurance, and gives 100% of its after-tax profit to the Renewal Ministry Center. Figures are planning estimates from the working financial model.</p>
       <p class="sub" id="sumStatus" style="margin:6px 0 0">${$("planStatus").textContent}</p>
@@ -1883,10 +1877,10 @@ render();
       <ol class="notes">
         <li>This is the model’s “church facility support” (${M(s.churchMo)}/mo), which is switched off in the model’s base case.</li>
         <li>Year 0 funding: ${K(s.fundraise)} fundraising, ${K(s.churchSeed)} church seed, a ${K(s.ti)} TI (tenant improvement) allowance${s.donY0 ? ` and ${K(s.donY0)} donations &amp; fundraising` : ""}${s.donAnnual ? `; donations &amp; fundraising ${K(s.donAnnual)}/yr in Years 1–5` : ""}.</li>
-        <li>Estimate: about ${M(s.pl_buildRate)}/sf on the whole ${s.pl_buildSf.toLocaleString("en-US")} sf leased space. The model’s base remodel figure is ${M(s.remodelBase)} (with a ${M(s.remodelAlt)} alternate). Year 0 excludes rent during build-out (the model has none).</li>
+        <li>Estimate: about ${M(s.pl_buildRate)}/sf on the whole ${s.pl_buildSf.toLocaleString("en-US")} sf leased space. Build-out hard cost ${M(Math.round(s.pl_buildSf * s.pl_buildRate))}. Year 0 excludes rent during build-out (the model has none).</li>
         <li>Signage &amp; permits ${M(s.pl_sign)}. Equipment ${M(s.equip)}, POS ${M(s.pos)} and working capital ${M(s.pl_wc)} are from the café plan and the model.</li>
-        <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN)${s.abatePct && s.abateMonths ? `, base rent ${pct(s.abatePct)}% abated for the first ${s.abateMonths} months` : ""}${m.y0.prepay ? `, Year 1 net of ${M(m.y0.prepay)} rent prepaid at signing` : ""} = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr.${m.y0.dep ? ` Year 0 includes a ${M(m.y0.dep)} security deposit and ${M(m.y0.prepay)} prepaid rent.` : ""} Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(Math.abs(lease1 - work))} ${lease1 - work >= 0 ? "higher" : "lower"} in Year 1 (about ${M(Math.round(Math.abs(lease5 - work) / 100) * 100)} ${lease5 - work >= 0 ? "higher" : "lower"} by Year 5).</li>
-        ${s.preset === "landlord" ? `<li>Landlord Nov 24, 2026 LOI terms with no dollar amount in the model: rent starts at the earlier of 12 months after lease commencement or opening (Year 0 = the 12 rent-free months); 11-year term plus one 5-year option; windows at tenant’s cost; HVAC as-is. The remaining 6,241 sf is a separate contract and is not in any figure.</li>` : ""}
+        <li>Model lease: ${s.rsf.toLocaleString("en-US")} sf × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN)${s.abatePct && s.abateMonths ? `, base rent ${pct(s.abatePct)}% abated for the first ${s.abateMonths} months` : ""}${m.y0.prepay ? `, Year 1 net of ${M(m.y0.prepay)} rent prepaid at signing` : ""} = ${M(lease1)} in Year 1, +${pct(s.esc * 100)}%/yr.${m.y0.dep ? ` Year 0 includes a ${M(m.y0.dep)} security deposit and ${M(m.y0.prepay)} prepaid rent.` : ""} ${s.preset === "landlord" ? `That is ${M(Math.abs(lease1 - o1))} ${lease1 - o1 >= 0 ? "higher" : "lower"} than the ORIGINAL SCENARIO master lease (${M(o1)}) in Year 1 and ${M(Math.abs(lease5 - o5))} ${lease5 - o5 >= 0 ? "higher" : "lower"} (${M(o5)}) in Year 5.` : `Working figure: ${M(work)} (${K(Math.round(m.ls[0].church))} Renewal + ${K(Math.round(m.ls[0].sunday))} Sunday + ${K(Math.round(m.ls[0].rent))} café), ${M(Math.abs(lease1 - work))} ${lease1 - work >= 0 ? "higher" : "lower"} in Year 1 (about ${M(Math.round(Math.abs(lease5 - work) / 100) * 100)} ${lease5 - work >= 0 ? "higher" : "lower"} by Year 5).`}</li>
+        ${s.preset === "landlord" ? `<li>Landlord Nov 24, 2026 LOI terms with no dollar amount in the model: rent starts in Year 1, at the earlier of 12 months after lease commencement or opening (Year 0 = the 12 rent-free months); NNN $${s.nnn.toFixed(2)}/sf is an estimate (no cap); the 1% TI oversight fee is applied to the build-out hard cost, not the TI amount; 11-year term plus one 5-year option; windows at tenant’s cost; HVAC as-is. The remaining 6,241 sf is a separate contract and is not in any figure.</li>` : ""}
         <li>The café pays all utilities (${M(s.cafeUtil)}, +${pct(s.oxInfl * 100)}%/yr), insurance (${M(s.cafeIns)}, +${pct(s.oxInfl * 100)}%/yr) and its own office (${M(s.cafeOff)}/yr). These are deducted before its donation, so they show as $0 here to avoid counting them twice.</li>
         ${s.donY0 || s.donAnnual ? `<li>Donations &amp; fundraising: Funds to sponsor the core cost for Renewal Life Space quarterly community impact projects.</li>` : ""}
       </ol>
