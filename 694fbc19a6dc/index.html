@@ -1869,7 +1869,17 @@ render();
         <div><small>Year 5</small><b data-s="y5net">${M(m.ls[y5].net)}</b><small>Net surplus / (deficit)</small></div>
         <div><small>Year 5</small><b data-s="y5cum">${M(m.cum[5])}</b><small>Cumulative cash</small></div>
       </div>
-      <!-- Nov 25 2026 (Boyan): the ORIGINAL vs CURRENT lease comparison table is no longer shown at the top of the CURRENT SCENARIO summary; it remains in the Planned statement section -->
+      ${s.preset === "landlord" ? (() => { /* Nov 25 2026 (Boyan): CURRENT SCENARIO summary shows a CURRENT-only five-year table (same model as the statements, window.__plan) instead of the ORIGINAL vs CURRENT lease comparison; that comparison stays in the Planned statement section */
+        const sm = stmtMoney, yrs = [0,1,2,3,4,5];
+        const row = (lab, f) => `<tr><td>${lab}</td>${yrs.map(i => { const v = f(i); return v === null ? "<td>–</td>" : `<td class="${v < 0 ? "neg" : ""}">${sm(v)}</td>`; }).join("")}</tr>`;
+        return `<h3 style="font-size:.95rem;margin:4px 0 8px">Five-year summary — CURRENT SCENARIO (landlord terms, Nov 24, 2026, 7,000 sf)</h3><div class="table-wrap" id="sumCur"><table class="cmp"><thead><tr><th></th>${yrs.map(y => `<th>Year ${y}</th>`).join("")}</tr></thead><tbody>
+        ${row("Lease cash (Y0 deposit + prepaid rent; Y1–Y5 base + NNN)", i => i ? m.ls[i - 1].lease : m.y0.dep + m.y0.prepay)}
+        ${row("TI allowance", i => i ? null : m.y0.ti)}
+        ${row("Total income (Y0 = start-up funding)", i => i ? m.ls[i - 1].inc : m.y0.inc)}
+        ${row("Total expenses", i => i ? m.ls[i - 1].exp : m.y0.exp)}
+        ${row("Net surplus / (deficit)", i => i ? m.ls[i - 1].net : m.y0.net)}
+        ${row("Cumulative cash", i => m.cum[i])}
+        </tbody></table><div class="hint">CURRENT SCENARIO — Landlord LOI as offered Nov 24, 2026, applied to our 7,000 sf only: ${s.rsf.toLocaleString("en-US")} RSF × ($${s.baseRent.toFixed(2)} base + $${s.nnn.toFixed(2)} NNN), +${+(s.esc * 100).toFixed(2)}%/yr from Year 2. Rent starts in Year 1 (LOI: the earlier of 12 months after lease commencement or opening); Year 0 has no rent or NNN. ${s.abatePct && s.abateMonths ? `Base rent ${s.abatePct}% abated for the ${s.abateMonths} months after rent commencement. ` : ""}The $${s.nnn.toFixed(2)}/sf NNN is the landlord’s estimate (no cap). TI ${sm(m.y0.ti)} = $140,000 less the landlord’s 1% oversight fee on the build-out hard cost (1% × ${sm(Math.round(s.pl_buildSf * s.pl_buildRate))}). ${m.y0.dep || m.y0.prepay ? `Year 0 lease cash = deposit (${sm(m.y0.dep)}) + 1 month prepaid (${sm(m.y0.prepay)}), prepaid month credited in Year 1. ` : ""}The remaining 6,241 sf is to be subleased to an outside entity and is excluded. Values are the same model calculations as the statements below.</div></div>`; })() : ""}
       <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
       <div class="table-wrap" id="sumT1">${cloneTable("planT1")}</div>
       <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use ${s.menuRollup ? "the menu v2 item prices (mix-weighted by category" : "the planned category prices (menu items not applied"}, incl. soup and cake at the units/day entered, 0/day by default); Years 4–5 assume an expanded sales mix.</div>
