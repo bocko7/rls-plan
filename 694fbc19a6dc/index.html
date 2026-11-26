@@ -320,7 +320,7 @@ details.panel li { margin-bottom:6px; }
           <label><strong>POS / security $</strong><input type="number" id="pos" step="100" min="0" /></label>
           <label><strong>Permits / smallwares $</strong><input type="number" id="permits" step="100" min="0" /></label>
           <label><strong>Working capital $</strong><input type="number" id="wc" step="1000" min="0" /></label>
-          <label><strong>Operating reserve $</strong><input type="number" id="opReserve" step="1000" min="0" /></label><label><strong>ALTERNATE path pre-opening $ (note only)</strong><input type="number" id="preopenAlt" step="1000" min="0" /><span class="hint">sheet $90k; overlaps equipment lines</span></label>
+          <label><strong>Operating reserve $</strong><input type="number" id="opReserve" step="1000" min="0" /></label>
         </div>
         <div class="flag"><strong>Dropped from old app:</strong> dual traffic engines, Briqo-as-required, TV shopping, required bridge financing, landlord essay tabs, duplicate remodel defaults.</div>
       </section>
@@ -546,7 +546,7 @@ const DEFAULTS = {
   confHourly: 50, confHrs: 0, tech: 0, churchMo: 2000, useChurch: true,
   wBarista: 19.5, wManager: 25, wAdmin: 20, bBarista: 16, bMgmt: 20,
   dayHrs: 10, mgrHrs: 40, admHrs: 20, includeAdmin: true,
-  baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, ingrInfl: 3, nolLimit: 80, preopenAlt: 90000,
+  baseBaristas: 2, shiftCliff: 180, shiftStep: 60, wageGrowth: 3, ingrInfl: 3, nolLimit: 80,
   fundraise: 400000, churchSeed: 60000, ti: 140000, donY0: 15000, donAnnual: 15000, // church seed $60,000; donations & fundraising $15,000 in Year 0 and $15,000/yr (Founding Partner Proposal p.12; on in both presets, Nov 25 2026)
   equip: 30000, pos: 5000, permits: 8028, wc: 25000, opReserve: 150000,
   oxUtil: 12000, oxIns: 2000, oxOffice: 4800, oxMisc: 4000, oxMkt: 6000, oxPos: 2400, oxClean: 6000, oxRepair: 6000, oxCoffee: 600, oxInfl: 3,
@@ -766,7 +766,7 @@ function read() {
     pasY2: g("pasY2"), pasY3: g("pasY3"), pasY4: g("pasY4"), pasY5: g("pasY5"),
     quiY2: g("quiY2"), quiY3: g("quiY3"), quiY4: g("quiY4"), quiY5: g("quiY5"),
     baseBaristas: g("baseBaristas"), shiftCliff: g("shiftCliff"), shiftStep: g("shiftStep"), wageGrowth: g("wageGrowth"),
-    ingrInfl: g("ingrInfl"), nolLimit: g("nolLimit"), preopenAlt: g("preopenAlt"),
+    ingrInfl: g("ingrInfl"), nolLimit: g("nolLimit"),
     taxFed: g("taxFed"), taxMd: g("taxMd"), taxCeil: g("taxCeil"), taxFloor: g("taxFloor"),
     ubitSpec: g("ubitSpec"),
     subSf: g("subSf"), subRate: g("subRate"), subEsc: g("subEsc")/100,
@@ -866,7 +866,7 @@ function write(s) {
   set("subEsc", s.subEsc == null ? 0 : (s.subEsc < 1 ? s.subEsc*100 : s.subEsc));
   set("cafeUtil", s.cafeUtil ?? 30000); set("cafeIns", s.cafeIns ?? 5000); set("cafeOff", s.cafeOff ?? 10000);
   set("quiY2", s.quiY2 ?? 0.10); set("quiY3", s.quiY3 ?? 0.10); set("quiY4", s.quiY4 ?? 0.11); set("quiY5", s.quiY5 ?? 0.13);
-  ["baseBaristas","shiftCliff","shiftStep","wageGrowth","ingrInfl","nolLimit","preopenAlt"].forEach(k => set(k, s[k] ?? DEFAULTS[k]));
+  ["baseBaristas","shiftCliff","shiftStep","wageGrowth","ingrInfl","nolLimit"].forEach(k => set(k, s[k] ?? DEFAULTS[k]));
   writePlan(s);
   setPreset(s.preset === "landlord" ? "landlord" : "planned", false);
 }
@@ -1869,7 +1869,7 @@ render();
         <div><small>Year 5</small><b data-s="y5net">${M(m.ls[y5].net)}</b><small>Net surplus / (deficit)</small></div>
         <div><small>Year 5</small><b data-s="y5cum">${M(m.cum[5])}</b><small>Cumulative cash</small></div>
       </div>
-      ${s.preset === "landlord" ? `<h3 style="font-size:.95rem;margin:4px 0 8px">Lease comparison — ORIGINAL SCENARIO (Nov v2, p.12) vs CURRENT SCENARIO (landlord terms, Nov 24, 2026, 7,000 sf)</h3><div class="table-wrap">${$("planCmp").innerHTML}</div>` : ""}
+      <!-- Nov 25 2026 (Boyan): the ORIGINAL vs CURRENT lease comparison table is no longer shown at the top of the CURRENT SCENARIO summary; it remains in the Planned statement section -->
       <h3 style="font-size:.95rem;margin:4px 0 8px">Table 1. Renewal Cafe (café only): five-year after-tax income projection</h3>
       <div class="table-wrap" id="sumT1">${cloneTable("planT1")}</div>
       <div class="hint">${upl ? `* Year 3 includes ${article} ${pct(upl)}% across-the-board price increase. ` : ""}Years 1–2 and 4–5 use ${s.menuRollup ? "the menu v2 item prices (mix-weighted by category" : "the planned category prices (menu items not applied"}, incl. soup and cake at the units/day entered, 0/day by default); Years 4–5 assume an expanded sales mix.</div>
